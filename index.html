@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistematización CDCM | Gobierno de Guanajuato</title>
+  
+  <!-- ================================================================= -->
+  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, Chart.js, SweetAlert2, jsPDF)     -->
+  <!-- ================================================================= -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ================================================================= -->
+  <!-- 2. ESTILOS VISUALES INSTITUCIONALES (Gobierno de Guanajuato)       -->
+  <!-- ================================================================= -->
+  <style>
+    :root {
+      --gto-azul-primario: #004B87;
+      --gto-azul-secundario: #69B3E7;
+      --gto-azul-claro: #C8D8EB;
+      --gto-gris-oscuro: #63666A;
+      --gto-fondo-app: #F5F5F7;
+      --gto-blanco-papel: #FFFFFF;
+      --gto-texto-fijo: #1D1D1F;
+      --gto-sombra-institucional: 0 10px 25px -5px rgba(0, 75, 135, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--gto-fondo-app); color: var(--gto-texto-fijo); -webkit-font-smoothing: antialiased; }
+    h1, h2, h3 { font-family: 'Vollkorn', serif; color: var(--gto-azul-primario); }
+
+    /* Barra Superior */
+    .topbar { background: var(--gto-blanco-papel); border-bottom: 3px solid var(--gto-azul-secundario); padding: 12px 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .topbar-container { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .brand-group { display: flex; align-items: center; gap: 16px; }
+    .brand-titles { display: flex; flex-direction: column; }
+    .brand-titles small { font-size: 11px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; letter-spacing: 1px;}
+    .brand-titles span { font-family: 'Vollkorn', serif; font-size: 20px; font-weight: 700; color: var(--gto-azul-primario); }
+    .user-badge { display: flex; align-items: center; gap: 12px; background: var(--gto-fondo-app); padding: 6px 14px; border-radius: 50px; border: 1px solid var(--gto-azul-claro); font-size: 13px; font-weight: 600; }
+    .btn-salir { background: none; border: none; color: #dc2626; font-weight: 700; cursor: pointer; font-size: 12px; transition: opacity 0.2s; }
+    .btn-salir:hover { opacity: 0.7; }
+
+    /* Estructura Principal y Tarjetas */
+    .main-wrapper { max-width: 1240px; margin: 30px auto; padding: 0 20px; }
+    .card { background: var(--gto-blanco-papel); border-radius: 16px; padding: 32px; box-shadow: var(--gto-sombra-institucional); border: 1px solid rgba(0, 75, 135, 0.08); margin-bottom: 24px; }
+
+    /* Modal de Acceso / Login */
+    .login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #004B87 0%, #17314e 100%); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+    .login-box { background: white; border-radius: 20px; padding: 40px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); border-bottom: 6px solid var(--gto-azul-secundario); }
+    .login-box h1 { font-size: 28px; margin: 16px 0 8px 0; }
+    .login-box p { color: var(--gto-gris-oscuro); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
+
+    /* Grids y Formularios */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+    .col-span-2 { grid-column: span 2; }
+
+    label { display: block; font-size: 12px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+    input[type="text"], input[type="email"], input[type="number"], input[type="time"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s ease; background: #fafafa; }
+    input:focus, select:focus { outline: none; border-color: var(--gto-azul-primario); background: white; box-shadow: 0 0 0 3px var(--gto-azul-claro); }
+
+    /* Botones */
+    .btn-gto { background-color: var(--gto-azul-primario); color: white; border: none; border-radius: 10px; padding: 14px 24px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn-gto:hover { background-color: #003662; transform: translateY(-1px); }
+    .btn-secundario { background-color: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; border: none; padding: 10px; border-radius: 8px; cursor: pointer;}
+
+    /* Selector de Días */
+    .dias-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dia-pill { flex: 1; min-width: 42px; text-align: center; padding: 10px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--gto-gris-oscuro); transition: all 0.15s; }
+    .dia-pill.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); box-shadow: 0 4px 10px rgba(0,75,135,0.2); }
+
+    .evidencia-box { border: 2px dashed #cbd5e1; padding: 20px; border-radius: 12px; text-align: center; background: #f8fafc; }
+    .hidden { display: none !important; }
+    
+    /* Pestañas de Navegación */
+    .tabs-nav { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 5px;}
+    .tab-btn { background: var(--gto-blanco-papel); border: 1px solid #d1d5db; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; color: var(--gto-gris-oscuro); white-space: nowrap; transition: all 0.2s;}
+    .tab-btn.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); box-shadow: 0 4px 12px rgba(0,75,135,0.15); }
+    .tab-content { display: none; }
+    .tab-content.activo { display: block; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+    /* Tarjetas KPI */
+    .kpi-card { background: #f8fafc; border: 1px solid var(--gto-azul-claro); border-radius: 12px; padding: 18px; text-align: center; }
+    .kpi-card h4 { font-size: 11px; text-transform: uppercase; color: var(--gto-gris-oscuro); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .kpi-card .kpi-num { font-size: 26px; font-weight: 900; color: var(--gto-azul-primario); font-family: 'Vollkorn', serif; }
+
+    /* Tabla de Bitácora Operativa */
+    .tabla-container { width: 100%; overflow-x: auto; margin-top: 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th { background: #f1f5f9; color: var(--gto-azul-primario); padding: 12px 14px; font-weight: 700; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--gto-azul-claro); }
+    td { padding: 12px 14px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
+    tr:hover { background-color: #f8fafc; }
+    
+    .badge-folio { background: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; }
+    .img-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #cbd5e1; transition: transform 0.2s; }
+    .img-thumb:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .btn-pdf-tabla { background: var(--gto-azul-primario); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-pdf-tabla:hover { background: #003662; }
+
+    /* Estilos del Dashboard y Contenedores de Gráficos */
+    .chart-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .chart-box h3 { font-size: 16px; margin-bottom: 4px; }
+    .chart-box p { font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 14px; }
+    .canvas-container { position: relative; width: 100%; height: 280px; }
+
+    /* Modal de Fotografía */
+    .modal-foto-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+    .modal-foto-box { background: white; border-radius: 16px; max-width: 700px; width: 100%; padding: 24px; text-align: center; position: relative; }
+    .modal-foto-box img { max-width: 100%; max-height: 70vh; border-radius: 10px; object-fit: contain; margin-top: 12px; }
+    .btn-cerrar-modal { position: absolute; top: 14px; right: 18px; background: #e2e8f0; border: none; border-radius: 50%; width: 32px; height: 32px; font-weight: 900; cursor: pointer; color: #475569; }
+
+    @media (max-width: 768px) { .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; } .col-span-2 { grid-column: span 1; } .user-badge { display: none; } }
+  </style>
+</head>
+<body>
+
+  <!-- ================================================================= -->
+  <!-- 3. CAPA DE AUTENTICACIÓN (LOGIN)                                  -->
+  <!-- ================================================================= -->
+  <div id="loginView" class="login-overlay">
+    <div class="login-box">
+      <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" style="height: 200px; width: auto; margin: 0 auto; display: block; margin-bottom: 20px;" onerror="this.style.display='none'">
+      <h1>Acceso Operativo</h1>
+      <p>Sistema de Captura de Datos de Centros y Módulos Culturales (CDCM)</p>
+      <form id="formIngreso">
+        <div style="text-align: left; margin-bottom: 20px;">
+          <label for="correoLogin">Correo Electrónico Institucional</label>
+          <input type="email" id="correoLogin" placeholder="usuario@guanajuato.gob.mx" required />
+        </div>
+        <button type="submit" id="btnEnviarLink" class="btn-gto">Solicitar Enlace de Acceso</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- 4. ENCABEZADO INSTITUCIONAL                                       -->
+  <!-- ================================================================= -->
+  <header class="topbar">
+    <div class="topbar-container">
+      <div class="brand-group">
+        <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="GTO" style="height: 60px; width: auto;" onerror="this.style.display='none'">
+        <div class="brand-titles">
+          <small>Secretaría de Cultura</small>
+          <span>Sistematización CDCM</span>
+        </div>
+      </div>
+      <div class="user-badge">
+        <span id="etiquetaUsuario">cargando...</span>
+        <button id="btnCerrarSesion" class="btn-salir">Cerrar Sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <!-- 5. CONTENEDOR PRINCIPAL Y PESTAÑAS                                -->
+  <!-- ================================================================= -->
+  <main class="main-wrapper">
+    
+    <div class="tabs-nav">
+      <button class="tab-btn activo" onclick="cambiarPestana('tab-captura', this)">1. Captura Operativa</button>
+      <button class="tab-btn" onclick="cambiarPestana('tab-bitacora', this); cargarBitacora();">2. Bitácora de Registros</button>
+      <button class="tab-btn" onclick="cambiarPestana('tab-dashboard', this); inicializarDashboardDirectivo();">3. Dashboard Directivo</button>
+    </div>
+
+    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA -->
+    <div id="tab-captura" class="tab-content activo">
+      <form id="formularioCaptura">
+        
+        <!-- SECCIÓN 1: UBICACIÓN Y ACTIVIDAD -->
+        <div class="card">
+          <h2 style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">1. Ubicación y Datos de la Actividad</h2>
+          <div class="grid-2">
+            <div>
+              <label for="selectorMunicipio">Municipio</label>
+              <select id="selectorMunicipio" required>
+                <option value="">Seleccione...</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="selectorSede">Sede / Espacio Cultural</label>
+              <select id="selectorSede" required>
+                <option value="">Primero elija municipio...</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="inputDisciplina">Disciplina / Taller</label>
+              <input type="text" id="inputDisciplina" placeholder="Ej. Danza Folclórica, Pintura..." required />
+            </div>
+            
+            <div>
+              <label for="selectorProgramacion">Programación</label>
+              <select id="selectorProgramacion" required>
+                <option value="Anual">Anual</option>
+                <option value="Semestral">Semestral</option>
+                <option value="Verano">Verano</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="selectorDocente">Nombre del Docente</label>
+              <select id="selectorDocente" required>
+                <option value="">Cargando docentes...</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="selectorModalidad">Modalidad de Cuota</label>
+              <select id="selectorModalidad" required>
+                <option value="Libre Acceso">Gratuito</option>
+                <option value="Costo">Con Costo</option>
+              </select>
+            </div>
+            
+            <div class="col-span-2">
+              <label>Días de sesión</label>
+              <div class="dias-selector" id="contenedorDias">
+                <div class="dia-pill" data-dia="Lu">Lu</div>
+                <div class="dia-pill" data-dia="Ma">Ma</div>
+                <div class="dia-pill" data-dia="Mi">Mi</div>
+                <div class="dia-pill" data-dia="Ju">Ju</div>
+                <div class="dia-pill" data-dia="Vi">Vi</div>
+                <div class="dia-pill" data-dia="Sa">Sa</div>
+                <div class="dia-pill" data-dia="Do">Do</div>
+              </div>
+            </div>
+            
+            <div>
+              <label for="horaInicio">Hora Inicio</label>
+              <input type="time" id="horaInicio" required />
+            </div>
+            
+            <div>
+              <label for="horaFin">Hora Cierre</label>
+              <input type="time" id="horaFin" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: POBLACIÓN ATENDIDA -->
+        <div class="card">
+          <h2 style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">2. Población Atendida (En N° de Personas)</h2>
+          <div class="grid-5">
+            <div><label for="p_mujeres">Mujeres</label><input type="number" id="p_mujeres" min="0" value="0"/></div>
+            <div><label for="p_hombres">Hombres</label><input type="number" id="p_hombres" min="0" value="0"/></div>
+            <div><label for="p_ninez">Niñez</label><input type="number" id="p_ninez" min="0" value="0"/></div>
+            <div><label for="p_adolescencia">Adolescencia</label><input type="number" id="p_adolescencia" min="0" value="0"/></div>
+            <div><label for="p_juventudes">Juventudes</label><input type="number" id="p_juventudes" min="0" value="0"/></div>
+            <div><label for="p_mayores">Adultos Mayores</label><input type="number" id="p_mayores" min="0" value="0"/></div>
+            <div><label for="p_discapacidad">Discapacidad</label><input type="number" id="p_discapacidad" min="0" value="0"/></div>
+            <div><label for="p_indigenas">Indígenas</label><input type="number" id="p_indigenas" min="0" value="0"/></div>
+            <div><label for="p_afro">Afromexicanas</label><input type="number" id="p_afro" min="0" value="0"/></div>
+            <div><label for="p_lgbt">LGBTQ+</label><input type="number" id="p_lgbt" min="0" value="0"/></div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: SENSORES DE VERIFICACIÓN -->
+        <div class="card">
+          <h2 style="margin-bottom: 20px;">3. Sensores de Verificación</h2>
+          <div class="grid-2">
+            <div class="evidencia-box">
+              <h4 style="color: var(--gto-azul-primario); margin-bottom: 8px;">Geolocalización GPS</h4>
+              <p id="txtCoordenadas" style="font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 12px;">Coordenadas no capturadas</p>
+              <button type="button" id="btnCapturarGPS" class="btn-secundario" style="width: 100%;">Obtener Ubicación Actual</button>
+            </div>
+            <div class="evidencia-box">
+              <h4 style="color: var(--gto-azul-primario); margin-bottom: 8px;">Respaldo Fotográfico</h4>
+              <p id="txtFoto" style="font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 12px;">Sin foto seleccionada</p>
+              <button type="button" onclick="document.getElementById('inputFoto').click()" class="btn-secundario" style="width: 100%;">Adjuntar Imagen</button>
+              <input type="file" id="inputFoto" accept="image/*" class="hidden" />
+            </div>
+          </div>
+          <div style="margin-top: 30px;">
+            <button type="submit" id="btnGuardarSQL" class="btn-gto" style="font-size: 16px; padding: 18px;">
+              Guardar Captura y Generar Acuse PDF
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- PESTAÑA 2: BITÁCORA Y CONSULTA DE REGISTROS -->
+    <div id="tab-bitacora" class="tab-content">
+      
+      <!-- Mini Tarjetas KPI -->
+      <div class="grid-3" style="margin-bottom: 20px;">
+        <div class="kpi-card">
+          <h4>Actividades Capturadas</h4>
+          <div id="kpiTotalActividades" class="kpi-num">0</div>
+        </div>
+        <div class="kpi-card">
+          <h4>Beneficiarios Totales</h4>
+          <div id="kpiTotalBeneficiarios" class="kpi-num">0</div>
+        </div>
+        <div class="kpi-card">
+          <h4>Municipios Activos</h4>
+          <div id="kpiTotalMunicipios" class="kpi-num">0</div>
+        </div>
+      </div>
+
+      <!-- Tarjeta Principal de la Tabla -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 18px;">
+          <div>
+            <h2>Bitácora de Capturas Registradas</h2>
+            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Explora registros en tiempo real, consulta fotografías de campo o re-descarga acuses oficiales.</p>
+          </div>
+          <button onclick="cargarBitacora()" class="btn-secundario" style="font-size: 12px; padding: 8px 16px;">↻ Actualizar Datos</button>
+        </div>
+
+        <!-- Barra de Búsqueda y Filtros -->
+        <div class="grid-2" style="margin-bottom: 15px;">
+          <input type="text" id="buscadorBitacora" placeholder="🔍 Buscar por folio, taller, docente o sede..." onkeyup="filtrarTablaBitacora()" />
+          <select id="filtroMunicipioBitacora" onchange="filtrarTablaBitacora()">
+            <option value="">Todos los municipios...</option>
+          </select>
+        </div>
+
+        <!-- Tabla de Datos -->
+        <div class="tabla-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Municipio / Sede</th>
+                <th>Taller / Docente</th>
+                <th>Horario & Días</th>
+                <th>Beneficiarios</th>
+                <th>Evidencia</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTablaBitacora">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--gto-gris-oscuro); padding: 30px;">Cargando registros desde PostgreSQL...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: DASHBOARD DIRECTIVO ANALÍTICO -->
+    <div id="tab-dashboard" class="tab-content">
+      
+      <!-- Encabezado del Tablero Directivo -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+          <div>
+            <h2>Inteligencia y Evaluación Cultural</h2>
+            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Métricas consolidadas y análisis de cobertura territorial en Guanajuato.</p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <select id="filtroMunicipioDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 220px;">
+              <option value="">Todo el Estado (Global)</option>
+            </select>
+            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario" style="font-size: 12px; padding: 10px 16px;">↻ Refrescar Gráficas</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de 4 Gráficos Analíticos -->
+      <div class="grid-2">
+        
+        <!-- Gráfico 1: Cobertura por Municipio -->
+        <div class="chart-box">
+          <h3>Afluencia por Municipio</h3>
+          <p>Volumen total de beneficiarios atendidos por demarcación.</p>
+          <div class="canvas-container">
+            <canvas id="chartMunicipios"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 2: Composición Etaria -->
+        <div class="chart-box">
+          <h3>Distribución por Grupos de Edad</h3>
+          <p>Proporción de Niñez, Adolescencia, Juventudes y Adultos Mayores.</p>
+          <div class="canvas-container">
+            <canvas id="chartGruposEdad"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 3: Sectores de Atención Prioritaria -->
+        <div class="chart-box">
+          <h3>Sectores de Atención Prioritaria</h3>
+          <p>Inclusión de personas con discapacidad, indígenas, afromexicanas y LGBTQ+.</p>
+          <div class="canvas-container">
+            <canvas id="chartPrioritarios"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico 4: Modalidad y Género -->
+        <div class="chart-box">
+          <h3>Distribución por Género y Modalidad</h3>
+          <p>Balance de género (Mujeres vs Hombres) en talleres culturales.</p>
+          <div class="canvas-container">
+            <canvas id="chartGenero"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- 6. MODAL VISOR DE FOTOGRAFÍAS DE EVIDENCIA                        -->
+  <!-- ================================================================= -->
+  <div id="modalVisorFoto" class="modal-foto-overlay hidden">
+    <div class="modal-foto-box">
+      <button class="btn-cerrar-modal" onclick="cerrarModalFoto()">✕</button>
+      <h3 id="modalTituloFoto" style="font-size: 18px; margin-bottom: 4px;">Evidencia Fotográfica de Campo</h3>
+      <p id="modalSubtituloFoto" style="font-size: 12px; color: var(--gto-gris-oscuro);"></p>
+      <img id="modalImagenSrc" src="" alt="Evidencia de Campo" />
+      <div style="margin-top: 16px;">
+        <a id="btnDescargarFotoOriginal" href="#" target="_blank" class="btn-secundario" style="text-decoration: none; display: inline-block; font-size: 12px;">Abrir Imagen en Pestaña Completa</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- 7. CATÁLOGOS BASE (MUNICIPIOS Y SEDES)                             -->
+  <!-- ================================================================= -->
+  <script>
+    const CATALOGO_GUBERNAMENTAL = {
+      "Abasolo": ["Casa de la Cultura Abasolo", "Museo Miguel Hidalgo", "Plaza Principal"],
+      "Acámbaro": ["Casa de la Cultura Acámbaro", "Módulo Comunitario"],
+      "San Miguel de Allende": ["Centro Cultural El Nigromante", "Casa de la Cultura"],
+      "Apaseo el Alto": ["Casa de la Cultura", "Auditorio Municipal"],
+      "Celaya": ["Casa de la Cultura de Celaya", "CE.RE.SO", "Museo de Arte de Celaya"],
+      "Cuerámaro": ["Centro Impulso Social", "Casa de la Cultura", "Comunidad Tupátaro"],
+      "Dolores Hidalgo C.I.N.": ["Casa de la Cultura", "Centro Comunitario La Estación", "Museo Bicentenario"],
+      "Guanajuato": ["Teatro Juárez", "Centro Cultural Mariano de las Casas", "Ex Convento del Carmen"],
+      "Irapuato": ["Casa de la Cultura de Irapuato", "Teatro de la Ciudad", "C.I.S. Benito Juárez"],
+      "León": ["Plaza de Gallos", "Casa de la Cultura Diego Rivera", "Teatro Manuel Doblado", "C.I.S. Los Castillos"],
+      "Salamanca": ["Centro de las Artes de Guanajuato (CEARG)", "Casa de la Cultura"],
+      "Silao de la Victoria": ["Casa de la Cultura Isauro Rionda Arreguín", "Biblioteca Parque La Alameda", "Centro Impulso Las Huertas"]
+    };
+  </script>
+
+  <!-- ================================================================= -->
+  <!-- 8. LÓGICA DE APLICACIÓN, PERSISTENCIA Y ANALÍTICA                -->
+  <!-- ================================================================= -->
+  <script>
+    const URL_SUPABASE = 'https://azhlshuiazhgjpjckkce.supabase.co';
+    const LLAVE_PUBLICA = 'sb_publishable_wSABUjH15RrjBQ577R2bSA_jX6I4mAM';
+    const TABLA_SQL = 'registros_culturales';
+
+    let conexionSupabase = null;
+    let sesionActual = null;
+    let memoriaDias = new Set();
+    let memoriaCoords = { lat: null, lng: null };
+    let memoriaRegistrosBitacora = [];
+
+    // Instancias de Chart.js
+    let chartInstMunicipios = null;
+    let chartInstGruposEdad = null;
+    let chartInstPrioritarios = null;
+    let chartInstGenero = null;
+
+    // --- FUNCIÓN A: CONTROL DE PESTAÑAS (TABS) ---
+    function cambiarPestana(idPestana, elementoBtn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
+      elementoBtn.classList.add('activo');
+      document.getElementById(idPestana).classList.add('activo');
+    }
+
+    // --- FUNCIÓN B: INYECTAR MUNICIPIOS EN SELECTORES ---
+    function cargarPlegableMunicipios() {
+      const selectMuni = document.getElementById('selectorMunicipio');
+      const selectFiltro = document.getElementById('filtroMunicipioBitacora');
+      const selectDash = document.getElementById('filtroMunicipioDashboard');
+      
+      Object.keys(CATALOGO_GUBERNAMENTAL).sort().forEach(municipio => {
+        const opcion = document.createElement('option');
+        opcion.value = municipio; opcion.textContent = municipio;
+        selectMuni.appendChild(opcion);
+
+        const opcionFiltro = document.createElement('option');
+        opcionFiltro.value = municipio; opcionFiltro.textContent = municipio;
+        selectFiltro.appendChild(opcionFiltro);
+
+        const opcionDash = document.createElement('option');
+        opcionDash.value = municipio; opcionDash.textContent = municipio;
+        selectDash.appendChild(opcionDash);
+      });
+    }
+
+    // --- FUNCIÓN C: CARGAR DOCENTES DINÁMICOS DESDE SUPABASE ---
+    async function cargarDocentesDinamicos() {
+      const selectDoc = document.getElementById('selectorDocente');
+      try {
+        const { data, error } = await conexionSupabase
+          .from('cat_docentes')
+          .select('nombre_docente')
+          .order('nombre_docente', { ascending: true });
+
+        if (error) throw error;
+
+        selectDoc.innerHTML = '<option value="">Seleccione al docente / tallerista...</option>';
+        if (data && data.length > 0) {
+          data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.nombre_docente;
+            opt.textContent = item.nombre_docente;
+            selectDoc.appendChild(opt);
+          });
+        } else {
+          selectDoc.innerHTML = '<option value="">No hay docentes en catálogo</option>';
+        }
+      } catch (err) {
+        console.error('Error al cargar catálogo de docentes:', err.message);
+        selectDoc.innerHTML = '<option value="">Error al cargar catálogo</option>';
+      }
+    }
+
+    // --- EVENTO: FILTRADO DE SEDES EN CASCADA POR MUNICIPIO ---
+    document.getElementById('selectorMunicipio').addEventListener('change', function() {
+      const selectSede = document.getElementById('selectorSede');
+      selectSede.innerHTML = '<option value="">Seleccione el Espacio Cultural...</option>';
+      const listaSedes = CATALOGO_GUBERNAMENTAL[this.value];
+      if(listaSedes) {
+        listaSedes.forEach(sede => { 
+          const opt = document.createElement('option'); 
+          opt.value = sede; 
+          opt.textContent = sede; 
+          selectSede.appendChild(opt); 
+        });
+      }
+    });
+
+    // --- EVENTO: SELECTOR INTERACTIVO DE DÍAS ---
+    document.querySelectorAll('.dia-pill').forEach(boton => {
+      boton.addEventListener('click', () => {
+        const sigla = boton.dataset.dia;
+        if(memoriaDias.has(sigla)) { 
+          memoriaDias.delete(sigla); 
+          boton.classList.remove('activo'); 
+        } else { 
+          memoriaDias.add(sigla); 
+          boton.classList.add('activo'); 
+        }
+      });
+    });
+
+    // --- EVENTO: OBTENCIÓN DE GEOLOCALIZACIÓN GPS ---
+    document.getElementById('btnCapturarGPS').addEventListener('click', () => {
+      if(!navigator.geolocation) return alert('Navegador sin GPS.');
+      document.getElementById('txtCoordenadas').textContent = "Buscando...";
+      navigator.geolocation.getCurrentPosition(pos => {
+        memoriaCoords.lat = pos.coords.latitude; 
+        memoriaCoords.lng = pos.coords.longitude;
+        document.getElementById('txtCoordenadas').innerHTML = `<span style="color:#059669; font-weight:bold;">Capturado:</span> Lat: ${memoriaCoords.lat.toFixed(4)}, Lng: ${memoriaCoords.lng.toFixed(4)}`;
+      }, () => alert('Permiso GPS denegado.'));
+    });
+
+    // --- EVENTO: VISUALIZACIÓN DE FOTO ADJUNTA ---
+    document.getElementById('inputFoto').addEventListener('change', function() {
+      if(this.files && this.files[0]) {
+        document.getElementById('txtFoto').innerHTML = `<span style="color:#059669; font-weight:bold;">Archivo:</span> ${this.files[0].name}`;
+      }
+    });
+
+    // --- EVENTO: INICIO DE SESIÓN INSTITUCIONAL (MAGIC LINK OTP) ---
+    document.getElementById('formIngreso').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('correoLogin').value.trim();
+      if(!email.endsWith('@guanajuato.gob.mx')) return Swal.fire('Aviso', 'Utilice correo institucional (@guanajuato.gob.mx).', 'warning');
+      
+      const btnLink = document.getElementById('btnEnviarLink');
+      btnLink.disabled = true;
+      btnLink.innerText = 'Enviando...';
+
+      const { error } = await conexionSupabase.auth.signInWithOtp({ 
+        email, 
+        options: { emailRedirectTo: window.location.href } 
+      });
+
+      btnLink.disabled = false;
+      btnLink.innerText = 'Solicitar Enlace de Acceso';
+
+      if(error) { 
+        Swal.fire('Error', error.message, 'error'); 
+      } else { 
+        Swal.fire('Enlace Enviado', 'Revisa tu bandeja de entrada en tu correo institucional.', 'success'); 
+      }
+    });
+
+    const numeroSeguro = (idInput) => { 
+      const valor = parseInt(document.getElementById(idInput).value); 
+      return isNaN(valor) ? 0 : valor; 
+    };
+
+    // --- HELPERS PARA PROCESAMIENTO DE IMÁGENES EN PDF ---
+    function cargarImagenURL(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth || img.width;
+            canvas.height = img.naturalHeight || img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          } catch (e) {
+            resolve(null);
+          }
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    function leerArchivoDataURL(archivo) {
+      return new Promise((resolve) => {
+        if (!archivo) return resolve(null);
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(archivo);
+      });
+    }
+
+    // --- FUNCIÓN D: GENERACIÓN DE ACUSE EN PDF INSTITUCIONAL (jsPDF) ---
+    async function generarAcusePDF(paquete, folio, archivoFoto = null) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+
+      const AZUL_GTO = [0, 75, 135];
+      const AZUL_ACCESO = [105, 179, 231];
+      const GRIS_TEXTO = [29, 29, 31];
+      const GRIS_SECUNDARIO = [99, 102, 106];
+      const FONDO_TARJETA = [245, 247, 250];
+      const BORDE_LINEA = [200, 216, 235];
+
+      // 1. Encabezado
+      doc.setFillColor(...AZUL_GTO);
+      doc.rect(0, 0, 210, 4, 'F');
+      doc.setFillColor(...AZUL_ACCESO);
+      doc.rect(0, 4, 210, 1.5, 'F');
+
+      const logoData = await cargarImagenURL('Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png');
+      if (logoData) {
+        doc.addImage(logoData, 'PNG', 14, 8, 28, 22);
+      }
+
+      const inicioTextoX = logoData ? 46 : 14;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...GRIS_SECUNDARIO);
+      doc.text("GOBIERNO DEL ESTADO DE GUANAJUATO", inicioTextoX, 13);
+
+      doc.setFontSize(13.5);
+      doc.setTextColor(...AZUL_GTO);
+      doc.text("SECRETARÍA DE CULTURA", inicioTextoX, 19);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.text("Sistematización de Centros y Módulos Culturales (CDCM)", inicioTextoX, 24);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...AZUL_GTO);
+      doc.text("COMPROBANTE OFICIAL DE CAPTURA OPERATIVA Y CONTROL DEMOGRÁFICO", inicioTextoX, 29);
+
+      doc.setDrawColor(...AZUL_GTO);
+      doc.setLineWidth(0.6);
+      doc.line(14, 32, 196, 32);
+      doc.setDrawColor(...AZUL_ACCESO);
+      doc.setLineWidth(0.3);
+      doc.line(14, 33, 196, 33);
+
+      // 2. Tarjeta Folio
+      doc.setFillColor(...FONDO_TARJETA);
+      doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
+      doc.setDrawColor(...BORDE_LINEA);
+      doc.setLineWidth(0.2);
+      doc.roundedRect(14, 36, 182, 2, 2, 'S');
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(...GRIS_SECUNDARIO);
+      doc.text("FOLIO OFICIAL DE CONTROL", 18, 41.5);
+
+      doc.setFontSize(13);
+      doc.setTextColor(...AZUL_GTO);
+      doc.text(folio, 18, 49.5);
+
+      const fechaHoy = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+      const horaHoy = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.text("EMISIÓN:", 85, 42);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${fechaHoy} (${horaHoy} hrs)`, 102, 42);
+
+      doc.setFont("helvetica", "bold");
+      doc.text("ENLACE:", 85, 49);
+      doc.setFont("helvetica", "normal");
+      doc.text(paquete.usuario || 'planeacionscul@guanajuato.gob.mx', 102, 49);
+
+      // 3. Sección 1: Datos Generales
+      doc.setFillColor(...AZUL_GTO);
+      doc.rect(14, 57, 182, 6, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text("1. IDENTIFICACIÓN Y LOGÍSTICA DE LA ACTIVIDAD", 18, 61.2);
+
+      doc.setDrawColor(...BORDE_LINEA);
+      doc.setFillColor(255, 255, 255);
+      doc.rect(14, 63, 182, 34, 'S');
+
+      doc.setFontSize(7.8);
+      doc.setTextColor(...GRIS_TEXTO);
+
+      doc.setFont("helvetica", "bold"); doc.text("Municipio:", 18, 69);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.municipio || 'N/A', 40, 69);
+      doc.setFont("helvetica", "bold"); doc.text("Sede Cultural:", 18, 76);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.sede || 'N/A', 42, 76);
+      doc.setFont("helvetica", "bold"); doc.text("Disciplina / Taller:", 18, 83);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.disciplina || 'N/A', 47, 83);
+      doc.setFont("helvetica", "bold"); doc.text("Docente Asignado:", 18, 90);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.docente || 'N/A', 47, 90);
+
+      doc.setFont("helvetica", "bold"); doc.text("Programación:", 110, 69);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.programacion || 'N/A', 134, 69);
+      doc.setFont("helvetica", "bold"); doc.text("Modalidad Cuota:", 110, 76);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.costo || 'Libre Acceso', 137, 76);
+      doc.setFont("helvetica", "bold"); doc.text("Días de Sesión:", 110, 83);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.dias || paquete.sesion || 'N/A', 134, 83);
+      doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.horario || 'N/A', 124, 90);
+
+      // 4. Sección 2: Desglose Demográfico
+      doc.setFillColor(...AZUL_GTO);
+      doc.rect(14, 100, 182, 6, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text("2. DESGLOSE DEMOGRÁFICO Y BENEFICIARIOS ATENDIDOS", 18, 104.2);
+
+      doc.setDrawColor(...BORDE_LINEA);
+      doc.rect(14, 106, 182, 58, 'S');
+
+      doc.setFillColor(242, 246, 250);
+      doc.rect(14, 106, 182, 5, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...AZUL_GTO);
+      doc.setFontSize(7.2);
+      doc.text("A) DISTRIBUCIÓN POR GÉNERO", 18, 109.8);
+
+      doc.setFontSize(7.8);
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.setFont("helvetica", "bold"); doc.text("Mujeres:", 22, 116);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.mujeres || 0), 45, 116);
+      doc.setFont("helvetica", "bold"); doc.text("Hombres:", 110, 116);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.hombres || 0), 135, 116);
+
+      doc.setFillColor(242, 246, 250);
+      doc.rect(14, 120, 182, 5, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...AZUL_GTO);
+      doc.setFontSize(7.2);
+      doc.text("B) DISTRIBUCIÓN POR GRUPOS DE EDAD", 18, 123.8);
+
+      doc.setFontSize(7.8);
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.setFont("helvetica", "bold"); doc.text("Niñez:", 22, 130);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.ninez || 0), 45, 130);
+      doc.setFont("helvetica", "bold"); doc.text("Adolescencia:", 65, 130);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.adolescencia || 0), 90, 130);
+      doc.setFont("helvetica", "bold"); doc.text("Juventudes:", 110, 130);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.juventudes || 0), 135, 130);
+      doc.setFont("helvetica", "bold"); doc.text("Adultos Mayores:", 152, 130);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.adultos_mayores || 0), 180, 130);
+
+      doc.setFillColor(242, 246, 250);
+      doc.rect(14, 134, 182, 5, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...AZUL_GTO);
+      doc.setFontSize(7.2);
+      doc.text("C) SECTORES DE ATENCIÓN PRIORITARIA", 18, 137.8);
+
+      doc.setFontSize(7.8);
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.setFont("helvetica", "bold"); doc.text("Discapacidad:", 22, 144);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.discapacidad || 0), 50, 144);
+      doc.setFont("helvetica", "bold"); doc.text("Indígenas:", 65, 144);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.indigenas || 0), 86, 144);
+      doc.setFont("helvetica", "bold"); doc.text("Afromexicanas:", 110, 144);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.afromexicanas || 0), 138, 144);
+      doc.setFont("helvetica", "bold"); doc.text("LGBTQ+:", 152, 144);
+      doc.setFont("helvetica", "normal"); doc.text(String(paquete.lgbtq || 0), 172, 144);
+
+      const sumaTotal = (paquete.mujeres || 0) + (paquete.hombres || 0) + (paquete.ninez || 0) + 
+                        (paquete.adolescencia || 0) + (paquete.juventudes || 0) + (paquete.adultos_mayores || 0);
+
+      doc.setFillColor(224, 238, 249);
+      doc.rect(14, 150, 182, 14, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8.5);
+      doc.setTextColor(...AZUL_GTO);
+      doc.text("TOTAL GENERAL DE BENEFICIARIOS REGISTRADOS:", 22, 158.5);
+      doc.setFontSize(11);
+      doc.text(`${sumaTotal} PERSONAS`, 146, 158.5);
+
+      // 5. Sección 3: Validación Técnica
+      doc.setFillColor(...AZUL_GTO);
+      doc.rect(14, 167, 182, 6, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text("3. VALIDACIÓN TÉCNICA, SENSORES Y EVIDENCIA DE CAMPO", 18, 171.2);
+
+      doc.setDrawColor(...BORDE_LINEA);
+      doc.rect(14, 173, 182, 78, 'S');
+
+      doc.setFontSize(7.8);
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.setFont("helvetica", "bold"); doc.text("Geolocalización GPS:", 18, 181);
+      doc.setFont("helvetica", "normal");
+      if (paquete.latitud && paquete.longitud) {
+        doc.text(`Lat: ${Number(paquete.latitud).toFixed(5)}, Lng: ${Number(paquete.longitud).toFixed(5)}`, 54, 181);
+      } else {
+        doc.text("Coordenadas no disponibles", 54, 181);
+      }
+
+      doc.setFont("helvetica", "bold"); doc.text("Estatus de Base:", 18, 189);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(5, 150, 105);
+      doc.text("Sincronizado en tiempo real a PostgreSQL", 54, 189);
+
+      const hashSello = `GTO-CDCM-2026-${folio}-${Date.now().toString(36).toUpperCase()}`;
+      doc.setTextColor(...GRIS_TEXTO);
+      doc.setFont("helvetica", "bold"); doc.text("Sello Digital:", 18, 197);
+      doc.setFont("courier", "normal");
+      doc.setFontSize(7);
+      doc.setTextColor(...GRIS_SECUNDARIO);
+      doc.text(hashSello, 54, 197);
+
+      doc.setDrawColor(...BORDE_LINEA);
+      doc.setFillColor(...FONDO_TARJETA);
+      doc.roundedRect(18, 204, 88, 40, 2, 2, 'FD');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(6.8);
+      doc.setTextColor(...AZUL_GTO);
+      doc.text("CERTIFICACIÓN Y VALIDACIÓN INSTITUCIONAL", 22, 210);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.setTextColor(...GRIS_SECUNDARIO);
+      doc.text("Registro integrado en la base de datos", 22, 216);
+      doc.text("de la Secretaría de Cultura de Guanajuato.", 22, 220);
+      doc.line(25, 236, 95, 236);
+      doc.text("Firma o Sello del Enlace Responsable", 36, 240);
+
+      doc.setFillColor(...FONDO_TARJETA);
+      doc.roundedRect(114, 178, 76, 68, 2, 2, 'FD');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7);
+      doc.setTextColor(...AZUL_GTO);
+      doc.text("EVIDENCIA FOTOGRÁFICA DE CAMPO", 120, 184);
+
+      let fotoDataFinal = null;
+      if (archivoFoto) {
+        fotoDataFinal = await leerArchivoDataURL(archivoFoto);
+      } else if (paquete.foto_url) {
+        fotoDataFinal = await cargarImagenURL(paquete.foto_url);
+      }
+
+      if (fotoDataFinal) {
+        try {
+          doc.addImage(fotoDataFinal, 'JPEG', 118, 187, 68, 52);
+          doc.setFont("helvetica", "italic");
+          doc.setFontSize(6);
+          doc.setTextColor(...GRIS_SECUNDARIO);
+          doc.text("Fotografía respaldada en Supabase Storage", 120, 243);
+        } catch (e) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7);
+          doc.setTextColor(...GRIS_SECUNDARIO);
+          doc.text("Evidencia fotográfica respaldada en la nube.", 120, 210);
+        }
+      } else {
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(7);
+        doc.setTextColor(...GRIS_SECUNDARIO);
+        doc.text("Sin respaldo fotográfico adjunto.", 125, 214);
+      }
+
+      // 6. Pie de Página
+      doc.setDrawColor(...BORDE_LINEA);
+      doc.line(14, 268, 196, 268);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(6.5);
+      doc.setTextColor(...GRIS_SECUNDARIO);
+      doc.text("Documento oficial emitido a través del Sistema Institucional de Sistematización CDCM.", 14, 273);
+      doc.text("Secretaría de Cultura del Estado de Guanajuato | Coordinación de Planeación y Evaluación Cultural", 14, 277);
+      doc.text("Página 1 de 1", 182, 277);
+
+      doc.save(`Acuse_Oficial_${folio}.pdf`);
+    }
+
+    // --- FUNCIÓN E: CARGA Y RENDERIZADO DE LA BITÁCORA ---
+    async function cargarBitacora() {
+      const cuerpo = document.getElementById('cuerpoTablaBitacora');
+      cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--gto-gris-oscuro); padding: 25px;">Sincronizando bitácora desde la nube...</td></tr>`;
+
+      try {
+        const { data, error } = await conexionSupabase
+          .from(TABLA_SQL)
+          .select('*');
+
+        if (error) throw error;
+
+        memoriaRegistrosBitacora = (data || []).reverse();
+        actualizarMetricasKPI(memoriaRegistrosBitacora);
+        renderizarFilasBitacora(memoriaRegistrosBitacora);
+
+      } catch (err) {
+        console.error("Error al cargar bitácora:", err);
+        cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #dc2626; padding: 20px;">Error al cargar datos: ${err.message}</td></tr>`;
+      }
+    }
+
+    // --- FUNCIÓN F: CÁLCULO DE MÉTRICAS KPI ---
+    function actualizarMetricasKPI(registros) {
+      document.getElementById('kpiTotalActividades').innerText = registros.length;
+
+      const sumaBeneficiarios = registros.reduce((acum, r) => {
+        return acum + (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
+                      (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
+      }, 0);
+      document.getElementById('kpiTotalBeneficiarios').innerText = sumaBeneficiarios.toLocaleString('es-MX');
+
+      const municipiosUnicos = new Set(registros.map(r => r.municipio).filter(Boolean));
+      document.getElementById('kpiTotalMunicipios').innerText = municipiosUnicos.size;
+    }
+
+    // --- FUNCIÓN G: RENDERIZAR FILAS EN LA TABLA ---
+    function renderizarFilasBitacora(registros) {
+      const cuerpo = document.getElementById('cuerpoTablaBitacora');
+      if (registros.length === 0) {
+        cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--gto-gris-oscuro); padding: 25px;">No se encontraron registros de captura.</td></tr>`;
+        return;
+      }
+
+      cuerpo.innerHTML = '';
+      registros.forEach((reg, index) => {
+        const total = (Number(reg.mujeres) || 0) + (Number(reg.hombres) || 0) + (Number(reg.ninez) || 0) + 
+                      (Number(reg.adolescencia) || 0) + (Number(reg.juventudes) || 0) + (Number(reg.adultos_mayores) || 0);
+
+        const celdaFoto = reg.foto_url 
+          ? `<img src="${reg.foto_url}" class="img-thumb" alt="Evidencia" onclick="abrirModalFoto('${reg.foto_url}', '${reg.folio}', '${reg.municipio} - ${reg.disciplina}')" title="Ver foto completa"/>`
+          : `<span style="font-size: 11px; color: #94a3b8;">Sin foto</span>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="badge-folio">${reg.folio || 'S/F'}</span></td>
+          <td><b>${reg.municipio || 'N/A'}</b><br><small style="color: #64748b;">${reg.sede || 'N/A'}</small></td>
+          <td><b>${reg.disciplina || 'N/A'}</b><br><small style="color: #004B87;">👨‍🏫 ${reg.docente || 'Sin docente'}</small></td>
+          <td>${reg.horario || 'N/A'}<br><small style="color: #64748b;">📅 ${reg.dias || reg.sesion || 'N/A'}</small></td>
+          <td><b style="color: #004B87; font-size: 14px;">${total}</b> <small>pers.</small></td>
+          <td style="text-align: center;">${celdaFoto}</td>
+          <td>
+            <button class="btn-pdf-tabla" onclick="reimprimirPDFPorIndice(${index})">Descargar PDF</button>
+          </td>
+        `;
+        cuerpo.appendChild(tr);
+      });
+    }
+
+    // --- FUNCIÓN H: FILTRADO EN TIEMPO REAL (BITÁCORA) ---
+    function filtrarTablaBitacora() {
+      const texto = document.getElementById('buscadorBitacora').value.toLowerCase();
+      const muni = document.getElementById('filtroMunicipioBitacora').value;
+
+      const filtrados = memoriaRegistrosBitacora.filter(reg => {
+        const coincideMuni = !muni || reg.municipio === muni;
+        const coincideTexto = !texto || 
+          (reg.folio && reg.folio.toLowerCase().includes(texto)) ||
+          (reg.municipio && reg.municipio.toLowerCase().includes(texto)) ||
+          (reg.sede && reg.sede.toLowerCase().includes(texto)) ||
+          (reg.disciplina && reg.disciplina.toLowerCase().includes(texto)) ||
+          (reg.docente && reg.docente.toLowerCase().includes(texto));
+
+        return coincideMuni && coincideTexto;
+      });
+
+      renderizarFilasBitacora(filtrados);
+    }
+
+    // --- FUNCIÓN I: RE-EMISIÓN DE PDF HISTÓRICO ---
+    async function reimprimirPDFPorIndice(indice) {
+      const registro = memoriaRegistrosBitacora[indice];
+      if (!registro) return;
+      Swal.fire({
+        title: 'Generando Acuse...',
+        text: `Descargando comprobante oficial para el folio ${registro.folio}`,
+        timer: 1500,
+        showConfirmButton: false,
+        icon: 'info'
+      });
+      await generarAcusePDF(registro, registro.folio, null);
+    }
+
+    // --- MODAL DE VISUALIZACIÓN DE FOTOS ---
+    function abrirModalFoto(url, folio, descripcion) {
+      document.getElementById('modalTituloFoto').innerText = `Evidencia: ${folio}`;
+      document.getElementById('modalSubtituloFoto').innerText = descripcion;
+      document.getElementById('modalImagenSrc').src = url;
+      document.getElementById('btnDescargarFotoOriginal').href = url;
+      document.getElementById('modalVisorFoto').classList.remove('hidden');
+    }
+
+    function cerrarModalFoto() {
+      document.getElementById('modalVisorFoto').classList.add('hidden');
+      document.getElementById('modalImagenSrc').src = '';
+    }
+
+    // =================================================================
+    // 9. MÓDULO DE ANALÍTICA Y GRÁFICAS DIRECTIVAS (CHART.JS)
+    // =================================================================
+    async function inicializarDashboardDirectivo() {
+      if (memoriaRegistrosBitacora.length === 0) {
+        const { data } = await conexionSupabase.from(TABLA_SQL).select('*');
+        memoriaRegistrosBitacora = data || [];
+      }
+      actualizarGraficasDashboard();
+    }
+
+    function actualizarGraficasDashboard() {
+      const filtroMuni = document.getElementById('filtroMunicipioDashboard').value;
+      
+      const datos = filtroMuni 
+        ? memoriaRegistrosBitacora.filter(r => r.municipio === filtroMuni)
+        : memoriaRegistrosBitacora;
+
+      // 1. CÁLCULO DE MÉTRICAS
+      // A) Municipios vs Beneficiarios
+      const conteoPorMuni = {};
+      datos.forEach(r => {
+        const m = r.municipio || 'Sin Municipio';
+        const total = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
+                      (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
+        conteoPorMuni[m] = (conteoPorMuni[m] || 0) + total;
+      });
+
+      // B) Grupos de Edad
+      let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
+      datos.forEach(r => {
+        sumaNinez += (Number(r.ninez) || 0);
+        sumaAdol += (Number(r.adolescencia) || 0);
+        sumaJuv += (Number(r.juventudes) || 0);
+        sumaMayores += (Number(r.adultos_mayores) || 0);
+      });
+
+      // C) Sectores Prioritarios
+      let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
+      datos.forEach(r => {
+        sumaDiscapacidad += (Number(r.discapacidad) || 0);
+        sumaIndigenas += (Number(r.indigenas) || 0);
+        sumaAfro += (Number(r.afromexicanas) || 0);
+        sumaLGBT += (Number(r.lgbtq) || 0);
+      });
+
+      // D) Género (Mujeres vs Hombres)
+      let sumaMujeres = 0, sumaHombres = 0;
+      datos.forEach(r => {
+        sumaMujeres += (Number(r.mujeres) || 0);
+        sumaHombres += (Number(r.hombres) || 0);
+      });
+
+      // 2. RENDERIZAR GRÁFICA 1: MUNICIPIOS (Barras)
+      const ctxMuni = document.getElementById('chartMunicipios').getContext('2d');
+      if (chartInstMunicipios) chartInstMunicipios.destroy();
+      chartInstMunicipios = new Chart(ctxMuni, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(conteoPorMuni),
+          datasets: [{
+            label: 'Beneficiarios Atendidos',
+            data: Object.values(conteoPorMuni),
+            backgroundColor: '#004B87',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+        }
+      });
+
+      // 3. RENDERIZAR GRÁFICA 2: GRUPOS DE EDAD (Dona)
+      const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
+      if (chartInstGruposEdad) chartInstGruposEdad.destroy();
+      chartInstGruposEdad = new Chart(ctxEdad, {
+        type: 'doughnut',
+        data: {
+          labels: ['Niñez', 'Adolescencia', 'Juventudes', 'Adultos Mayores'],
+          datasets: [{
+            data: [sumaNinez, sumaAdol, sumaJuv, sumaMayores],
+            backgroundColor: ['#69B3E7', '#004B87', '#059669', '#d97706'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+
+      // 4. RENDERIZAR GRÁFICA 3: ATENCIÓN PRIORITARIA (Barras Horizontales)
+      const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
+      if (chartInstPrioritarios) chartInstPrioritarios.destroy();
+      chartInstPrioritarios = new Chart(ctxPrio, {
+        type: 'bar',
+        data: {
+          labels: ['Discapacidad', 'Com. Indígenas', 'Afromexicanas', 'LGBTQ+'],
+          datasets: [{
+            label: 'Personas',
+            data: [sumaDiscapacidad, sumaIndigenas, sumaAfro, sumaLGBT],
+            backgroundColor: ['#8b5cf6', '#0284c7', '#ec4899', '#10b981'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+        }
+      });
+
+      // 5. RENDERIZAR GRÁFICA 4: BALANCE DE GÉNERO (Pie)
+      const ctxGen = document.getElementById('chartGenero').getContext('2d');
+      if (chartInstGenero) chartInstGenero.destroy();
+      chartInstGenero = new Chart(ctxGen, {
+        type: 'pie',
+        data: {
+          labels: ['Mujeres', 'Hombres'],
+          datasets: [{
+            data: [sumaMujeres, sumaHombres],
+            backgroundColor: ['#ec4899', '#004B87'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    // --- EVENTO: ENVÍO DE DATOS Y PERSISTENCIA EN SUPABASE ---
+    document.getElementById('formularioCaptura').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if(memoriaDias.size === 0) return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión.', 'warning');
+
+      const stringDias = Array.from(memoriaDias).join(', ');
+      const folioGenerado = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
+      const inputArchivoFoto = document.getElementById('inputFoto');
+      let urlFotoFinal = null;
+
+      const btnGuardar = document.getElementById('btnGuardarSQL');
+      btnGuardar.disabled = true;
+      btnGuardar.innerText = "Subiendo datos y evidencia...";
+
+      // 1. SUBIDA DE FOTOGRAFÍA A SUPABASE STORAGE
+      if (inputArchivoFoto.files && inputArchivoFoto.files.length > 0) {
+        const archivo = inputArchivoFoto.files[0];
+        const extension = archivo.name.split('.').pop();
+        const nombreLimpio = `${folioGenerado}_${Date.now()}.${extension}`;
+
+        const { error: errorFoto } = await conexionSupabase.storage
+          .from('evidencias')
+          .upload(nombreLimpio, archivo, {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (errorFoto) {
+          console.error("Error en Storage:", errorFoto);
+          btnGuardar.disabled = false;
+          btnGuardar.innerText = "Guardar Captura y Generar Acuse PDF";
+          return Swal.fire('Error en Foto', `No se pudo subir la imagen: ${errorFoto.message}`, 'error');
+        }
+
+        const { data: dataUrl } = conexionSupabase.storage
+          .from('evidencias')
+          .getPublicUrl(nombreLimpio);
+        
+        urlFotoFinal = dataUrl.publicUrl;
+      }
+
+      // 2. PAQUETE SQL COMPLETO
+      const paqueteSQL = {
+        folio: folioGenerado,
+        usuario: sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx',
+        municipio: document.getElementById('selectorMunicipio').value,
+        sede: document.getElementById('selectorSede').value,
+        disciplina: document.getElementById('inputDisciplina').value.trim(),
+        programacion: document.getElementById('selectorProgramacion').value,
+        docente: document.getElementById('selectorDocente').value,
+        costo: document.getElementById('selectorModalidad').value,
+        horario: `${document.getElementById('horaInicio').value} - ${document.getElementById('horaFin').value}`,
+        
+        sesion: stringDias, 
+        dias: stringDias,
+        latitud: memoriaCoords.lat, 
+        longitud: memoriaCoords.lng,
+        foto_url: urlFotoFinal,
+
+        mujeres: numeroSeguro('p_mujeres'), 
+        hombres: numeroSeguro('p_hombres'),
+        ninez: numeroSeguro('p_ninez'), 
+        adolescencia: numeroSeguro('p_adolescencia'),
+        juventudes: numeroSeguro('p_juventudes'), 
+        adultos_mayores: numeroSeguro('p_mayores'),
+        discapacidad: numeroSeguro('p_discapacidad'), 
+        indigenas: numeroSeguro('p_indigenas'),
+        afromexicanas: numeroSeguro('p_afro'), 
+        lgbtq: numeroSeguro('p_lgbt')
+      };
+
+      // 3. INSERCIÓN EN TABLA POSTGRESQL
+      const { error: errorSQL } = await conexionSupabase.from(TABLA_SQL).insert([paqueteSQL]);
+      
+      btnGuardar.disabled = false;
+      btnGuardar.innerText = "Guardar Captura y Generar Acuse PDF";
+
+      if(errorSQL) {
+        console.error("Error en Base de Datos:", errorSQL);
+        return Swal.fire('Error SQL', errorSQL.message, 'error');
+      }
+
+      // 4. CONFIRMACIÓN Y DESCARGA DEL PDF
+      Swal.fire({
+        title: '¡Sincronizado!',
+        html: `El registro y la evidencia se guardaron correctamente.<br><br><b>Folio Oficial:</b><br><span style="font-size: 24px; color: #004B87; font-weight: 900;">${folioGenerado}</span><br><br><small>Generando acuse institucional en PDF...</small>`,
+        icon: 'success'
+      });
+
+      await generarAcusePDF(paqueteSQL, folioGenerado, inputArchivoFoto.files[0]);
+
+      // 5. RESET DEL FORMULARIO Y ACTUALIZACIÓN
+      document.getElementById('formularioCaptura').reset();
+      memoriaDias.clear(); 
+      document.querySelectorAll('.dia-pill').forEach(b => b.classList.remove('activo'));
+      document.getElementById('txtCoordenadas').textContent = "Coordenadas no capturadas";
+      document.getElementById('txtFoto').textContent = "Sin foto seleccionada";
+      memoriaCoords = { lat: null, lng: null };
+
+      // Actualizar datos de bitácora y gráficas en segundo plano
+      cargarBitacora();
+      inicializarDashboardDirectivo();
+    });
+
+    // --- INICIALIZACIÓN GENERAL AL CARGAR EL DOM ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      // 1. Iniciar cliente Supabase
+      conexionSupabase = window.supabase.createClient(URL_SUPABASE, LLAVE_PUBLICA);
+      
+      // 2. Poblar catálogos iniciales
+      cargarPlegableMunicipios();
+      await cargarDocentesDinamicos();
+      cargarBitacora();
+
+      // 3. Validar sesión existente
+      const { data } = await conexionSupabase.auth.getSession();
+      sesionActual = data.session;
+
+      if(sesionActual) {
+        document.getElementById('loginView').classList.add('hidden');
+        document.getElementById('etiquetaUsuario').innerText = sesionActual.user.email;
+      }
+
+      // 4. Escuchar cambios de sesión
+      conexionSupabase.auth.onAuthStateChange((_evento, sesion) => {
+        sesionActual = sesion;
+        if(sesionActual) {
+          document.getElementById('loginView').classList.add('hidden');
+          document.getElementById('etiquetaUsuario').innerText = sesionActual.user.email;
+        } else {
+          document.getElementById('loginView').classList.remove('hidden');
+          document.getElementById('etiquetaUsuario').innerText = 'Sin sesión';
+        }
+      });
+
+      // 5. Botón de cierre de sesión
+      document.getElementById('btnCerrarSesion').addEventListener('click', () => conexionSupabase.auth.signOut());
+    });
+  </script>
+</body>
+</html>
