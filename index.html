@@ -6,7 +6,7 @@
   <title>Sistematización Institucional | Secretaría de Cultura de Guanajuato</title>
   
   <!-- ================================================================= -->
-  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, SheetJS, Chart.js, Leaflet, SweetAlert2, jsPDF) -->
+  <!-- 1. LIBRERÍAS EXTERNAS                                             -->
   <!-- ================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -382,12 +382,12 @@
         </div>
       </div>
 
-      <!-- Tarjeta de Importación Masiva Adaptativa -->
+      <!-- Tarjeta de Importación Masiva Universal -->
       <div class="card" style="padding: 24px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
             <h3 style="font-size: 18px; margin-bottom: 2px;">📥 Importación Masiva de Registros Culturales</h3>
-            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Dolores Hidalgo, Silao, León), concentrados estatales, numeralia de informe o matrices presupuestales.</p>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Dolores Hidalgo, Silao, León), concentrados estatales o numeralia de informe.</p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" class="btn-excel" onclick="document.getElementById('inputExcelMasivoRegistros').click()">
@@ -454,7 +454,7 @@
     <!-- PESTAÑA 3: DASHBOARD DIRECTIVO GEOESPACIAL Y ANALÍTICO -->
     <div id="tab-dashboard" class="tab-content">
       
-      <!-- Barra de Filtros Directivos -->
+      <!-- Barra de Filtros Directivos con SELECTOR DE NIVEL / PERSPECTIVA -->
       <div class="card" style="margin-bottom: 20px; padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
           <div>
@@ -462,25 +462,36 @@
             <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Métricas consolidadas, cobertura territorial geoespacial y análisis demográfico en Guanajuato.</p>
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            
+            <!-- SELECTOR DE PERSPECTIVA ANALÍTICA (ELIMINA EL SESGO) -->
+            <select id="filtroNivelDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 230px; font-weight: 700; border-color: var(--gto-azul-primario); background: #f0f7ff;">
+              <option value="TODOS">🌐 Vista Consolidada General</option>
+              <option value="OPERATIVO">🟢 1. Operación Diaria (Talleres Municipales)</option>
+              <option value="CONCENTRADO">🔵 2. Concentrado Estatal de Municipios (Sábana)</option>
+              <option value="ESTRATEGICO">🟣 3. Proyectos Estratégicos & Indicadores</option>
+            </select>
+
             <select id="filtroAreaDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
               <option value="">Todas las Subdirecciones</option>
               <option value="CDCM">CDCM (Centros Culturales)</option>
               <option value="BIBLIOTECAS">Red de Bibliotecas</option>
             </select>
+
             <select id="filtroMunicipioDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
               <option value="">Todo el Estado (Global)</option>
             </select>
-            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario">↻ Refrescar Tablero</button>
+            
+            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario">↻ Refrescar</button>
           </div>
         </div>
       </div>
 
-      <!-- Tarjetas KPI Directivas (4 Indicadores Estratégicos) -->
+      <!-- Tarjetas KPI Directivas -->
       <div class="grid-4" style="margin-bottom: 24px;">
         <div class="kpi-card">
-          <h4>Beneficiarios Totales</h4>
+          <h4>Beneficiarios Atendidos</h4>
           <div id="dashTotalBeneficiarios" class="kpi-num" style="color: var(--gto-azul-primario);">0</div>
-          <small>Impacto poblacional atendido</small>
+          <small>Impacto poblacional en la vista</small>
         </div>
         <div class="kpi-card">
           <h4>Cobertura Municipal</h4>
@@ -490,7 +501,7 @@
         <div class="kpi-card">
           <h4>Actividades & Talleres</h4>
           <div id="dashTotalActividades" class="kpi-num" style="color: #d97706;">0</div>
-          <small>Talleres y eventos registrados</small>
+          <small>Registros analizados</small>
         </div>
         <div class="kpi-card">
           <h4>Tasa de Libre Acceso</h4>
@@ -507,7 +518,7 @@
             <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Mapa interactivo: El tamaño y color de cada círculo refleja el volumen de beneficiarios y actividades por municipio.</p>
           </div>
           <span style="font-size: 12px; font-weight: 700; color: var(--gto-azul-primario); background: #f0f7ff; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--gto-azul-secundario);">
-            📍 46 Municipios Georreferenciados
+            📍 46 Municipios Oficiales
           </span>
         </div>
         <div id="mapaGto"></div>
@@ -551,7 +562,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 14px;">
           <div>
             <h3>📋 Concentrado Ejecutivo por Demarcación Municipal</h3>
-            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Desglose ordenado de beneficiarios y actividades por municipio en el estado.</p>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Desglose ordenado de los 46 municipios oficiales en el estado.</p>
           </div>
           <button onclick="exportarResumenDirectivoExcel()" class="btn-excel">📊 Exportar Resumen Directivo (.xlsx)</button>
         </div>
@@ -590,7 +601,7 @@
     </div>
   </div>
 
-  <!-- 7. CATÁLOGO OFICIAL DE LOS 46 MUNICIPIOS DE GUANAJUATO CON COORDENADAS -->
+  <!-- 7. CATÁLOGO OFICIAL Y COORDENADAS DE LOS 46 MUNICIPIOS DE GUANAJUATO -->
   <script>
     const CATALOGO_GUBERNAMENTAL = {
       "Abasolo": ["Casa de la Cultura Abasolo", "Museo Miguel Hidalgo", "Plaza Principal"],
@@ -730,7 +741,7 @@
       if (norm.includes('silao')) return 'Silao de la Victoria';
       if (norm.includes('juventino')) return 'Santa Cruz de Juventino Rosas';
       if (norm.includes('apaseo el g')) return 'Apaseo el Grande';
-      return nombreCrudo;
+      return null; // Si no es un municipio válido de GTO, retorna null
     }
 
     function toggleMenuGoogle(event) {
@@ -1111,6 +1122,7 @@
         doc.setLineWidth(0.6);
         doc.line(14, 32, 196, 32);
 
+        // Tarjeta Folio
         doc.setFillColor(...FONDO_TARJETA);
         doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
         doc.setDrawColor(...BORDE_LINEA);
@@ -1141,6 +1153,7 @@
         doc.setFont("helvetica", "normal");
         doc.text(String(paquete.usuario || 'planeacionscul@guanajuato.gob.mx'), 102, 49);
 
+        // Sección 1: Datos Generales
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 57, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1178,6 +1191,7 @@
         doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
         doc.setFont("helvetica", "normal"); doc.text(String(paquete.horario || 'N/A'), 124, 90);
 
+        // Sección 2: Desglose Demográfico
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 100, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1383,8 +1397,8 @@
       }, 0);
       document.getElementById('kpiTotalBeneficiarios').innerText = sumaBeneficiarios.toLocaleString('es-MX');
 
-      const municipiosUnicos = new Set(registros.map(r => r.municipio).filter(Boolean));
-      document.getElementById('kpiTotalMunicipios').innerText = municipiosUnicos.size;
+      const municipiosValidos = new Set(registros.map(r => emparejarMunicipioCatalogo(r.municipio)).filter(Boolean));
+      document.getElementById('kpiTotalMunicipios').innerText = municipiosValidos.size;
     }
 
     function renderizarFilasBitacora(registros) {
@@ -1567,7 +1581,7 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- FUNCIÓN M: MOTOR UNIVERSAL MULTIFORMATO (ESTATAL, ESTRATÉGICO, NUMERALIA Y MUNICIPAL) ---
+    // --- FUNCIÓN M: MOTOR UNIVERSAL MULTIFORMATO ---
     async function procesarExcelMasivoRegistros(inputElement) {
       const file = inputElement.files[0];
       if (!file) return;
@@ -1589,9 +1603,7 @@
           const sheetNamesNorm = workbook.SheetNames.map(s => normalizar(s));
           const fileNameNorm = normalizar(file.name);
 
-          // =========================================================
-          // CASO 1: ARCHIVO "CDCM. RESUMEN POR PROYECTO.xlsx"
-          // =========================================================
+          // CASO 1: RESUMEN POR PROYECTO
           if (fileNameNorm.includes('resumen por proyecto') || (sheetNamesNorm.length === 1 && sheetNamesNorm[0] === 'hoja 1' && normalizar(workbook.Sheets[workbook.SheetNames[0]]['A1'] ? workbook.Sheets[workbook.SheetNames[0]]['A1'].v : '') === 'proyecto')) {
             const ws = workbook.Sheets[workbook.SheetNames[0]];
             const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
@@ -1641,9 +1653,7 @@
             }
           }
 
-          // =========================================================
-          // CASO 2: ARCHIVO "Indicadores 2026.xlsx"
-          // =========================================================
+          // CASO 2: INDICADORES 2026
           if (fileNameNorm.includes('indicadores 2026') || sheetNamesNorm.includes('1er trimestre')) {
             const ws = workbook.Sheets[workbook.SheetNames[0]];
             const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
@@ -1653,7 +1663,7 @@
               const clave = String(fila[0] || '').trim();
               if (!clave || normalizar(clave) === 'proyecto' || normalizar(clave) === 'nan') continue;
 
-              const muni = fila[1] && String(fila[1]).trim() ? emparejarMunicipioCatalogo(fila[1]) : 'Guanajuato';
+              const muni = fila[1] && String(fila[1]).trim() ? (emparejarMunicipioCatalogo(fila[1]) || 'Guanajuato') : 'Guanajuato';
               const mujeres = parseInt(fila[2]) || 0;
               const ninez = (parseInt(fila[3]) || 0) + (parseInt(fila[4]) || 0);
               const adol = parseInt(fila[5]) || 0;
@@ -1692,18 +1702,15 @@
             }
           }
 
-          // =========================================================
-          // CASO 3: ARCHIVO "Concentrado Numeralia Informe de Gobierno.xlsx"
-          // =========================================================
+          // CASO 3: NUMERALIA INFORME DE GOBIERNO
           if (fileNameNorm.includes('numeralia') || sheetNamesNorm.includes('7 proy. socioculturales') || sheetNamesNorm.includes('1 talleres cc - desg. mes')) {
-            // A) Extraer proyectos socioculturales específicos
             const hojaSocio = workbook.SheetNames.find(s => normalizar(s).includes('socioculturales'));
             if (hojaSocio) {
               const ws = workbook.Sheets[hojaSocio];
               const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
               for (let r = 8; r < matriz.length; r++) {
                 const fila = matriz[r];
-                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : '';
+                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : null;
                 const nomProy = fila[5] ? String(fila[5]).trim() : '';
                 if (!nomProy || !muni || normalizar(nomProy) === 'nan') continue;
 
@@ -1738,14 +1745,13 @@
               }
             }
 
-            // B) Extraer concentrados de talleres
             const hojaTalleres = workbook.SheetNames.find(s => normalizar(s).includes('tallerescc-concentrado') || normalizar(s).includes('sacul-concentrado'));
             if (hojaTalleres) {
               const ws = workbook.Sheets[hojaTalleres];
               const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
               for (let r = 8; r < matriz.length; r++) {
                 const fila = matriz[r];
-                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : '';
+                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : null;
                 const numTalleres = parseInt(fila[5]) || 0;
                 if (!muni || numTalleres === 0 || normalizar(muni) === 'nan') continue;
 
@@ -1791,9 +1797,7 @@
             }
           }
 
-          // =========================================================
-          // CASO 4: CONCENTRADO ESTATAL ANUAL (CONCENTRADOS 2025.xlsx)
-          // =========================================================
+          // CASO 4: CONCENTRADO ESTATAL ANUAL
           const hojaMacro = workbook.SheetNames.find(s => {
             const ns = normalizar(s);
             return ns.includes('activi') || ns.includes('concentrado') || ns.includes('promediado');
@@ -1821,6 +1825,8 @@
               if (!muniRaw || normMuni.startsWith('total') || normMuni.startsWith('suma') || normMuni === 'nan') continue;
 
               const muniOficial = emparejarMunicipioCatalogo(muniRaw);
+              if (!muniOficial) continue; // Candado estricto: solo municipios de GTO
+
               const totalActividades = parseInt(fila[1]) || 1;
               const totalBeneficiarios = parseInt(fila[2]) || 0;
 
@@ -1864,9 +1870,7 @@
             }
           }
 
-          // =========================================================
           // CASO 5: REPORTE MUNICIPAL OPERATIVO DETALLADO
-          // =========================================================
           let municipioArchivo = '';
           for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
             if (fileNameNorm.includes(normalizar(m))) {
@@ -2038,7 +2042,6 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // Función auxiliar para confirmar inserción masiva
     async function confirmarEInsertarRegistros(registros, tipoArchivo, detalle) {
       const conf = await Swal.fire({
         title: `¿Importar ${tipoArchivo}?`,
@@ -2091,10 +2094,25 @@
     }
 
     function actualizarGraficasDashboard() {
+      const filtroNivel = document.getElementById('filtroNivelDashboard').value;
       const filtroArea = document.getElementById('filtroAreaDashboard').value;
       const filtroMuni = document.getElementById('filtroMunicipioDashboard').value;
       
       let datos = memoriaRegistrosBitacora;
+
+      // FILTRO 1: NIVEL / PERSPECTIVA ANALÍTICA
+      if (filtroNivel === 'OPERATIVO') {
+        // Solo talleres individuales de enlaces o reportes operativos
+        datos = datos.filter(r => !r.disciplina.includes('Concentrado Anual') && !r.disciplina.includes('Proyecto Estratégico') && !r.disciplina.includes('Indicador Presupuestal'));
+      } else if (filtroNivel === 'CONCENTRADO') {
+        // Solo sábanas macro anuales de los 46 municipios
+        datos = datos.filter(r => r.disciplina.includes('Concentrado Anual') || r.disciplina.includes('Numeralia Informe'));
+      } else if (filtroNivel === 'ESTRATEGICO') {
+        // Solo proyectos especiales e indicadores 2026
+        datos = datos.filter(r => r.disciplina.includes('Proyecto Estratégico') || r.disciplina.includes('Indicador Presupuestal') || r.disciplina.includes('Proyecto Sociocultural'));
+      }
+
+      // FILTRO 2: ÁREA Y MUNICIPIO
       if (filtroArea) {
         datos = datos.filter(r => r.area_programa === filtroArea || (!r.area_programa && filtroArea === 'CDCM'));
       }
@@ -2102,18 +2120,21 @@
         datos = datos.filter(r => r.municipio === filtroMuni);
       }
 
+      // 1. CÁLCULO ESTRICTO CON LOS 46 MUNICIPIOS OFICIALES
       const conteoPorMuni = {};
       const actsPorMuni = {};
       let totalBeneficiariosGlobal = 0;
       let totalGratuitos = 0;
 
       datos.forEach(r => {
-        const m = emparejarMunicipioCatalogo(r.municipio || 'Sin Municipio');
+        const muniOficial = emparejarMunicipioCatalogo(r.municipio);
+        if (!muniOficial) return; // Candado: descarta celdas corruptas como 775.0643939
+
         const totalFila = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
                           (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
         
-        conteoPorMuni[m] = (conteoPorMuni[m] || 0) + totalFila;
-        actsPorMuni[m] = (actsPorMuni[m] || 0) + 1;
+        conteoPorMuni[muniOficial] = (conteoPorMuni[muniOficial] || 0) + totalFila;
+        actsPorMuni[muniOficial] = (actsPorMuni[muniOficial] || 0) + 1;
         totalBeneficiariosGlobal += totalFila;
 
         if (normalizar(r.costo || '').includes('libre') || normalizar(r.costo || '').includes('gratuito')) {
@@ -2121,17 +2142,19 @@
         }
       });
 
+      // 2. ACTUALIZAR TARJETAS KPI
       document.getElementById('dashTotalBeneficiarios').innerText = totalBeneficiariosGlobal.toLocaleString('es-MX');
       document.getElementById('dashTotalActividades').innerText = datos.length.toLocaleString('es-MX');
       
       const numMunisActivos = Object.keys(conteoPorMuni).length;
       document.getElementById('dashCoberturaMuni').innerText = `${numMunisActivos} / 46`;
-      const porcCobertura = Math.round((numMunisActivos / 46) * 100);
+      const porcCobertura = Math.min(100, Math.round((numMunisActivos / 46) * 100));
       document.getElementById('dashPorcentajeCobertura').innerText = `${porcCobertura}% del territorio estatal`;
 
       const tasaGratuita = datos.length > 0 ? Math.round((totalGratuitos / datos.length) * 100) : 100;
       document.getElementById('dashTasaGratuidad').innerText = `${tasaGratuita}%`;
 
+      // 3. ACTUALIZAR MAPA INTERACTIVO
       if (capaMarcadoresMapa) {
         capaMarcadoresMapa.clearLayers();
         const maxBen = Math.max(...Object.values(conteoPorMuni), 100);
@@ -2167,6 +2190,7 @@
         });
       }
 
+      // 4. TOP 10 MUNICIPIOS (Ordenado y sin anomalías)
       const top10Pares = Object.entries(conteoPorMuni)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
@@ -2193,11 +2217,14 @@
         }
       });
 
+      // 5. GRÁFICOS DEMOGRÁFICOS
       let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
       let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
       let sumaMujeres = 0, sumaHombres = 0;
 
       datos.forEach(r => {
+        if (!emparejarMunicipioCatalogo(r.municipio)) return;
+
         sumaNinez += (Number(r.ninez) || 0);
         sumaAdol += (Number(r.adolescencia) || 0);
         sumaJuv += (Number(r.juventudes) || 0);
@@ -2212,6 +2239,7 @@
         sumaHombres += (Number(r.hombres) || 0);
       });
 
+      // Dona Edad
       const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
       if (chartInstGruposEdad) chartInstGruposEdad.destroy();
       chartInstGruposEdad = new Chart(ctxEdad, {
@@ -2232,6 +2260,7 @@
         }
       });
 
+      // Barras Prioritarios
       const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
       if (chartInstPrioritarios) chartInstPrioritarios.destroy();
       chartInstPrioritarios = new Chart(ctxPrio, {
@@ -2254,6 +2283,7 @@
         }
       });
 
+      // Pie Género
       const ctxGen = document.getElementById('chartGenero').getContext('2d');
       if (chartInstGenero) chartInstGenero.destroy();
       chartInstGenero = new Chart(ctxGen, {
@@ -2274,6 +2304,7 @@
         }
       });
 
+      // 6. TABLA EJECUTIVA (46 MUNICIPIOS)
       const cuerpoResumen = document.getElementById('cuerpoTablaResumenMuni');
       cuerpoResumen.innerHTML = '';
       
