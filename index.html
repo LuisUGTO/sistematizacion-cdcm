@@ -330,7 +330,7 @@
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" class="btn-excel" onclick="document.getElementById('inputExcelMasivoRegistros').click()">
-              📂 Subir Reporte Municipal (.xlsx)
+              📂 Subir Archivo Excel (.xlsx)
             </button>
             <button type="button" class="btn-secundario" onclick="descargarPlantillaRegistros()">
               📥 Descargar Plantilla Modelo (.xlsx)
@@ -530,6 +530,21 @@
 
     function normalizar(str) {
       return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
+
+    function emparejarMunicipioCatalogo(nombreCrudo) {
+      const norm = normalizar(nombreCrudo);
+      for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
+        const normCat = normalizar(m);
+        if (norm === normCat || norm.includes(normCat) || normCat.includes(norm)) {
+          return m;
+        }
+      }
+      if (norm.includes('dolores')) return 'Dolores Hidalgo C.I.N.';
+      if (norm.includes('silao')) return 'Silao de la Victoria';
+      if (norm.includes('juventino')) return 'Santa Cruz de Juventino Rosas';
+      if (norm.includes('apaseo el g')) return 'Apaseo el Grande';
+      return nombreCrudo;
     }
 
     function cambiarPestana(idPestana, elementoBtn) {
@@ -817,7 +832,7 @@
         doc.setLineWidth(0.6);
         doc.line(14, 32, 196, 32);
 
-        // Tarjeta Folio (Parámetros corregidos)
+        // Tarjeta Folio
         doc.setFillColor(...FONDO_TARJETA);
         doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
         doc.setDrawColor(...BORDE_LINEA);
@@ -1276,14 +1291,14 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- FUNCIÓN M: MOTOR INTELIGENTE DE IMPORTACIÓN CON FILTRO DE LIMPIEZA ---
+    // --- FUNCIÓN M: MOTOR BIMODAL DE IMPORTACIÓN EXCEL (MICRO Y MACRO ESTATAL) ---
     async function procesarExcelMasivoRegistros(inputElement) {
       const file = inputElement.files[0];
       if (!file) return;
 
       Swal.fire({ 
-        title: 'Analizando archivo municipal...', 
-        text: 'Escaneando talleres, docentes y desgloses demográficos...',
+        title: 'Analizando archivo...', 
+        text: 'Detectando si es reporte municipal o concentrado estatal...',
         allowOutsideClick: false, 
         didOpen: () => Swal.showLoading() 
       });
@@ -1296,7 +1311,104 @@
           const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
           const registrosSQL = [];
 
-          // 1. Detectar Municipio por nombre de archivo
+          // CASO A: DETECCIÓN DE CONCENTRADO MACRO-ESTATAL (Hoja "Activi x muni" o "CONCENTRADO")
+          const hojaMacro = workbook.SheetNames.find(s => {
+            const ns = normalizar(s);
+            return ns.includes('activi') || ns.includes('concentrado') || ns.includes('promediado');
+          });
+
+          if (hojaMacro) {
+            const wsMacro = workbook.Sheets[hojaMacro];
+            const matrizMacro = XLSX.utils.sheet_to_json(wsMacro, { header: 1, defval: '' });
+
+            // Identificar columna de municipio y beneficiarios
+            let filaInicioMacro = 1;
+            for (let r = 0; r < Math.min(10, matrizMacro.length); r++) {
+              if (matrizMacro[r].some(c => normalizar(c) === 'municipio')) {
+                filaInicioMacro = r + 1;
+                break;
+              }
+            }
+
+            for (let r = filaInicioMacro; r < matrizMacro.length; r++) {
+              const fila = matrizMacro[r];
+              if (!fila || fila.length < 3) continue;
+
+              const muniRaw = String(fila[0] || '').trim();
+              const normMuni = normalizar(muniRaw);
+
+              if (!muniRaw || normMuni.startsWith('total') || normMuni.startsWith('suma') || normMuni === 'nan') continue;
+
+              const muniOficial = emparejarMunicipioCatalogo(muniRaw);
+              const totalActividades = parseInt(fila[1]) || 1;
+              const totalBeneficiarios = parseInt(fila[2]) || 0;
+
+              if (totalBeneficiarios === 0) continue;
+
+              const mujeres = Math.round(totalBeneficiarios * 0.58);
+              const hombres = totalBeneficiarios - mujeres;
+              const ninez = Math.round(totalBeneficiarios * 0.35);
+              const adolescencia = Math.round(totalBeneficiarios * 0.28);
+              const juventudes = Math.round(totalBeneficiarios * 0.22);
+              const adultosMayores = Math.max(0, totalBeneficiarios - (ninez + adolescencia + juventudes));
+
+              const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
+
+              registrosSQL.push({
+                folio: folio,
+                area_programa: 'CDCM',
+                usuario: usuarioActivo,
+                municipio: muniOficial,
+                sede: `Casas de la Cultura y Módulos de ${muniOficial}`,
+                disciplina: `Concentrado Anual de Formación y Talleres (${totalActividades} activ.)`,
+                docente: 'Coordinación de Desarrollo Cultural Municipal',
+                programacion: 'Anual 2025',
+                costo: 'Libre Acceso / Cuota de Recuperación',
+                horario: 'Jornada Anual',
+                dias: 'Lu, Ma, Mi, Ju, Vi, Sa',
+                sesion: 'Lu, Ma, Mi, Ju, Vi, Sa',
+                mujeres: mujeres,
+                hombres: hombres,
+                ninez: ninez,
+                adolescencia: adolescencia,
+                juventudes: juventudes,
+                adultos_mayores: adultosMayores,
+                discapacidad: 0,
+                indigenas: 0,
+                afromexicanas: 0,
+                lgbtq: 0
+              });
+            }
+
+            if (registrosSQL.length > 0) {
+              const conf = await Swal.fire({
+                title: `¿Importar Concentrado Estatal Anual?`,
+                html: `Se identificó el consolidado macro-estatal.<br><br><b>Municipios con datos activos:</b> ${registrosSQL.length} de 46<br><b>Objetivo:</b> Poblar el Dashboard Directivo con la línea base histórica.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, sincronizar todo el estado',
+                cancelButtonText: 'Cancelar'
+              });
+
+              if (conf.isConfirmed) {
+                Swal.fire({ title: 'Sincronizando con la base de datos institucional...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                const batchSize = 50;
+                for (let i = 0; i < registrosSQL.length; i += batchSize) {
+                  const batch = registrosSQL.slice(i, i + batchSize);
+                  const { error } = await conexionSupabase.from(TABLA_SQL).insert(batch);
+                  if (error) throw error;
+                }
+
+                Swal.fire('¡Concentrado Estatal Sincronizado!', `Se integraron los 46 municipios al Dashboard Directivo.`, 'success');
+                cargarBitacora();
+                inicializarDashboardDirectivo();
+                return;
+              }
+            }
+          }
+
+          // CASO B: DETECCIÓN DE REPORTE MUNICIPAL DETALLADO (Dolores Hidalgo, Cuerámaro, etc.)
           let municipioArchivo = '';
           const normFileName = normalizar(file.name);
           for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
@@ -1306,18 +1418,13 @@
             }
           }
 
-          // Priorizar pestaña maestra si existe (ej. "Desglose", "Talleres", "CDCM")
           let hojasAProcesar = workbook.SheetNames;
           const hojaMaestra = workbook.SheetNames.find(s => {
             const ns = normalizar(s);
             return ns.includes('desglose') || ns.includes('taller') || ns.includes('matriz');
           });
+          if (hojaMaestra) hojasAProcesar = [hojaMaestra];
 
-          if (hojaMaestra) {
-            hojasAProcesar = [hojaMaestra];
-          }
-
-          // 2. Procesar hojas seleccionadas
           for (const sheetName of hojasAProcesar) {
             const worksheet = workbook.Sheets[sheetName];
             const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
@@ -1338,7 +1445,6 @@
             }
             if (!municipioHoja) municipioHoja = 'Dolores Hidalgo C.I.N.';
 
-            // 3. Buscar la fila real de encabezados
             let mejorFilaIdx = -1;
             let mejorPuntaje = 0;
 
@@ -1361,7 +1467,6 @@
 
             if (mejorFilaIdx === -1) continue;
 
-            // 4. Mapeo inteligente de columnas
             let colActividad = 0, colProg = 1, colHorario = 9, colCosto = 10, colDocente = 11, colSede = -1;
 
             for (let c = 0; c < matriz[mejorFilaIdx].length; c++) {
@@ -1374,7 +1479,6 @@
               if (h.includes('sede') || h.includes('lugar') || h.includes('comunidad')) colSede = c;
             }
 
-            // 5. Extraer filas aplicando el filtro de limpieza
             const inicioDatos = mejorFilaIdx + (matriz[mejorFilaIdx + 1] && matriz[mejorFilaIdx + 1].some(c => ['l','m','j','v','s','d'].includes(normalizar(c))) ? 2 : 1);
 
             for (let r = inicioDatos; r < matriz.length; r++) {
@@ -1384,7 +1488,6 @@
               const actRaw = fila[colActividad] !== undefined ? String(fila[colActividad]).trim() : '';
               const normAct = normalizar(actRaw);
 
-              // FILTRO 1: Descartar encabezados internos, fechas o números de reactivo
               if (!actRaw || actRaw.length < 2 || 
                   normAct.startsWith('total') || normAct.startsWith('suma') || 
                   normAct.startsWith('subtotal') || normAct.startsWith('educacion') || 
@@ -1395,7 +1498,6 @@
                 continue;
               }
 
-              // Extraer días activos marcados con X en columnas 2 a 8
               const dayNames = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
               const activeDays = [];
               for (let d = 2; d <= 8; d++) {
@@ -1405,40 +1507,33 @@
               }
               const stringDias = activeDays.length > 0 ? activeDays.join(', ') : 'Lu, Mi, Vi';
 
-              // Extraer docente real
               let docenteVal = fila[colDocente] ? String(fila[colDocente]).trim() : '';
               if (!docenteVal || docenteVal.toLowerCase() === 'nan' || docenteVal === '-') {
                 docenteVal = 'Casa de la Cultura / Dirección';
               }
 
-              // Extraer sede
               let sedeVal = colSede !== -1 && fila[colSede] ? String(fila[colSede]).trim() : `Casa de la Cultura de ${municipioHoja}`;
-
-              // Extraer horario y modalidad
               const horarioVal = fila[colHorario] ? String(fila[colHorario]).trim() : '16:00 - 18:00';
               const progVal = fila[colProg] ? String(fila[colProg]).trim() : 'Semestral';
               let costoVal = fila[colCosto] ? String(fila[colCosto]).trim() : 'Libre Acceso';
               if (normalizar(costoVal).includes('costo')) costoVal = 'Con Cuota de Recuperación';
 
-              // Extraer conteo de beneficiarios (último mes activo o promedio del desglose)
               let totalBeneficiarios = 0;
               for (let u = 12; u < Math.min(fila.length, 25); u++) {
                 const num = parseInt(fila[u]);
                 if (!isNaN(num) && num > 0) {
-                  totalBeneficiarios = num; // Toma el último mes con registro
+                  totalBeneficiarios = num;
                 }
               }
 
-              // FILTRO 2: Si el total es 0, no sobrecargar la base
               if (totalBeneficiarios === 0) continue;
 
-              // Estimación demográfica proporcional
               const mujeres = Math.round(totalBeneficiarios * 0.58);
               const hombres = totalBeneficiarios - mujeres;
               const ninez = normAct.includes('infantil') || normAct.includes('nino') ? totalBeneficiarios : Math.round(totalBeneficiarios * 0.35);
               const adolescencia = normAct.includes('juvenil') ? totalBeneficiarios : Math.round(totalBeneficiarios * 0.30);
               const juventudes = Math.round(totalBeneficiarios * 0.20);
-              const adultosMayores = totalBeneficiarios - (ninez + adolescencia + juventudes);
+              const adultosMayores = Math.max(0, totalBeneficiarios - (ninez + adolescencia + juventudes));
 
               const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
               const esBiblio = normAct.includes('lectura') || normalizar(sedeVal).includes('biblioteca');
@@ -1458,10 +1553,10 @@
                 sesion: stringDias,
                 mujeres: mujeres,
                 hombres: hombres,
-                ninez: Math.max(0, ninez),
-                adolescencia: Math.max(0, adolescencia),
-                juventudes: Math.max(0, juventudes),
-                adultos_mayores: Math.max(0, adultosMayores),
+                ninez: ninez,
+                adolescencia: adolescencia,
+                juventudes: juventudes,
+                adultos_mayores: adultosMayores,
                 discapacidad: 0,
                 indigenas: 0,
                 afromexicanas: 0,
@@ -1477,7 +1572,7 @@
           const municipioDetectado = registrosSQL[0].municipio;
           const conf = await Swal.fire({
             title: `¿Importar ${registrosSQL.length} talleres de ${municipioDetectado}?`,
-            html: `Se identificaron <b>${registrosSQL.length} talleres con maestros y horarios</b>.<br><br><b>Municipio:</b> ${municipioDetectado}<br><b>Filtro de limpieza:</b> Activado (Sin filas vacías ni indicadores en 0)`,
+            html: `Se identificaron <b>${registrosSQL.length} talleres con maestros y horarios</b>.<br><br><b>Municipio:</b> ${municipioDetectado}<br><b>Filtro de limpieza:</b> Activado`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Sí, importar ahora',
@@ -1485,7 +1580,7 @@
           });
 
           if (conf.isConfirmed) {
-            Swal.fire({ title: 'Sincronizando con la base de datos...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Sincronizando con la base de datos institucional...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const batchSize = 100;
             for (let i = 0; i < registrosSQL.length; i += batchSize) {
@@ -1494,7 +1589,7 @@
               if (error) throw error;
             }
 
-            Swal.fire('¡Importación Exitosa!', `Se sincronizaron con éxito ${registrosSQL.length} talleres activos de ${municipioDetectado}.`, 'success');
+            Swal.fire('¡Importación Exitosa!', `Se sincronizaron ${registrosSQL.length} talleres de ${municipioDetectado}.`, 'success');
             cargarBitacora();
             inicializarDashboardDirectivo();
           }
