@@ -6,17 +6,22 @@
   <title>Sistematización Institucional | Secretaría de Cultura de Guanajuato</title>
   
   <!-- ================================================================= -->
-  <!-- 1. LIBRERÍAS EXTERNAS                                             -->
+  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, SheetJS, Chart.js, Leaflet, SweetAlert2, jsPDF) -->
   <!-- ================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <!-- Librería de Mapas Interactivos (Leaflet) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
   <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- ================================================================= -->
-  <!-- 2. ESTILOS VISUALES INSTITUCIONALES                               -->
+  <!-- 2. ESTILOS VISUALES INSTITUCIONALES (Gobierno de Guanajuato)       -->
   <!-- ================================================================= -->
   <style>
     :root {
@@ -27,6 +32,7 @@
       --gto-fondo-app: #F5F5F7;
       --gto-blanco-papel: #FFFFFF;
       --gto-texto-fijo: #1D1D1F;
+      --gto-verde-exito: #059669;
       --gto-sombra-institucional: 0 10px 25px -5px rgba(0, 75, 135, 0.12);
     }
 
@@ -58,6 +64,7 @@
     /* Grids y Formularios */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
     .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
     .col-span-2 { grid-column: span 2; }
 
@@ -93,10 +100,12 @@
     .tab-content.activo { display: block; animation: fadeIn 0.4s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
 
-    /* Tarjetas KPI */
-    .kpi-card { background: #f8fafc; border: 1px solid var(--gto-azul-claro); border-radius: 12px; padding: 18px; text-align: center; }
+    /* Tarjetas KPI Ejecutivas */
+    .kpi-card { background: #f8fafc; border: 1px solid var(--gto-azul-claro); border-radius: 14px; padding: 20px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,75,135,0.08); }
     .kpi-card h4 { font-size: 11px; text-transform: uppercase; color: var(--gto-gris-oscuro); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
-    .kpi-card .kpi-num { font-size: 26px; font-weight: 900; color: var(--gto-azul-primario); font-family: 'Vollkorn', serif; }
+    .kpi-card .kpi-num { font-size: 28px; font-weight: 900; color: var(--gto-azul-primario); font-family: 'Vollkorn', serif; line-height: 1.2; }
+    .kpi-card small { font-size: 11px; color: var(--gto-gris-oscuro); font-weight: 500; }
 
     /* Tabla de Bitácora Operativa */
     .tabla-container { width: 100%; overflow-x: auto; margin-top: 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
@@ -114,11 +123,15 @@
     .btn-pdf-tabla { background: var(--gto-azul-primario); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-pdf-tabla:hover { background: #003662; }
 
-    /* Estilos del Dashboard */
-    .chart-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    /* Estilos del Dashboard y Mapa */
+    .chart-box { background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .chart-box h3 { font-size: 16px; margin-bottom: 4px; }
     .chart-box p { font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 14px; }
     .canvas-container { position: relative; width: 100%; height: 280px; }
+    
+    /* Contenedor del Mapa Geoespacial */
+    #mapaGto { height: 420px; width: 100%; border-radius: 12px; z-index: 1; border: 1px solid #cbd5e1; }
+    .map-legend { background: white; padding: 10px 14px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); font-size: 11px; line-height: 1.6; }
 
     /* Modal de Fotografía */
     .modal-foto-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
@@ -126,7 +139,8 @@
     .modal-foto-box img { max-width: 100%; max-height: 70vh; border-radius: 10px; object-fit: contain; margin-top: 12px; }
     .btn-cerrar-modal { position: absolute; top: 14px; right: 18px; background: #e2e8f0; border: none; border-radius: 50%; width: 32px; height: 32px; font-weight: 900; cursor: pointer; color: #475569; }
 
-    @media (max-width: 768px) { .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; } .col-span-2 { grid-column: span 1; } .user-badge { display: none; } }
+    @media (max-width: 900px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; } .col-span-2 { grid-column: span 1; } .user-badge { display: none; } }
   </style>
 </head>
 <body>
@@ -390,14 +404,15 @@
       </div>
     </div>
 
-    <!-- PESTAÑA 3: DASHBOARD DIRECTIVO ANALÍTICO -->
+    <!-- PESTAÑA 3: DASHBOARD DIRECTIVO GEOESPACIAL Y ANALÍTICO -->
     <div id="tab-dashboard" class="tab-content">
       
-      <div class="card" style="margin-bottom: 20px;">
+      <!-- Barra de Filtros Directivos -->
+      <div class="card" style="margin-bottom: 20px; padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
           <div>
-            <h2>Inteligencia y Evaluación Cultural</h2>
-            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Métricas consolidadas y análisis de cobertura territorial en Guanajuato.</p>
+            <h2>Tablero de Inteligencia y Evaluación Cultural</h2>
+            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Métricas consolidadas, cobertura territorial geoespacial y análisis demográfico en Guanajuato.</p>
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select id="filtroAreaDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
@@ -408,37 +423,109 @@
             <select id="filtroMunicipioDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
               <option value="">Todo el Estado (Global)</option>
             </select>
-            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario">↻ Refrescar</button>
+            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario">↻ Refrescar Tablero</button>
           </div>
         </div>
       </div>
 
-      <!-- Grid de 4 Gráficos Analíticos -->
-      <div class="grid-2">
+      <!-- Tarjetas KPI Directivas (4 Indicadores Estratégicos) -->
+      <div class="grid-4" style="margin-bottom: 24px;">
+        <div class="kpi-card">
+          <h4>Beneficiarios Totales</h4>
+          <div id="dashTotalBeneficiarios" class="kpi-num" style="color: var(--gto-azul-primario);">0</div>
+          <small>Impacto poblacional atendido</small>
+        </div>
+        <div class="kpi-card">
+          <h4>Cobertura Municipal</h4>
+          <div id="dashCoberturaMuni" class="kpi-num" style="color: var(--gto-verde-exito);">0 / 46</div>
+          <small id="dashPorcentajeCobertura">0% del territorio estatal</small>
+        </div>
+        <div class="kpi-card">
+          <h4>Actividades & Talleres</h4>
+          <div id="dashTotalActividades" class="kpi-num" style="color: #d97706;">0</div>
+          <small>Talleres y eventos registrados</small>
+        </div>
+        <div class="kpi-card">
+          <h4>Tasa de Libre Acceso</h4>
+          <div id="dashTasaGratuidad" class="kpi-num" style="color: #0284c7;">100%</div>
+          <small>Actividades 100% gratuitas</small>
+        </div>
+      </div>
+
+      <!-- MAPA TERRITORIAL INTERACTIVO DE GUANAJUATO (Leaflet) -->
+      <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 14px; gap: 10px;">
+          <div>
+            <h3>🗺️ Cobertura Territorial y Concentración de Actividades en Guanajuato</h3>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Mapa interactivo: El tamaño y color de cada círculo refleja el volumen de beneficiarios y actividades por municipio.</p>
+          </div>
+          <span style="font-size: 12px; font-weight: 700; color: var(--gto-azul-primario); background: #f0f7ff; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--gto-azul-secundario);">
+            📍 46 Municipios Georreferenciados
+          </span>
+        </div>
+        <div id="mapaGto"></div>
+      </div>
+
+      <!-- Grid de Gráficos Analíticos -->
+      <div class="grid-2" style="margin-bottom: 24px;">
+        
+        <!-- Gráfico 1: Top 10 Municipios -->
         <div class="chart-box">
-          <h3>Afluencia por Municipio</h3>
-          <p>Volumen total de beneficiarios atendidos por demarcación.</p>
-          <div class="canvas-container"><canvas id="chartMunicipios"></canvas></div>
+          <h3>🏆 Top 10 Municipios con Mayor Afluencia</h3>
+          <p>Municipios con mayor volumen de beneficiarios alcanzados.</p>
+          <div class="canvas-container"><canvas id="chartTopMunicipios"></canvas></div>
         </div>
 
+        <!-- Gráfico 2: Composición Etaria -->
         <div class="chart-box">
-          <h3>Distribución por Grupos de Edad</h3>
+          <h3>👥 Distribución por Grupos de Edad</h3>
           <p>Proporción de Niñez, Adolescencia, Juventudes y Adultos Mayores.</p>
           <div class="canvas-container"><canvas id="chartGruposEdad"></canvas></div>
         </div>
 
+        <!-- Gráfico 3: Atención Prioritaria -->
         <div class="chart-box">
-          <h3>Sectores de Atención Prioritaria</h3>
+          <h3>🤝 Sectores de Atención Prioritaria</h3>
           <p>Inclusión de personas con discapacidad, indígenas, afromexicanas y LGBTQ+.</p>
           <div class="canvas-container"><canvas id="chartPrioritarios"></canvas></div>
         </div>
 
+        <!-- Gráfico 4: Balance de Género -->
         <div class="chart-box">
-          <h3>Distribución por Género</h3>
-          <p>Balance de género (Mujeres vs Hombres) en actividades culturales.</p>
+          <h3>⚖️ Balance de Género</h3>
+          <p>Proporción de Mujeres vs Hombres en las actividades de vinculación.</p>
           <div class="canvas-container"><canvas id="chartGenero"></canvas></div>
         </div>
+
       </div>
+
+      <!-- Tabla Resumen Ejecutivo de Municipios -->
+      <div class="card" style="padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 14px;">
+          <div>
+            <h3>📋 Concentrado Ejecutivo por Demarcación Municipal</h3>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Desglose ordenado de beneficiarios y actividades por municipio en el estado.</p>
+          </div>
+          <button onclick="exportarResumenDirectivoExcel()" class="btn-excel">📊 Exportar Resumen Directivo (.xlsx)</button>
+        </div>
+        <div class="tabla-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Municipio</th>
+                <th>Actividades Registradas</th>
+                <th>Beneficiarios Atendidos</th>
+                <th>% Participación Estatal</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTablaResumenMuni">
+              <tr><td colspan="5" style="text-align: center; padding: 20px;">Cargando concentrado ejecutivo...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
 
   </main>
@@ -456,7 +543,7 @@
     </div>
   </div>
 
-  <!-- 7. CATÁLOGO OFICIAL DE LOS 46 MUNICIPIOS DE GUANAJUATO -->
+  <!-- 7. CATÁLOGO OFICIAL DE LOS 46 MUNICIPIOS DE GUANAJUATO CON COORDENADAS -->
   <script>
     const CATALOGO_GUBERNAMENTAL = {
       "Abasolo": ["Casa de la Cultura Abasolo", "Museo Miguel Hidalgo", "Plaza Principal"],
@@ -506,6 +593,56 @@
       "Xichú": ["Casa de la Cultura", "Plaza de los Huapangos"],
       "Yuriria": ["Casa de la Cultura", "Ex Convento San Agustín de Yuriria"]
     };
+
+    // COORDENADAS GEOESPACIALES DE LOS 46 MUNICIPIOS
+    const COORDENADAS_MUNICIPIOS = {
+      "Abasolo": [20.4503, -101.5336],
+      "Acámbaro": [20.0306, -100.7192],
+      "Apaseo el Alto": [20.4567, -100.6222],
+      "Apaseo el Grande": [20.5447, -100.6836],
+      "Atarjea": [21.2675, -99.7183],
+      "Celaya": [20.5235, -100.8157],
+      "Comonfort": [20.7208, -100.7628],
+      "Coroneo": [20.2003, -100.3664],
+      "Cortazar": [20.4839, -100.9622],
+      "Cuerámaro": [20.6236, -101.7106],
+      "Doctor Mora": [21.1417, -100.3194],
+      "Dolores Hidalgo C.I.N.": [21.1561, -100.9325],
+      "Guanajuato": [21.0190, -101.2574],
+      "Huanímaro": [20.3686, -101.4981],
+      "Irapuato": [20.6736, -101.3567],
+      "Jaral del Progreso": [20.3725, -101.0658],
+      "Jerécuaro": [20.1517, -100.5103],
+      "León": [21.1221, -101.6826],
+      "Manuel Doblado": [20.7297, -101.9519],
+      "Moroleón": [20.1311, -101.1911],
+      "Ocampo": [21.6469, -101.4808],
+      "Pénjamo": [20.4325, -101.7228],
+      "Pueblo Nuevo": [20.5178, -101.3647],
+      "Purísima del Rincón": [21.0319, -101.8808],
+      "Romita": [20.8711, -101.5164],
+      "Salamanca": [20.5739, -101.1953],
+      "Salvatierra": [20.2147, -100.8808],
+      "San Diego de la Unión": [21.4658, -100.8733],
+      "San Felipe": [21.4781, -101.2158],
+      "San Francisco del Rincón": [21.0189, -101.8594],
+      "San José Iturbide": [21.0003, -100.3839],
+      "San Luis de la Paz": [21.2981, -100.5161],
+      "San Miguel de Allende": [20.9144, -100.7436],
+      "Santa Catarina": [21.1442, -100.0633],
+      "Santa Cruz de Juventino Rosas": [20.6425, -100.9961],
+      "Santiago Maravatío": [20.1736, -100.9917],
+      "Silao de la Victoria": [20.9436, -101.4272],
+      "Tarandacuao": [19.9961, -100.5217],
+      "Tarimoro": [20.2858, -100.7558],
+      "Tierra Blanca": [21.1008, -100.1611],
+      "Uriangato": [20.1417, -101.1764],
+      "Valle de Santiago": [20.3922, -101.1897],
+      "Victoria": [21.2069, -100.2164],
+      "Villagrán": [20.5147, -100.9986],
+      "Xichú": [21.2994, -99.9861],
+      "Yuriria": [20.2133, -101.1325]
+    };
   </script>
 
   <!-- 8. LÓGICA DE APLICACIÓN -->
@@ -523,10 +660,13 @@
     let memoriaDocentesCDCM = [];
     let registrosFiltradosActuales = [];
 
-    let chartInstMunicipios = null;
+    // Instancias de Analítica
+    let chartInstTopMuni = null;
     let chartInstGruposEdad = null;
     let chartInstPrioritarios = null;
     let chartInstGenero = null;
+    let mapaLeaflet = null;
+    let capaMarcadoresMapa = null;
 
     function normalizar(str) {
       return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -552,6 +692,10 @@
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
       elementoBtn.classList.add('activo');
       document.getElementById(idPestana).classList.add('activo');
+
+      if (idPestana === 'tab-dashboard' && mapaLeaflet) {
+        setTimeout(() => mapaLeaflet.invalidateSize(), 250);
+      }
     }
 
     function cargarPlegableMunicipios() {
@@ -784,7 +928,7 @@
       });
     }
 
-    // --- GENERADOR CORREGIDO Y BLINDADO DE PDF INSTITUCIONAL ---
+    // --- GENERADOR BLINDADO DE PDF INSTITUCIONAL ---
     async function generarAcusePDF(paquete, folio, archivoFoto = null) {
       try {
         const { jsPDF } = window.jspdf;
@@ -1311,7 +1455,7 @@
           const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
           const registrosSQL = [];
 
-          // CASO A: DETECCIÓN DE CONCENTRADO MACRO-ESTATAL (Hoja "Activi x muni" o "CONCENTRADO")
+          // CASO A: DETECCIÓN DE CONCENTRADO MACRO-ESTATAL
           const hojaMacro = workbook.SheetNames.find(s => {
             const ns = normalizar(s);
             return ns.includes('activi') || ns.includes('concentrado') || ns.includes('promediado');
@@ -1321,7 +1465,6 @@
             const wsMacro = workbook.Sheets[hojaMacro];
             const matrizMacro = XLSX.utils.sheet_to_json(wsMacro, { header: 1, defval: '' });
 
-            // Identificar columna de municipio y beneficiarios
             let filaInicioMacro = 1;
             for (let r = 0; r < Math.min(10, matrizMacro.length); r++) {
               if (matrizMacro[r].some(c => normalizar(c) === 'municipio')) {
@@ -1408,7 +1551,7 @@
             }
           }
 
-          // CASO B: DETECCIÓN DE REPORTE MUNICIPAL DETALLADO (Dolores Hidalgo, Cuerámaro, etc.)
+          // CASO B: DETECCIÓN DE REPORTE MUNICIPAL DETALLADO
           let municipioArchivo = '';
           const normFileName = normalizar(file.name);
           for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
@@ -1604,13 +1747,30 @@
       reader.readAsArrayBuffer(file);
     }
 
-    // --- DASHBOARD CHART.JS ---
+    // =================================================================
+    // 9. MÓDULO DE ANALÍTICA DIRECTIVA Y MAPA GEOESPACIAL
+    // =================================================================
     async function inicializarDashboardDirectivo() {
       if (memoriaRegistrosBitacora.length === 0) {
         const { data } = await conexionSupabase.from(TABLA_SQL).select('*');
         memoriaRegistrosBitacora = data || [];
       }
+      
+      inicializarMapaGto();
       actualizarGraficasDashboard();
+    }
+
+    function inicializarMapaGto() {
+      if (!mapaLeaflet) {
+        // Centro de Guanajuato
+        mapaLeaflet = L.map('mapaGto').setView([20.85, -101.15], 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://carto.com/">CARTO</a> | Secretaría de Cultura de Guanajuato',
+          maxZoom: 18
+        }).addTo(mapaLeaflet);
+        capaMarcadoresMapa = L.layerGroup().addTo(mapaLeaflet);
+      }
+      setTimeout(() => mapaLeaflet.invalidateSize(), 300);
     }
 
     function actualizarGraficasDashboard() {
@@ -1625,57 +1785,123 @@
         datos = datos.filter(r => r.municipio === filtroMuni);
       }
 
+      // 1. CÁLCULO DE TOTALES GENERALES
       const conteoPorMuni = {};
+      const actsPorMuni = {};
+      let totalBeneficiariosGlobal = 0;
+      let totalGratuitos = 0;
+
       datos.forEach(r => {
-        const m = r.municipio || 'Sin Municipio';
-        const total = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
-                      (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
-        conteoPorMuni[m] = (conteoPorMuni[m] || 0) + total;
+        const m = emparejarMunicipioCatalogo(r.municipio || 'Sin Municipio');
+        const totalFila = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
+                          (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
+        
+        conteoPorMuni[m] = (conteoPorMuni[m] || 0) + totalFila;
+        actsPorMuni[m] = (actsPorMuni[m] || 0) + 1;
+        totalBeneficiariosGlobal += totalFila;
+
+        if (normalizar(r.costo || '').includes('libre') || normalizar(r.costo || '').includes('gratuito')) {
+          totalGratuitos++;
+        }
       });
 
-      let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
-      datos.forEach(r => {
-        sumaNinez += (Number(r.ninez) || 0);
-        sumaAdol += (Number(r.adolescencia) || 0);
-        sumaJuv += (Number(r.juventudes) || 0);
-        sumaMayores += (Number(r.adultos_mayores) || 0);
-      });
+      // 2. ACTUALIZAR TARJETAS KPI DIRECTIVAS
+      document.getElementById('dashTotalBeneficiarios').innerText = totalBeneficiariosGlobal.toLocaleString('es-MX');
+      document.getElementById('dashTotalActividades').innerText = datos.length.toLocaleString('es-MX');
+      
+      const numMunisActivos = Object.keys(conteoPorMuni).length;
+      document.getElementById('dashCoberturaMuni').innerText = `${numMunisActivos} / 46`;
+      const porcCobertura = Math.round((numMunisActivos / 46) * 100);
+      document.getElementById('dashPorcentajeCobertura').innerText = `${porcCobertura}% del territorio estatal`;
 
-      let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
-      datos.forEach(r => {
-        sumaDiscapacidad += (Number(r.discapacidad) || 0);
-        sumaIndigenas += (Number(r.indigenas) || 0);
-        sumaAfro += (Number(r.afromexicanas) || 0);
-        sumaLGBT += (Number(r.lgbtq) || 0);
-      });
+      const tasaGratuita = datos.length > 0 ? Math.round((totalGratuitos / datos.length) * 100) : 100;
+      document.getElementById('dashTasaGratuidad').innerText = `${tasaGratuita}%`;
 
-      let sumaMujeres = 0, sumaHombres = 0;
-      datos.forEach(r => {
-        sumaMujeres += (Number(r.mujeres) || 0);
-        sumaHombres += (Number(r.hombres) || 0);
-      });
+      // 3. ACTUALIZAR MAPA GEOESPACIAL DE CALOR (Leaflet)
+      if (capaMarcadoresMapa) {
+        capaMarcadoresMapa.clearLayers();
+        const maxBen = Math.max(...Object.values(conteoPorMuni), 100);
 
-      const ctxMuni = document.getElementById('chartMunicipios').getContext('2d');
-      if (chartInstMunicipios) chartInstMunicipios.destroy();
-      chartInstMunicipios = new Chart(ctxMuni, {
+        Object.keys(COORDENADAS_MUNICIPIOS).forEach(muni => {
+          const coords = COORDENADAS_MUNICIPIOS[muni];
+          const benMuni = conteoPorMuni[muni] || 0;
+          const numActs = actsPorMuni[muni] || 0;
+
+          // Radio proporcional
+          const radioCirculo = benMuni > 0 ? Math.max(8, Math.min(32, Math.sqrt(benMuni / maxBen) * 35)) : 5;
+          const colorCirculo = benMuni > 0 ? '#004B87' : '#94a3b8';
+          const fillCirculo = benMuni > 0 ? '#69B3E7' : '#cbd5e1';
+
+          const circulo = L.circleMarker(coords, {
+            radius: radioCirculo,
+            fillColor: fillCirculo,
+            color: colorCirculo,
+            weight: 2,
+            opacity: 1,
+            fillOpacity: benMuni > 0 ? 0.75 : 0.4
+          });
+
+          circulo.bindPopup(`
+            <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px;">
+              <h4 style="color:#004B87; font-size:14px; margin-bottom:4px; font-family:'Vollkorn',serif;">${muni}</h4>
+              <p style="margin:2px 0; font-size:12px;"><b>Beneficiarios:</b> <span style="color:#059669; font-weight:bold;">${benMuni.toLocaleString('es-MX')}</span></p>
+              <p style="margin:2px 0; font-size:11px; color:#64748b;"><b>Actividades:</b> ${numActs}</p>
+            </div>
+          `);
+
+          circulo.bindTooltip(`<b>${muni}:</b> ${benMuni.toLocaleString('es-MX')} pers.`, { direction: 'top' });
+          capaMarcadoresMapa.addLayer(circulo);
+        });
+      }
+
+      // 4. RENDERIZAR GRÁFICO 1: TOP 10 MUNICIPIOS (Barras Horizontales)
+      const top10Pares = Object.entries(conteoPorMuni)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10);
+
+      const ctxTop = document.getElementById('chartTopMunicipios').getContext('2d');
+      if (chartInstTopMuni) chartInstTopMuni.destroy();
+      chartInstTopMuni = new Chart(ctxTop, {
         type: 'bar',
         data: {
-          labels: Object.keys(conteoPorMuni),
+          labels: top10Pares.map(p => p[0]),
           datasets: [{
-            label: 'Beneficiarios Atendidos',
-            data: Object.values(conteoPorMuni),
+            label: 'Beneficiarios',
+            data: top10Pares.map(p => p[1]),
             backgroundColor: '#004B87',
             borderRadius: 6
           }]
         },
         options: {
+          indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
+          scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
         }
       });
 
+      // 5. GRÁFICOS DEMOGRÁFICOS
+      let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
+      let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
+      let sumaMujeres = 0, sumaHombres = 0;
+
+      datos.forEach(r => {
+        sumaNinez += (Number(r.ninez) || 0);
+        sumaAdol += (Number(r.adolescencia) || 0);
+        sumaJuv += (Number(r.juventudes) || 0);
+        sumaMayores += (Number(r.adultos_mayores) || 0);
+
+        sumaDiscapacidad += (Number(r.discapacidad) || 0);
+        sumaIndigenas += (Number(r.indigenas) || 0);
+        sumaAfro += (Number(r.afromexicanas) || 0);
+        sumaLGBT += (Number(r.lgbtq) || 0);
+
+        sumaMujeres += (Number(r.mujeres) || 0);
+        sumaHombres += (Number(r.hombres) || 0);
+      });
+
+      // Dona Edad
       const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
       if (chartInstGruposEdad) chartInstGruposEdad.destroy();
       chartInstGruposEdad = new Chart(ctxEdad, {
@@ -1696,6 +1922,7 @@
         }
       });
 
+      // Barras Prioritarios
       const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
       if (chartInstPrioritarios) chartInstPrioritarios.destroy();
       chartInstPrioritarios = new Chart(ctxPrio, {
@@ -1718,6 +1945,7 @@
         }
       });
 
+      // Pie Género
       const ctxGen = document.getElementById('chartGenero').getContext('2d');
       if (chartInstGenero) chartInstGenero.destroy();
       chartInstGenero = new Chart(ctxGen, {
@@ -1737,6 +1965,63 @@
           plugins: { legend: { position: 'bottom' } }
         }
       });
+
+      // 6. TABLA EJECUTIVA POR MUNICIPIO
+      const cuerpoResumen = document.getElementById('cuerpoTablaResumenMuni');
+      cuerpoResumen.innerHTML = '';
+      
+      const listaOrdenada = Object.entries(conteoPorMuni).sort((a, b) => b[1] - a[1]);
+      if (listaOrdenada.length === 0) {
+        cuerpoResumen.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">Sin registros para los filtros seleccionados.</td></tr>`;
+        return;
+      }
+
+      listaOrdenada.forEach(([muni, totalBen], idx) => {
+        const numActs = actsPorMuni[muni] || 0;
+        const porcentaje = totalBeneficiariosGlobal > 0 ? ((totalBen / totalBeneficiariosGlobal) * 100).toFixed(1) : 0;
+
+        cuerpoResumen.innerHTML += `
+          <tr>
+            <td><b>${idx + 1}</b></td>
+            <td><b style="color:var(--gto-azul-primario); font-size:14px;">${muni}</b></td>
+            <td><b>${numActs}</b> actividades</td>
+            <td><b style="color:#059669; font-size:14px;">${totalBen.toLocaleString('es-MX')}</b> pers.</td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="flex:1; background:#e2e8f0; height:8px; border-radius:4px; overflow:hidden;">
+                  <div style="width:${porcentaje}%; background:var(--gto-azul-primario); height:100%;"></div>
+                </div>
+                <span style="font-size:11px; font-weight:700; min-width:38px;">${porcentaje}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function exportarResumenDirectivoExcel() {
+      const cuerpoFilas = [];
+      const filasHTML = document.querySelectorAll('#cuerpoTablaResumenMuni tr');
+      
+      filasHTML.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length === 5) {
+          cuerpoFilas.push({
+            "Posición": tds[0].innerText.trim(),
+            "Municipio": tds[1].innerText.trim(),
+            "Actividades": tds[2].innerText.replace('actividades', '').trim(),
+            "Beneficiarios Atendidos": tds[3].innerText.replace('pers.', '').trim(),
+            "Porcentaje Estatal": tds[4].querySelector('span') ? tds[4].querySelector('span').innerText.trim() : ''
+          });
+        }
+      });
+
+      if (cuerpoFilas.length === 0) return Swal.fire('Sin Datos', 'No hay información en la tabla para exportar.', 'info');
+
+      const hoja = XLSX.utils.json_to_sheet(cuerpoFilas);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Resumen_Directivo_GTO");
+      XLSX.writeFile(libro, `Resumen_Ejecutivo_Directivo_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
     // --- SUBIDA FORMULARIO MANUAL ---
