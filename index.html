@@ -64,6 +64,9 @@
     input[type="text"], input[type="email"], input[type="number"], input[type="time"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s ease; background: #fafafa; }
     input:focus, select:focus { outline: none; border-color: var(--gto-azul-primario); background: white; box-shadow: 0 0 0 3px var(--gto-azul-claro); }
 
+    /* Destacado Selector de Área */
+    .area-selector-container { background: #f0f7ff; border: 2px solid var(--gto-azul-secundario); border-radius: 12px; padding: 16px; margin-bottom: 22px; }
+
     /* Botones */
     .btn-gto { background-color: var(--gto-azul-primario); color: white; border: none; border-radius: 10px; padding: 14px 24px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
     .btn-gto:hover { background-color: #003662; transform: translateY(-1px); }
@@ -98,12 +101,15 @@
     tr:hover { background-color: #f8fafc; }
     
     .badge-folio { background: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-family: monospace; }
+    .badge-area { background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 3px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
+    .badge-biblio { background: #fef3c7; color: #92400e; font-weight: 700; padding: 3px 6px; border-radius: 4px; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; display: inline-block; }
+    
     .img-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid #cbd5e1; transition: transform 0.2s; }
     .img-thumb:hover { transform: scale(1.1); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .btn-pdf-tabla { background: var(--gto-azul-primario); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-pdf-tabla:hover { background: #003662; }
 
-    /* Estilos del Dashboard y Contenedores de Gráficos */
+    /* Estilos del Dashboard */
     .chart-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .chart-box h3 { font-size: 16px; margin-bottom: 4px; }
     .chart-box p { font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 14px; }
@@ -127,7 +133,7 @@
     <div class="login-box">
       <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" style="height: 200px; width: auto; margin: 0 auto; display: block; margin-bottom: 20px;" onerror="this.style.display='none'">
       <h1>Acceso Operativo</h1>
-      <p>Sistema de Captura de Datos de Centros y Módulos Culturales (CDCM)</p>
+      <p>Sistema Integral de Sistematización de Vinculación Cultural</p>
       <form id="formIngreso">
         <div style="text-align: left; margin-bottom: 20px;">
           <label for="correoLogin">Correo Electrónico Institucional</label>
@@ -146,8 +152,8 @@
       <div class="brand-group">
         <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="GTO" style="height: 60px; width: auto;" onerror="this.style.display='none'">
         <div class="brand-titles">
-          <small>Secretaría de Cultura</small>
-          <span>Sistematización CDCM</span>
+          <small>Secretaría de Cultura de Guanajuato</small>
+          <span>Sistematización de Vinculación</span>
         </div>
       </div>
       <div class="user-badge">
@@ -168,30 +174,40 @@
       <button class="tab-btn" onclick="cambiarPestana('tab-dashboard', this); inicializarDashboardDirectivo();">3. Dashboard Directivo</button>
     </div>
 
-    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA -->
+    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA DINÁMICO -->
     <div id="tab-captura" class="tab-content activo">
       <form id="formularioCaptura">
         
-        <!-- SECCIÓN 1: UBICACIÓN Y ACTIVIDAD -->
+        <!-- SECCIÓN 1: IDENTIFICACIÓN Y CONFIGURACIÓN DINÁMICA -->
         <div class="card">
-          <h2 style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">1. Ubicación y Datos de la Actividad</h2>
+          <h2 style="margin-bottom: 16px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">1. Ubicación y Datos de la Actividad</h2>
+          
+          <!-- SELECTOR MAESTRO DE SUBÁREA -->
+          <div class="area-selector-container">
+            <label for="selectorArea" style="color: var(--gto-azul-primario); font-size: 13px;">Programa / Subdirección de Vinculación</label>
+            <select id="selectorArea" onchange="cambiarAreaOperativa()" style="background: white; font-weight: 700; border-color: var(--gto-azul-secundario);">
+              <option value="CDCM">Centros y Módulos Culturales (CDCM - Casas de Cultura)</option>
+              <option value="BIBLIOTECAS">Red Estatal de Bibliotecas Públicas (Fomento a la Lectura)</option>
+            </select>
+          </div>
+
           <div class="grid-2">
             <div>
               <label for="selectorMunicipio">Municipio</label>
               <select id="selectorMunicipio" required>
-                <option value="">Seleccione...</option>
+                <option value="">Seleccione municipio...</option>
               </select>
             </div>
             
             <div>
-              <label for="selectorSede">Sede / Espacio Cultural</label>
+              <label for="selectorSede" id="labelSede">Sede / Espacio Cultural</label>
               <select id="selectorSede" required>
                 <option value="">Primero elija municipio...</option>
               </select>
             </div>
             
             <div>
-              <label for="inputDisciplina">Disciplina / Taller</label>
+              <label for="inputDisciplina" id="labelDisciplina">Disciplina / Taller</label>
               <input type="text" id="inputDisciplina" placeholder="Ej. Danza Folclórica, Pintura..." required />
             </div>
             
@@ -200,22 +216,26 @@
               <select id="selectorProgramacion" required>
                 <option value="Anual">Anual</option>
                 <option value="Semestral">Semestral</option>
-                <option value="Verano">Verano</option>
+                <option value="Verano">Verano / Mis Vacaciones en la Biblio</option>
+                <option value="Mensual">Mensual / Sesión Única</option>
               </select>
             </div>
             
+            <!-- DOCENTE / RESPONSABLE DINÁMICO -->
             <div>
-              <label for="selectorDocente">Nombre del Docente</label>
-              <select id="selectorDocente" required>
-                <option value="">Cargando docentes...</option>
-              </select>
+              <label for="selectorDocente" id="labelDocente">Nombre del Docente</label>
+              <div id="contenedorDocenteDinamico">
+                <select id="selectorDocente" required>
+                  <option value="">Cargando docentes...</option>
+                </select>
+              </div>
             </div>
 
             <div>
               <label for="selectorModalidad">Modalidad de Cuota</label>
               <select id="selectorModalidad" required>
-                <option value="Libre Acceso">Gratuito</option>
-                <option value="Costo">Con Costo</option>
+                <option value="Libre Acceso">Gratuito / Libre Acceso</option>
+                <option value="Costo">Con Cuota de Recuperación</option>
               </select>
             </div>
             
@@ -310,14 +330,19 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 18px;">
           <div>
             <h2>Bitácora de Capturas Registradas</h2>
-            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Explora registros en tiempo real, consulta fotografías de campo o re-descarga acuses oficiales.</p>
+            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Explora registros en tiempo real de CDCM y Red de Bibliotecas, consulta fotos y re-descarga acuses.</p>
           </div>
           <button onclick="cargarBitacora()" class="btn-secundario" style="font-size: 12px; padding: 8px 16px;">↻ Actualizar Datos</button>
         </div>
 
         <!-- Barra de Búsqueda y Filtros -->
-        <div class="grid-2" style="margin-bottom: 15px;">
+        <div class="grid-3" style="margin-bottom: 15px;">
           <input type="text" id="buscadorBitacora" placeholder="🔍 Buscar por folio, taller, docente o sede..." onkeyup="filtrarTablaBitacora()" />
+          <select id="filtroAreaBitacora" onchange="filtrarTablaBitacora()">
+            <option value="">Todas las Áreas...</option>
+            <option value="CDCM">CDCM (Centros Culturales)</option>
+            <option value="BIBLIOTECAS">Red de Bibliotecas</option>
+          </select>
           <select id="filtroMunicipioBitacora" onchange="filtrarTablaBitacora()">
             <option value="">Todos los municipios...</option>
           </select>
@@ -328,9 +353,9 @@
           <table>
             <thead>
               <tr>
-                <th>Folio</th>
+                <th>Folio / Área</th>
                 <th>Municipio / Sede</th>
-                <th>Taller / Docente</th>
+                <th>Actividad / Responsable</th>
                 <th>Horario & Días</th>
                 <th>Beneficiarios</th>
                 <th>Evidencia</th>
@@ -350,61 +375,51 @@
     <!-- PESTAÑA 3: DASHBOARD DIRECTIVO ANALÍTICO -->
     <div id="tab-dashboard" class="tab-content">
       
-      <!-- Encabezado del Tablero Directivo -->
       <div class="card" style="margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
           <div>
             <h2>Inteligencia y Evaluación Cultural</h2>
             <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Métricas consolidadas y análisis de cobertura territorial en Guanajuato.</p>
           </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="filtroMunicipioDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 220px;">
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select id="filtroAreaDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
+              <option value="">Todas las Subdirecciones</option>
+              <option value="CDCM">CDCM (Centros Culturales)</option>
+              <option value="BIBLIOTECAS">Red de Bibliotecas</option>
+            </select>
+            <select id="filtroMunicipioDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
               <option value="">Todo el Estado (Global)</option>
             </select>
-            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario" style="font-size: 12px; padding: 10px 16px;">↻ Refrescar Gráficas</button>
+            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario" style="font-size: 12px; padding: 10px 16px;">↻ Refrescar</button>
           </div>
         </div>
       </div>
 
       <!-- Grid de 4 Gráficos Analíticos -->
       <div class="grid-2">
-        
-        <!-- Gráfico 1: Cobertura por Municipio -->
         <div class="chart-box">
           <h3>Afluencia por Municipio</h3>
           <p>Volumen total de beneficiarios atendidos por demarcación.</p>
-          <div class="canvas-container">
-            <canvas id="chartMunicipios"></canvas>
-          </div>
+          <div class="canvas-container"><canvas id="chartMunicipios"></canvas></div>
         </div>
 
-        <!-- Gráfico 2: Composición Etaria -->
         <div class="chart-box">
           <h3>Distribución por Grupos de Edad</h3>
           <p>Proporción de Niñez, Adolescencia, Juventudes y Adultos Mayores.</p>
-          <div class="canvas-container">
-            <canvas id="chartGruposEdad"></canvas>
-          </div>
+          <div class="canvas-container"><canvas id="chartGruposEdad"></canvas></div>
         </div>
 
-        <!-- Gráfico 3: Sectores de Atención Prioritaria -->
         <div class="chart-box">
           <h3>Sectores de Atención Prioritaria</h3>
           <p>Inclusión de personas con discapacidad, indígenas, afromexicanas y LGBTQ+.</p>
-          <div class="canvas-container">
-            <canvas id="chartPrioritarios"></canvas>
-          </div>
+          <div class="canvas-container"><canvas id="chartPrioritarios"></canvas></div>
         </div>
 
-        <!-- Gráfico 4: Modalidad y Género -->
         <div class="chart-box">
-          <h3>Distribución por Género y Modalidad</h3>
-          <p>Balance de género (Mujeres vs Hombres) en talleres culturales.</p>
-          <div class="canvas-container">
-            <canvas id="chartGenero"></canvas>
-          </div>
+          <h3>Distribución por Género</h3>
+          <p>Balance de género (Mujeres vs Hombres) en actividades culturales.</p>
+          <div class="canvas-container"><canvas id="chartGenero"></canvas></div>
         </div>
-
       </div>
     </div>
 
@@ -426,7 +441,7 @@
   </div>
 
   <!-- ================================================================= -->
-  <!-- 7. CATÁLOGOS BASE (MUNICIPIOS Y SEDES)                             -->
+  <!-- 7. CATÁLOGOS BASE (MUNICIPIOS Y SEDES CDCM)                       -->
   <!-- ================================================================= -->
   <script>
     const CATALOGO_GUBERNAMENTAL = {
@@ -458,6 +473,8 @@
     let memoriaDias = new Set();
     let memoriaCoords = { lat: null, lng: null };
     let memoriaRegistrosBitacora = [];
+    let memoriaBibliotecasSupabase = [];
+    let memoriaDocentesCDCM = [];
 
     // Instancias de Chart.js
     let chartInstMunicipios = null;
@@ -494,46 +511,130 @@
       });
     }
 
-    // --- FUNCIÓN C: CARGAR DOCENTES DINÁMICOS DESDE SUPABASE ---
-    async function cargarDocentesDinamicos() {
-      const selectDoc = document.getElementById('selectorDocente');
+    // --- FUNCIÓN C: CARGAR CATÁLOGOS BASE DESDE SUPABASE ---
+    async function cargarCatalogosBase() {
       try {
-        const { data, error } = await conexionSupabase
+        // Cargar Docentes CDCM
+        const { data: dataDoc } = await conexionSupabase
           .from('cat_docentes')
           .select('nombre_docente')
           .order('nombre_docente', { ascending: true });
+        memoriaDocentesCDCM = dataDoc || [];
 
-        if (error) throw error;
+        // Cargar Bibliotecas
+        const { data: dataBib } = await conexionSupabase
+          .from('cat_bibliotecas')
+          .select('*')
+          .order('nombre_biblioteca', { ascending: true });
+        memoriaBibliotecasSupabase = dataBib || [];
 
-        selectDoc.innerHTML = '<option value="">Seleccione al docente / tallerista...</option>';
-        if (data && data.length > 0) {
-          data.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item.nombre_docente;
-            opt.textContent = item.nombre_docente;
-            selectDoc.appendChild(opt);
-          });
-        } else {
-          selectDoc.innerHTML = '<option value="">No hay docentes en catálogo</option>';
-        }
+        actualizarSelectorDocentesCDCM();
       } catch (err) {
-        console.error('Error al cargar catálogo de docentes:', err.message);
-        selectDoc.innerHTML = '<option value="">Error al cargar catálogo</option>';
+        console.error('Error al cargar catálogos:', err.message);
       }
     }
 
-    // --- EVENTO: FILTRADO DE SEDES EN CASCADA POR MUNICIPIO ---
-    document.getElementById('selectorMunicipio').addEventListener('change', function() {
-      const selectSede = document.getElementById('selectorSede');
-      selectSede.innerHTML = '<option value="">Seleccione el Espacio Cultural...</option>';
-      const listaSedes = CATALOGO_GUBERNAMENTAL[this.value];
-      if(listaSedes) {
-        listaSedes.forEach(sede => { 
-          const opt = document.createElement('option'); 
-          opt.value = sede; 
-          opt.textContent = sede; 
-          selectSede.appendChild(opt); 
+    function actualizarSelectorDocentesCDCM() {
+      const selectDoc = document.getElementById('selectorDocente');
+      selectDoc.innerHTML = '<option value="">Seleccione al docente / tallerista...</option>';
+      if (memoriaDocentesCDCM.length > 0) {
+        memoriaDocentesCDCM.forEach(item => {
+          const opt = document.createElement('option');
+          opt.value = item.nombre_docente;
+          opt.textContent = item.nombre_docente;
+          selectDoc.appendChild(opt);
         });
+      } else {
+        selectDoc.innerHTML = '<option value="">No hay docentes en catálogo</option>';
+      }
+    }
+
+    // --- FUNCIÓN D: CAMBIO DINÁMICO DE ÁREA OPERATIVA (CDCM vs BIBLIOTECAS) ---
+    function cambiarAreaOperativa() {
+      const area = document.getElementById('selectorArea').value;
+      const labelSede = document.getElementById('labelSede');
+      const labelDisciplina = document.getElementById('labelDisciplina');
+      const labelDocente = document.getElementById('labelDocente');
+      const inputDisciplina = document.getElementById('inputDisciplina');
+      const selectMuni = document.getElementById('selectorMunicipio');
+      
+      // Resetear selecciones
+      selectMuni.value = '';
+      document.getElementById('selectorSede').innerHTML = '<option value="">Primero elija municipio...</option>';
+
+      if (area === 'BIBLIOTECAS') {
+        labelSede.textContent = 'Biblioteca Pública (Sede)';
+        labelDisciplina.textContent = 'Servicio / Actividad de Fomento a la Lectura';
+        labelDocente.textContent = 'Bibliotecario(a) / Responsable Asignado';
+        inputDisciplina.placeholder = 'Ej. Círculo de lectura, La Hora del Cuento, Préstamo en sala...';
+        
+        // Convertir selector docente a input de texto autocompletable
+        document.getElementById('contenedorDocenteDinamico').innerHTML = `
+          <input type="text" id="selectorDocente" placeholder="Se autocompleta al elegir la biblioteca..." required />
+        `;
+      } else {
+        labelSede.textContent = 'Sede / Espacio Cultural';
+        labelDisciplina.textContent = 'Disciplina / Taller';
+        labelDocente.textContent = 'Nombre del Docente';
+        inputDisciplina.placeholder = 'Ej. Danza Folclórica, Pintura, Música...';
+
+        document.getElementById('contenedorDocenteDinamico').innerHTML = `
+          <select id="selectorDocente" required><option value="">Cargando docentes...</option></select>
+        `;
+        actualizarSelectorDocentesCDCM();
+      }
+    }
+
+    // --- EVENTO: FILTRADO EN CASCADA POR MUNICIPIO ---
+    document.getElementById('selectorMunicipio').addEventListener('change', function() {
+      const muniElegido = this.value;
+      const area = document.getElementById('selectorArea').value;
+      const selectSede = document.getElementById('selectorSede');
+
+      if (!muniElegido) {
+        selectSede.innerHTML = '<option value="">Primero elija municipio...</option>';
+        return;
+      }
+
+      if (area === 'BIBLIOTECAS') {
+        // Filtrar del catálogo de bibliotecas cargado de Supabase
+        const bibs = memoriaBibliotecasSupabase.filter(b => b.municipio.toLowerCase().trim() === muniElegido.toLowerCase().trim());
+        
+        if (bibs.length > 0) {
+          selectSede.innerHTML = '<option value="">Seleccione la Biblioteca Pública...</option>';
+          bibs.forEach((b, idx) => {
+            const opt = document.createElement('option');
+            opt.value = b.nombre_biblioteca;
+            opt.textContent = b.nombre_biblioteca;
+            opt.dataset.responsable = b.responsable || 'Encargado no asignado';
+            selectSede.appendChild(opt);
+          });
+        } else {
+          selectSede.innerHTML = `<option value="">No hay bibliotecas en ${muniElegido}</option>`;
+        }
+      } else {
+        // Filtrar del catálogo CDCM
+        selectSede.innerHTML = '<option value="">Seleccione el Espacio Cultural...</option>';
+        const listaSedes = CATALOGO_GUBERNAMENTAL[muniElegido];
+        if (listaSedes) {
+          listaSedes.forEach(sede => { 
+            const opt = document.createElement('option'); 
+            opt.value = sede; 
+            opt.textContent = sede; 
+            selectSede.appendChild(opt); 
+          });
+        }
+      }
+    });
+
+    // --- EVENTO: AUTOCOMPLETAR RESPONSABLE DE BIBLIOTECA AL ELEGIR SEDE ---
+    document.getElementById('selectorSede').addEventListener('change', function() {
+      const area = document.getElementById('selectorArea').value;
+      if (area === 'BIBLIOTECAS') {
+        const opcionSeleccionada = this.options[this.selectedIndex];
+        const resp = opcionSeleccionada.dataset.responsable || '';
+        const inputDoc = document.getElementById('selectorDocente');
+        if (inputDoc) inputDoc.value = resp;
       }
     });
 
@@ -631,7 +732,7 @@
       });
     }
 
-    // --- FUNCIÓN D: GENERACIÓN DE ACUSE EN PDF INSTITUCIONAL (jsPDF) ---
+    // --- FUNCIÓN E: GENERACIÓN DE ACUSE EN PDF INSTITUCIONAL DINÁMICO ---
     async function generarAcusePDF(paquete, folio, archivoFoto = null) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({
@@ -646,6 +747,9 @@
       const GRIS_SECUNDARIO = [99, 102, 106];
       const FONDO_TARJETA = [245, 247, 250];
       const BORDE_LINEA = [200, 216, 235];
+
+      const esBiblio = paquete.area_programa === 'BIBLIOTECAS';
+      const nombrePrograma = esBiblio ? 'RED ESTATAL DE BIBLIOTECAS PÚBLICAS' : 'CENTROS Y MÓDULOS CULTURALES (CDCM)';
 
       // 1. Encabezado
       doc.setFillColor(...AZUL_GTO);
@@ -671,7 +775,7 @@
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8.5);
       doc.setTextColor(...GRIS_TEXTO);
-      doc.text("Sistematización de Centros y Módulos Culturales (CDCM)", inicioTextoX, 24);
+      doc.text(`Sistematización Institucional — ${nombrePrograma}`, inicioTextoX, 24);
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7.5);
@@ -681,9 +785,6 @@
       doc.setDrawColor(...AZUL_GTO);
       doc.setLineWidth(0.6);
       doc.line(14, 32, 196, 32);
-      doc.setDrawColor(...AZUL_ACCESO);
-      doc.setLineWidth(0.3);
-      doc.line(14, 33, 196, 33);
 
       // 2. Tarjeta Folio
       doc.setFillColor(...FONDO_TARJETA);
@@ -733,19 +834,25 @@
 
       doc.setFont("helvetica", "bold"); doc.text("Municipio:", 18, 69);
       doc.setFont("helvetica", "normal"); doc.text(paquete.municipio || 'N/A', 40, 69);
-      doc.setFont("helvetica", "bold"); doc.text("Sede Cultural:", 18, 76);
+      
+      doc.setFont("helvetica", "bold"); doc.text(esBiblio ? "Biblioteca:" : "Sede Cultural:", 18, 76);
       doc.setFont("helvetica", "normal"); doc.text(paquete.sede || 'N/A', 42, 76);
-      doc.setFont("helvetica", "bold"); doc.text("Disciplina / Taller:", 18, 83);
-      doc.setFont("helvetica", "normal"); doc.text(paquete.disciplina || 'N/A', 47, 83);
-      doc.setFont("helvetica", "bold"); doc.text("Docente Asignado:", 18, 90);
-      doc.setFont("helvetica", "normal"); doc.text(paquete.docente || 'N/A', 47, 90);
+      
+      doc.setFont("helvetica", "bold"); doc.text(esBiblio ? "Servicio / Actividad:" : "Disciplina / Taller:", 18, 83);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.disciplina || 'N/A', 50, 83);
+      
+      doc.setFont("helvetica", "bold"); doc.text(esBiblio ? "Responsable:" : "Docente Asignado:", 18, 90);
+      doc.setFont("helvetica", "normal"); doc.text(paquete.docente || 'N/A', 50, 90);
 
       doc.setFont("helvetica", "bold"); doc.text("Programación:", 110, 69);
       doc.setFont("helvetica", "normal"); doc.text(paquete.programacion || 'N/A', 134, 69);
+      
       doc.setFont("helvetica", "bold"); doc.text("Modalidad Cuota:", 110, 76);
       doc.setFont("helvetica", "normal"); doc.text(paquete.costo || 'Libre Acceso', 137, 76);
+      
       doc.setFont("helvetica", "bold"); doc.text("Días de Sesión:", 110, 83);
       doc.setFont("helvetica", "normal"); doc.text(paquete.dias || paquete.sesion || 'N/A', 134, 83);
+      
       doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
       doc.setFont("helvetica", "normal"); doc.text(paquete.horario || 'N/A', 124, 90);
 
@@ -866,10 +973,10 @@
       doc.setFont("helvetica", "normal");
       doc.setFontSize(6.5);
       doc.setTextColor(...GRIS_SECUNDARIO);
-      doc.text("Registro integrado en la base de datos", 22, 216);
+      doc.text(`Registro integrado para ${nombrePrograma}`, 22, 216);
       doc.text("de la Secretaría de Cultura de Guanajuato.", 22, 220);
       doc.line(25, 236, 95, 236);
-      doc.text("Firma o Sello del Enlace Responsable", 36, 240);
+      doc.text("Firma o Sello del Responsable", 40, 240);
 
       doc.setFillColor(...FONDO_TARJETA);
       doc.roundedRect(114, 178, 76, 68, 2, 2, 'FD');
@@ -912,14 +1019,14 @@
       doc.setFont("helvetica", "normal");
       doc.setFontSize(6.5);
       doc.setTextColor(...GRIS_SECUNDARIO);
-      doc.text("Documento oficial emitido a través del Sistema Institucional de Sistematización CDCM.", 14, 273);
-      doc.text("Secretaría de Cultura del Estado de Guanajuato | Coordinación de Planeación y Evaluación Cultural", 14, 277);
+      doc.text("Documento oficial emitido a través del Sistema Institucional de Sistematización de Vinculación Cultural.", 14, 273);
+      doc.text("Secretaría de Cultura del Estado de Guanajuato | Coordinación de Planeación y Evaluación", 14, 277);
       doc.text("Página 1 de 1", 182, 277);
 
-      doc.save(`Acuse_Oficial_${folio}.pdf`);
+      doc.save(`Acuse_${paquete.area_programa || 'SC'}_${folio}.pdf`);
     }
 
-    // --- FUNCIÓN E: CARGA Y RENDERIZADO DE LA BITÁCORA ---
+    // --- FUNCIÓN F: CARGA Y RENDERIZADO DE LA BITÁCORA ---
     async function cargarBitacora() {
       const cuerpo = document.getElementById('cuerpoTablaBitacora');
       cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--gto-gris-oscuro); padding: 25px;">Sincronizando bitácora desde la nube...</td></tr>`;
@@ -941,7 +1048,7 @@
       }
     }
 
-    // --- FUNCIÓN F: CÁLCULO DE MÉTRICAS KPI ---
+    // --- FUNCIÓN G: CÁLCULO DE MÉTRICAS KPI ---
     function actualizarMetricasKPI(registros) {
       document.getElementById('kpiTotalActividades').innerText = registros.length;
 
@@ -955,7 +1062,7 @@
       document.getElementById('kpiTotalMunicipios').innerText = municipiosUnicos.size;
     }
 
-    // --- FUNCIÓN G: RENDERIZAR FILAS EN LA TABLA ---
+    // --- FUNCIÓN H: RENDERIZAR FILAS EN LA TABLA ---
     function renderizarFilasBitacora(registros) {
       const cuerpo = document.getElementById('cuerpoTablaBitacora');
       if (registros.length === 0) {
@@ -972,11 +1079,15 @@
           ? `<img src="${reg.foto_url}" class="img-thumb" alt="Evidencia" onclick="abrirModalFoto('${reg.foto_url}', '${reg.folio}', '${reg.municipio} - ${reg.disciplina}')" title="Ver foto completa"/>`
           : `<span style="font-size: 11px; color: #94a3b8;">Sin foto</span>`;
 
+        const insigniaArea = reg.area_programa === 'BIBLIOTECAS'
+          ? `<span class="badge-biblio">📖 BIBLIOTECA</span>`
+          : `<span class="badge-area">🎨 CDCM</span>`;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><span class="badge-folio">${reg.folio || 'S/F'}</span></td>
+          <td>${insigniaArea}<br><span class="badge-folio">${reg.folio || 'S/F'}</span></td>
           <td><b>${reg.municipio || 'N/A'}</b><br><small style="color: #64748b;">${reg.sede || 'N/A'}</small></td>
-          <td><b>${reg.disciplina || 'N/A'}</b><br><small style="color: #004B87;">👨‍🏫 ${reg.docente || 'Sin docente'}</small></td>
+          <td><b>${reg.disciplina || 'N/A'}</b><br><small style="color: #004B87;">👤 ${reg.docente || 'Sin responsable'}</small></td>
           <td>${reg.horario || 'N/A'}<br><small style="color: #64748b;">📅 ${reg.dias || reg.sesion || 'N/A'}</small></td>
           <td><b style="color: #004B87; font-size: 14px;">${total}</b> <small>pers.</small></td>
           <td style="text-align: center;">${celdaFoto}</td>
@@ -988,12 +1099,14 @@
       });
     }
 
-    // --- FUNCIÓN H: FILTRADO EN TIEMPO REAL (BITÁCORA) ---
+    // --- FUNCIÓN I: FILTRADO EN TIEMPO REAL (BITÁCORA) ---
     function filtrarTablaBitacora() {
       const texto = document.getElementById('buscadorBitacora').value.toLowerCase();
+      const area = document.getElementById('filtroAreaBitacora').value;
       const muni = document.getElementById('filtroMunicipioBitacora').value;
 
       const filtrados = memoriaRegistrosBitacora.filter(reg => {
+        const coincideArea = !area || reg.area_programa === area || (!reg.area_programa && area === 'CDCM');
         const coincideMuni = !muni || reg.municipio === muni;
         const coincideTexto = !texto || 
           (reg.folio && reg.folio.toLowerCase().includes(texto)) ||
@@ -1002,13 +1115,13 @@
           (reg.disciplina && reg.disciplina.toLowerCase().includes(texto)) ||
           (reg.docente && reg.docente.toLowerCase().includes(texto));
 
-        return coincideMuni && coincideTexto;
+        return coincideArea && coincideMuni && coincideTexto;
       });
 
       renderizarFilasBitacora(filtrados);
     }
 
-    // --- FUNCIÓN I: RE-EMISIÓN DE PDF HISTÓRICO ---
+    // --- FUNCIÓN J: RE-EMISIÓN DE PDF HISTÓRICO ---
     async function reimprimirPDFPorIndice(indice) {
       const registro = memoriaRegistrosBitacora[indice];
       if (!registro) return;
@@ -1048,14 +1161,18 @@
     }
 
     function actualizarGraficasDashboard() {
+      const filtroArea = document.getElementById('filtroAreaDashboard').value;
       const filtroMuni = document.getElementById('filtroMunicipioDashboard').value;
       
-      const datos = filtroMuni 
-        ? memoriaRegistrosBitacora.filter(r => r.municipio === filtroMuni)
-        : memoriaRegistrosBitacora;
+      let datos = memoriaRegistrosBitacora;
+      if (filtroArea) {
+        datos = datos.filter(r => r.area_programa === filtroArea || (!r.area_programa && filtroArea === 'CDCM'));
+      }
+      if (filtroMuni) {
+        datos = datos.filter(r => r.municipio === filtroMuni);
+      }
 
-      // 1. CÁLCULO DE MÉTRICAS
-      // A) Municipios vs Beneficiarios
+      // Conteo por Municipio
       const conteoPorMuni = {};
       datos.forEach(r => {
         const m = r.municipio || 'Sin Municipio';
@@ -1064,7 +1181,7 @@
         conteoPorMuni[m] = (conteoPorMuni[m] || 0) + total;
       });
 
-      // B) Grupos de Edad
+      // Grupos de Edad
       let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
       datos.forEach(r => {
         sumaNinez += (Number(r.ninez) || 0);
@@ -1073,7 +1190,7 @@
         sumaMayores += (Number(r.adultos_mayores) || 0);
       });
 
-      // C) Sectores Prioritarios
+      // Sectores Prioritarios
       let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
       datos.forEach(r => {
         sumaDiscapacidad += (Number(r.discapacidad) || 0);
@@ -1082,14 +1199,14 @@
         sumaLGBT += (Number(r.lgbtq) || 0);
       });
 
-      // D) Género (Mujeres vs Hombres)
+      // Género
       let sumaMujeres = 0, sumaHombres = 0;
       datos.forEach(r => {
         sumaMujeres += (Number(r.mujeres) || 0);
         sumaHombres += (Number(r.hombres) || 0);
       });
 
-      // 2. RENDERIZAR GRÁFICA 1: MUNICIPIOS (Barras)
+      // Renderizar Gráfica 1: Municipios
       const ctxMuni = document.getElementById('chartMunicipios').getContext('2d');
       if (chartInstMunicipios) chartInstMunicipios.destroy();
       chartInstMunicipios = new Chart(ctxMuni, {
@@ -1111,7 +1228,7 @@
         }
       });
 
-      // 3. RENDERIZAR GRÁFICA 2: GRUPOS DE EDAD (Dona)
+      // Renderizar Gráfica 2: Edad
       const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
       if (chartInstGruposEdad) chartInstGruposEdad.destroy();
       chartInstGruposEdad = new Chart(ctxEdad, {
@@ -1132,7 +1249,7 @@
         }
       });
 
-      // 4. RENDERIZAR GRÁFICA 3: ATENCIÓN PRIORITARIA (Barras Horizontales)
+      // Renderizar Gráfica 3: Prioritarios
       const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
       if (chartInstPrioritarios) chartInstPrioritarios.destroy();
       chartInstPrioritarios = new Chart(ctxPrio, {
@@ -1155,7 +1272,7 @@
         }
       });
 
-      // 5. RENDERIZAR GRÁFICA 4: BALANCE DE GÉNERO (Pie)
+      // Renderizar Gráfica 4: Género
       const ctxGen = document.getElementById('chartGenero').getContext('2d');
       if (chartInstGenero) chartInstGenero.destroy();
       chartInstGenero = new Chart(ctxGen, {
@@ -1177,7 +1294,7 @@
       });
     }
 
-    // --- EVENTO: ENVÍO DE DATOS Y PERSISTENCIA EN SUPABASE ---
+    // --- EVENTO: ENVÍO DE FORMULARIO Y PERSISTENCIA EN SUPABASE ---
     document.getElementById('formularioCaptura').addEventListener('submit', async (e) => {
       e.preventDefault();
       if(memoriaDias.size === 0) return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión.', 'warning');
@@ -1191,7 +1308,7 @@
       btnGuardar.disabled = true;
       btnGuardar.innerText = "Subiendo datos y evidencia...";
 
-      // 1. SUBIDA DE FOTOGRAFÍA A SUPABASE STORAGE
+      // 1. Subida de Foto a Storage
       if (inputArchivoFoto.files && inputArchivoFoto.files.length > 0) {
         const archivo = inputArchivoFoto.files[0];
         const extension = archivo.name.split('.').pop();
@@ -1218,15 +1335,17 @@
         urlFotoFinal = dataUrl.publicUrl;
       }
 
-      // 2. PAQUETE SQL COMPLETO
+      // 2. Paquete SQL Completo con Subárea
+      const areaActual = document.getElementById('selectorArea').value;
       const paqueteSQL = {
         folio: folioGenerado,
+        area_programa: areaActual,
         usuario: sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx',
         municipio: document.getElementById('selectorMunicipio').value,
         sede: document.getElementById('selectorSede').value,
         disciplina: document.getElementById('inputDisciplina').value.trim(),
         programacion: document.getElementById('selectorProgramacion').value,
-        docente: document.getElementById('selectorDocente').value,
+        docente: document.getElementById('selectorDocente').value.trim(),
         costo: document.getElementById('selectorModalidad').value,
         horario: `${document.getElementById('horaInicio').value} - ${document.getElementById('horaFin').value}`,
         
@@ -1248,7 +1367,7 @@
         lgbtq: numeroSeguro('p_lgbt')
       };
 
-      // 3. INSERCIÓN EN TABLA POSTGRESQL
+      // 3. Inserción en PostgreSQL
       const { error: errorSQL } = await conexionSupabase.from(TABLA_SQL).insert([paqueteSQL]);
       
       btnGuardar.disabled = false;
@@ -1259,7 +1378,7 @@
         return Swal.fire('Error SQL', errorSQL.message, 'error');
       }
 
-      // 4. CONFIRMACIÓN Y DESCARGA DEL PDF
+      // 4. Confirmación y PDF
       Swal.fire({
         title: '¡Sincronizado!',
         html: `El registro y la evidencia se guardaron correctamente.<br><br><b>Folio Oficial:</b><br><span style="font-size: 24px; color: #004B87; font-weight: 900;">${folioGenerado}</span><br><br><small>Generando acuse institucional en PDF...</small>`,
@@ -1268,30 +1387,27 @@
 
       await generarAcusePDF(paqueteSQL, folioGenerado, inputArchivoFoto.files[0]);
 
-      // 5. RESET DEL FORMULARIO Y ACTUALIZACIÓN
+      // 5. Reset
       document.getElementById('formularioCaptura').reset();
+      cambiarAreaOperativa();
       memoriaDias.clear(); 
       document.querySelectorAll('.dia-pill').forEach(b => b.classList.remove('activo'));
       document.getElementById('txtCoordenadas').textContent = "Coordenadas no capturadas";
       document.getElementById('txtFoto').textContent = "Sin foto seleccionada";
       memoriaCoords = { lat: null, lng: null };
 
-      // Actualizar datos de bitácora y gráficas en segundo plano
       cargarBitacora();
       inicializarDashboardDirectivo();
     });
 
-    // --- INICIALIZACIÓN GENERAL AL CARGAR EL DOM ---
+    // --- INICIALIZACIÓN GENERAL ---
     window.addEventListener('DOMContentLoaded', async () => {
-      // 1. Iniciar cliente Supabase
       conexionSupabase = window.supabase.createClient(URL_SUPABASE, LLAVE_PUBLICA);
       
-      // 2. Poblar catálogos iniciales
       cargarPlegableMunicipios();
-      await cargarDocentesDinamicos();
+      await cargarCatalogosBase();
       cargarBitacora();
 
-      // 3. Validar sesión existente
       const { data } = await conexionSupabase.auth.getSession();
       sesionActual = data.session;
 
@@ -1300,7 +1416,6 @@
         document.getElementById('etiquetaUsuario').innerText = sesionActual.user.email;
       }
 
-      // 4. Escuchar cambios de sesión
       conexionSupabase.auth.onAuthStateChange((_evento, sesion) => {
         sesionActual = sesion;
         if(sesionActual) {
@@ -1312,7 +1427,6 @@
         }
       });
 
-      // 5. Botón de cierre de sesión
       document.getElementById('btnCerrarSesion').addEventListener('click', () => conexionSupabase.auth.signOut());
     });
   </script>
