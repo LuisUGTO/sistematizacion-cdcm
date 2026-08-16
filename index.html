@@ -41,22 +41,40 @@
     h1, h2, h3 { font-family: 'Vollkorn', serif; color: var(--gto-azul-primario); }
 
     /* Barra Superior */
-    .topbar { background: var(--gto-blanco-papel); border-bottom: 3px solid var(--gto-azul-secundario); padding: 12px 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .topbar { background: var(--gto-blanco-papel); border-bottom: 3px solid var(--gto-azul-secundario); padding: 10px 24px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .topbar-container { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .brand-group { display: flex; align-items: center; gap: 16px; }
     .brand-titles { display: flex; flex-direction: column; }
     .brand-titles small { font-size: 11px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; letter-spacing: 1px;}
     .brand-titles span { font-family: 'Vollkorn', serif; font-size: 20px; font-weight: 700; color: var(--gto-azul-primario); }
-    .user-badge { display: flex; align-items: center; gap: 12px; background: var(--gto-fondo-app); padding: 6px 14px; border-radius: 50px; border: 1px solid var(--gto-azul-claro); font-size: 13px; font-weight: 600; }
-    .btn-salir { background: none; border: none; color: #dc2626; font-weight: 700; cursor: pointer; font-size: 12px; transition: opacity 0.2s; }
-    .btn-salir:hover { opacity: 0.7; }
+    
+    /* Perfil Estilo Google Workspace */
+    .user-profile-widget { position: relative; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .user-pill { display: flex; align-items: center; gap: 10px; background: var(--gto-fondo-app); padding: 4px 12px 4px 6px; border-radius: 40px; border: 1px solid var(--gto-azul-claro); transition: all 0.2s; }
+    .user-pill:hover { background: #e8f0fe; border-color: var(--gto-azul-primario); }
+    .avatar-circle { width: 34px; height: 34px; border-radius: 50%; background: var(--gto-azul-primario); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .user-info-text { font-size: 12px; font-weight: 600; color: var(--gto-texto-fijo); max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Dropdown Flotante Tipo Google */
+    .google-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 320px; background: white; border-radius: 18px; box-shadow: 0 10px 35px rgba(0, 75, 135, 0.18); border: 1px solid rgba(0,75,135,0.12); padding: 20px; z-index: 2000; animation: fadeIn 0.25s ease; display: none; text-align: center; }
+    .google-dropdown.show { display: block; }
+    .dropdown-avatar-big-wrap { position: relative; width: 72px; height: 72px; margin: 0 auto 12px; }
+    .avatar-circle-big { width: 72px; height: 72px; border-radius: 50%; background: var(--gto-azul-primario); color: white; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; object-fit: cover; border: 3px solid var(--gto-azul-claro); }
+    .btn-cambiar-foto { position: absolute; bottom: 0; right: 0; background: var(--gto-azul-primario); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+    .dropdown-name { font-size: 15px; font-weight: 700; color: var(--gto-texto-fijo); margin-bottom: 2px; }
+    .dropdown-email { font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 16px; word-break: break-all; }
+    
+    .dropdown-links { border-top: 1px solid #edf2f7; border-bottom: 1px solid #edf2f7; padding: 10px 0; margin-bottom: 14px; text-align: left; }
+    .dropdown-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--gto-texto-fijo); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+    .dropdown-item:hover { background: #f0f7ff; color: var(--gto-azul-primario); font-weight: 600; }
+    .dropdown-item span { font-size: 16px; }
 
     /* Estructura Principal y Tarjetas */
     .main-wrapper { max-width: 1240px; margin: 30px auto; padding: 0 20px; }
     .card { background: var(--gto-blanco-papel); border-radius: 16px; padding: 32px; box-shadow: var(--gto-sombra-institucional); border: 1px solid rgba(0, 75, 135, 0.08); margin-bottom: 24px; }
 
     /* Modal de Acceso / Login */
-    .login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #004B87 0%, #17314e 100%); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+    .login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #004B87 0%, #17314e 100%); display: flex; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
     .login-box { background: white; border-radius: 20px; padding: 40px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); border-bottom: 6px solid var(--gto-azul-secundario); }
     .login-box h1 { font-size: 28px; margin: 16px 0 8px 0; }
     .login-box p { color: var(--gto-gris-oscuro); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
@@ -129,18 +147,16 @@
     .chart-box p { font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 14px; }
     .canvas-container { position: relative; width: 100%; height: 280px; }
     
-    /* Contenedor del Mapa Geoespacial */
     #mapaGto { height: 420px; width: 100%; border-radius: 12px; z-index: 1; border: 1px solid #cbd5e1; }
-    .map-legend { background: white; padding: 10px 14px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); font-size: 11px; line-height: 1.6; }
 
     /* Modal de Fotografía */
-    .modal-foto-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
+    .modal-foto-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 4000; padding: 20px; }
     .modal-foto-box { background: white; border-radius: 16px; max-width: 700px; width: 100%; padding: 24px; text-align: center; position: relative; }
     .modal-foto-box img { max-width: 100%; max-height: 70vh; border-radius: 10px; object-fit: contain; margin-top: 12px; }
     .btn-cerrar-modal { position: absolute; top: 14px; right: 18px; background: #e2e8f0; border: none; border-radius: 50%; width: 32px; height: 32px; font-weight: 900; cursor: pointer; color: #475569; }
 
     @media (max-width: 900px) { .grid-4 { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 768px) { .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; } .col-span-2 { grid-column: span 1; } .user-badge { display: none; } }
+    @media (max-width: 768px) { .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; } .col-span-2 { grid-column: span 1; } .user-info-text { display: none; } }
   </style>
 </head>
 <body>
@@ -161,20 +177,53 @@
     </div>
   </div>
 
-  <!-- 4. ENCABEZADO INSTITUCIONAL -->
+  <!-- 4. ENCABEZADO INSTITUCIONAL CON PERFIL TIPO GOOGLE -->
   <header class="topbar">
     <div class="topbar-container">
       <div class="brand-group">
-        <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="GTO" style="height: 60px; width: auto;" onerror="this.style.display='none'">
+        <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="GTO" style="height: 58px; width: auto;" onerror="this.style.display='none'">
         <div class="brand-titles">
           <small>Secretaría de Cultura de Guanajuato</small>
           <span>Sistematización de Vinculación</span>
         </div>
       </div>
-      <div class="user-badge">
-        <span id="etiquetaUsuario">cargando...</span>
-        <button id="btnCerrarSesion" class="btn-salir">Cerrar Sesión</button>
+
+      <!-- Widget de Cuenta de Usuario -->
+      <div class="user-profile-widget" id="contenedorPerfilGoogle">
+        <div class="user-pill" onclick="toggleMenuGoogle(event)">
+          <div class="avatar-circle" id="avatarTopBar">U</div>
+          <span class="user-info-text" id="etiquetaUsuario">cargando...</span>
+          <span style="font-size: 10px; color: var(--gto-gris-oscuro);">▼</span>
+        </div>
+
+        <!-- Menú Desplegable Tipo Google Workspace -->
+        <div class="google-dropdown" id="menuDesplegableGoogle" onclick="event.stopPropagation()">
+          <div class="dropdown-avatar-big-wrap">
+            <div class="avatar-circle-big" id="avatarDropdownBig">U</div>
+            <button class="btn-cambiar-foto" onclick="document.getElementById('inputFotoPerfil').click()" title="Cambiar foto de perfil">📷</button>
+            <input type="file" id="inputFotoPerfil" accept="image/*" class="hidden" onchange="actualizarFotoPerfil(this)" />
+          </div>
+          <div class="dropdown-name" id="dropdownNombreUsuario">Enlace Institucional</div>
+          <div class="dropdown-email" id="dropdownEmailUsuario">planeacionscul@guanajuato.gob.mx</div>
+
+          <div class="dropdown-links">
+            <div class="dropdown-item" onclick="abrirModalPersonalizarPerfil()">
+              <span>👤</span> Personalizar Perfil
+            </div>
+            <div class="dropdown-item" onclick="abrirModalAsistenciaTecnica()">
+              <span>💡</span> Asistencia y Soporte Técnico
+            </div>
+            <a href="admin.html" class="dropdown-item">
+              <span>⚙️</span> Panel de Catálogos (Admin)
+            </a>
+          </div>
+
+          <button id="btnCerrarSesion" class="btn-gto" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; padding:10px; font-size:12px;">
+            Cerrar Sesión Institucional
+          </button>
+        </div>
       </div>
+
     </div>
   </header>
 
@@ -594,7 +643,6 @@
       "Yuriria": ["Casa de la Cultura", "Ex Convento San Agustín de Yuriria"]
     };
 
-    // COORDENADAS GEOESPACIALES DE LOS 46 MUNICIPIOS
     const COORDENADAS_MUNICIPIOS = {
       "Abasolo": [20.4503, -101.5336],
       "Acámbaro": [20.0306, -100.7192],
@@ -685,6 +733,96 @@
       if (norm.includes('juventino')) return 'Santa Cruz de Juventino Rosas';
       if (norm.includes('apaseo el g')) return 'Apaseo el Grande';
       return nombreCrudo;
+    }
+
+    // --- CONTROLES DEL PERFIL TIPO GOOGLE ---
+    function toggleMenuGoogle(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('menuDesplegableGoogle');
+      menu.classList.toggle('show');
+    }
+
+    document.addEventListener('click', () => {
+      const menu = document.getElementById('menuDesplegableGoogle');
+      if (menu) menu.classList.remove('show');
+    });
+
+    function cargarDatosPerfilLocal() {
+      const email = sesionActual ? sesionActual.user.email : 'planeacionscul@guanajuato.gob.mx';
+      const nombreGuardado = localStorage.getItem('perfil_gto_nombre') || 'Enlace Institucional';
+      const fotoGuardada = localStorage.getItem('perfil_gto_foto');
+
+      document.getElementById('etiquetaUsuario').innerText = email;
+      document.getElementById('dropdownEmailUsuario').innerText = email;
+      document.getElementById('dropdownNombreUsuario').innerText = nombreGuardado;
+
+      const inicial = email.charAt(0).toUpperCase();
+      const topAvatar = document.getElementById('avatarTopBar');
+      const bigAvatar = document.getElementById('avatarDropdownBig');
+
+      if (fotoGuardada) {
+        topAvatar.innerHTML = `<img src="${fotoGuardada}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
+        bigAvatar.innerHTML = `<img src="${fotoGuardada}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />`;
+      } else {
+        topAvatar.innerText = inicial;
+        bigAvatar.innerText = inicial;
+      }
+    }
+
+    function actualizarFotoPerfil(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          localStorage.setItem('perfil_gto_foto', e.target.result);
+          cargarDatosPerfilLocal();
+          Swal.fire('Foto Actualizada', 'Tu imagen de perfil institucional ha sido guardada.', 'success');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    async function abrirModalPersonalizarPerfil() {
+      const nombreActual = localStorage.getItem('perfil_gto_nombre') || 'Enlace Institucional';
+      const { value: nuevoNombre } = await Swal.fire({
+        title: 'Personalizar Perfil',
+        input: 'text',
+        inputLabel: 'Nombre Completo o Cargo Institucional:',
+        inputValue: nombreActual,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar Cambios',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (nuevoNombre) {
+        localStorage.setItem('perfil_gto_nombre', nuevoNombre.trim());
+        cargarDatosPerfilLocal();
+        Swal.fire('Guardado', 'Perfil actualizado con éxito.', 'success');
+      }
+    }
+
+    function abrirModalAsistenciaTecnica() {
+      Swal.fire({
+        title: 'Mesa de Asistencia y Soporte',
+        html: `
+          <div style="text-align:left; font-size:13px; color:#334155; line-height:1.6;">
+            <p style="margin-bottom:12px;">Para soporte operativo, reportes técnicos de carga o dudas sobre catálogos de Vinculación:</p>
+            
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px; margin-bottom:10px;">
+              <b>🏛️ Coordinación de Planeación y Evaluación Cultural</b><br>
+              <span>Secretaría de Cultura del Estado de Guanajuato</span><br>
+              <a href="mailto:planeacionscul@guanajuato.gob.mx" style="color:#004B87; font-weight:bold;">planeacionscul@guanajuato.gob.mx</a>
+            </div>
+
+            <div style="background:#f0f7ff; border:1px solid #69B3E7; border-radius:10px; padding:12px;">
+              <b>👨‍💻 Enlace de Soporte Técnico y Desarrollo de Sistemas</b><br>
+              <span>Universidad de Guanajuato (UG) / Proyecto Institucional</span><br>
+              <a href="mailto:la.duranalvarez@ugto.mx" style="color:#004B87; font-weight:bold;">la.duranalvarez@ugto.mx</a>
+            </div>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonText: 'Entendido'
+      });
     }
 
     function cambiarPestana(idPestana, elementoBtn) {
@@ -976,7 +1114,6 @@
         doc.setLineWidth(0.6);
         doc.line(14, 32, 196, 32);
 
-        // Tarjeta Folio
         doc.setFillColor(...FONDO_TARJETA);
         doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
         doc.setDrawColor(...BORDE_LINEA);
@@ -1007,7 +1144,6 @@
         doc.setFont("helvetica", "normal");
         doc.text(String(paquete.usuario || 'planeacionscul@guanajuato.gob.mx'), 102, 49);
 
-        // Sección 1: Datos Generales
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 57, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1045,7 +1181,6 @@
         doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
         doc.setFont("helvetica", "normal"); doc.text(String(paquete.horario || 'N/A'), 124, 90);
 
-        // Sección 2: Desglose Demográfico
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 100, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1118,7 +1253,6 @@
         doc.setFontSize(11);
         doc.text(`${sumaTotal} PERSONAS`, 146, 158.5);
 
-        // Sección 3: Validación Técnica
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 167, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1435,7 +1569,7 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- FUNCIÓN M: MOTOR BIMODAL DE IMPORTACIÓN EXCEL (MICRO Y MACRO ESTATAL) ---
+    // --- MOTOR BIMODAL DE IMPORTACIÓN EXCEL ---
     async function procesarExcelMasivoRegistros(inputElement) {
       const file = inputElement.files[0];
       if (!file) return;
@@ -1455,7 +1589,7 @@
           const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
           const registrosSQL = [];
 
-          // CASO A: DETECCIÓN DE CONCENTRADO MACRO-ESTATAL
+          // CASO A: CONCENTRADO MACRO-ESTATAL
           const hojaMacro = workbook.SheetNames.find(s => {
             const ns = normalizar(s);
             return ns.includes('activi') || ns.includes('concentrado') || ns.includes('promediado');
@@ -1551,7 +1685,7 @@
             }
           }
 
-          // CASO B: DETECCIÓN DE REPORTE MUNICIPAL DETALLADO
+          // CASO B: REPORTE MUNICIPAL DETALLADO
           let municipioArchivo = '';
           const normFileName = normalizar(file.name);
           for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
@@ -1762,7 +1896,6 @@
 
     function inicializarMapaGto() {
       if (!mapaLeaflet) {
-        // Centro de Guanajuato
         mapaLeaflet = L.map('mapaGto').setView([20.85, -101.15], 8);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
           attribution: '&copy; <a href="https://carto.com/">CARTO</a> | Secretaría de Cultura de Guanajuato',
@@ -1785,7 +1918,6 @@
         datos = datos.filter(r => r.municipio === filtroMuni);
       }
 
-      // 1. CÁLCULO DE TOTALES GENERALES
       const conteoPorMuni = {};
       const actsPorMuni = {};
       let totalBeneficiariosGlobal = 0;
@@ -1805,7 +1937,6 @@
         }
       });
 
-      // 2. ACTUALIZAR TARJETAS KPI DIRECTIVAS
       document.getElementById('dashTotalBeneficiarios').innerText = totalBeneficiariosGlobal.toLocaleString('es-MX');
       document.getElementById('dashTotalActividades').innerText = datos.length.toLocaleString('es-MX');
       
@@ -1817,7 +1948,6 @@
       const tasaGratuita = datos.length > 0 ? Math.round((totalGratuitos / datos.length) * 100) : 100;
       document.getElementById('dashTasaGratuidad').innerText = `${tasaGratuita}%`;
 
-      // 3. ACTUALIZAR MAPA GEOESPACIAL DE CALOR (Leaflet)
       if (capaMarcadoresMapa) {
         capaMarcadoresMapa.clearLayers();
         const maxBen = Math.max(...Object.values(conteoPorMuni), 100);
@@ -1827,7 +1957,6 @@
           const benMuni = conteoPorMuni[muni] || 0;
           const numActs = actsPorMuni[muni] || 0;
 
-          // Radio proporcional
           const radioCirculo = benMuni > 0 ? Math.max(8, Math.min(32, Math.sqrt(benMuni / maxBen) * 35)) : 5;
           const colorCirculo = benMuni > 0 ? '#004B87' : '#94a3b8';
           const fillCirculo = benMuni > 0 ? '#69B3E7' : '#cbd5e1';
@@ -1854,7 +1983,6 @@
         });
       }
 
-      // 4. RENDERIZAR GRÁFICO 1: TOP 10 MUNICIPIOS (Barras Horizontales)
       const top10Pares = Object.entries(conteoPorMuni)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
@@ -1881,7 +2009,6 @@
         }
       });
 
-      // 5. GRÁFICOS DEMOGRÁFICOS
       let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
       let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
       let sumaMujeres = 0, sumaHombres = 0;
@@ -1901,7 +2028,6 @@
         sumaHombres += (Number(r.hombres) || 0);
       });
 
-      // Dona Edad
       const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
       if (chartInstGruposEdad) chartInstGruposEdad.destroy();
       chartInstGruposEdad = new Chart(ctxEdad, {
@@ -1922,7 +2048,6 @@
         }
       });
 
-      // Barras Prioritarios
       const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
       if (chartInstPrioritarios) chartInstPrioritarios.destroy();
       chartInstPrioritarios = new Chart(ctxPrio, {
@@ -1945,7 +2070,6 @@
         }
       });
 
-      // Pie Género
       const ctxGen = document.getElementById('chartGenero').getContext('2d');
       if (chartInstGenero) chartInstGenero.destroy();
       chartInstGenero = new Chart(ctxGen, {
@@ -1966,7 +2090,6 @@
         }
       });
 
-      // 6. TABLA EJECUTIVA POR MUNICIPIO
       const cuerpoResumen = document.getElementById('cuerpoTablaResumenMuni');
       cuerpoResumen.innerHTML = '';
       
@@ -2144,20 +2267,21 @@
       cargarPlegableMunicipios();
       await cargarCatalogosBase();
       cargarBitacora();
+      cargarDatosPerfilLocal();
 
       const { data } = await conexionSupabase.auth.getSession();
       sesionActual = data.session;
 
       if(sesionActual) {
         document.getElementById('loginView').classList.add('hidden');
-        document.getElementById('etiquetaUsuario').innerText = sesionActual.user.email;
+        cargarDatosPerfilLocal();
       }
 
       conexionSupabase.auth.onAuthStateChange((_evento, sesion) => {
         sesionActual = sesion;
         if(sesionActual) {
           document.getElementById('loginView').classList.add('hidden');
-          document.getElementById('etiquetaUsuario').innerText = sesionActual.user.email;
+          cargarDatosPerfilLocal();
         } else {
           document.getElementById('loginView').classList.remove('hidden');
           document.getElementById('etiquetaUsuario').innerText = 'Sin sesión';
