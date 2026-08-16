@@ -6,7 +6,7 @@
   <title>Sistematización CDCM | Gobierno de Guanajuato</title>
   
   <!-- ================================================================= -->
-  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, Chart.js, SweetAlert2, jsPDF, SheetJS) -->
+  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, SheetJS, Chart.js, SweetAlert2, jsPDF) -->
   <!-- ================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -74,10 +74,6 @@
     .btn-secundario:hover { background-color: #b5cde6; }
     .btn-excel { background-color: #107c41; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn-excel:hover { background-color: #0c5e31; }
-
-    /* Dropzone para Importación */
-    .dropzone-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 22px; text-align: center; background: #f8fafc; margin-bottom: 20px; transition: all 0.2s; }
-    .dropzone-box:hover { border-color: var(--gto-azul-primario); background: #f0f7ff; }
 
     /* Selector de Días */
     .dias-selector { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -332,19 +328,19 @@
         </div>
       </div>
 
-      <!-- Tarjeta de Importación Masiva (Colapsable / Dropzone) -->
+      <!-- Tarjeta de Importación Masiva Adaptativa -->
       <div class="card" style="padding: 24px; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h3 style="font-size: 18px; margin-bottom: 2px;">📥 Importación Masiva de Registros Culturales</h3>
-            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Carga concentrados estadísticos desde archivos Excel (.xlsx / .xls / .csv) directo a Supabase.</p>
+            <h3 style="font-size: 18px; margin-bottom: 2px;">📥 Importación Masiva Adaptativa (Excel Oficial)</h3>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Silao, León) o concentrados para sincronizarlos en Supabase.</p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" class="btn-excel" onclick="document.getElementById('inputExcelMasivoRegistros').click()">
-              📂 Subir Archivo Excel
+              📂 Subir Reporte Municipal (.xlsx)
             </button>
             <button type="button" class="btn-secundario" onclick="descargarPlantillaRegistros()">
-              📥 Descargar Plantilla Oficial (.xlsx)
+              📥 Descargar Plantilla Modelo (.xlsx)
             </button>
             <input type="file" id="inputExcelMasivoRegistros" accept=".xlsx, .xls, .csv" class="hidden" onchange="procesarExcelMasivoRegistros(this)" />
           </div>
@@ -693,7 +689,7 @@
       }
     });
 
-    // --- EVENTO: LOGIN INSTIUCIONAL ---
+    // --- EVENTO: LOGIN INSTITUCIONAL ---
     document.getElementById('formIngreso').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('correoLogin').value.trim();
@@ -805,7 +801,7 @@
       doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
       doc.setDrawColor(...BORDE_LINEA);
       doc.setLineWidth(0.2);
-      doc.roundedRect(14, 36, 182, 18, 2, 2, 'S');
+      doc.roundedRect(14, 36, 182, 2, 2, 'S');
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7);
@@ -1246,77 +1242,138 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- FUNCIÓN M: PROCESAR EXCEL MASIVO DE REGISTROS ---
+    // --- FUNCIÓN M: PROCESADOR EXCEL ADAPTATIVO MULTIMUNICIPIO ---
     async function procesarExcelMasivoRegistros(inputElement) {
       const file = inputElement.files[0];
       if (!file) return;
 
-      Swal.fire({ title: 'Leyendo archivo Excel...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      Swal.fire({ 
+        title: 'Analizando archivo municipal...', 
+        text: 'Detectando estructura, municipio y columnas demográficas...',
+        allowOutsideClick: false, 
+        didOpen: () => Swal.showLoading() 
+      });
 
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
 
-          if (!jsonData || jsonData.length === 0) {
-            return Swal.fire('Archivo Vacío', 'No se encontraron datos en el archivo.', 'warning');
+          if (!matriz || matriz.length === 0) {
+            return Swal.fire('Archivo Vacío', 'No se encontraron datos en el archivo seleccionado.', 'warning');
           }
 
+          // 1. Extraer Metadatos del Encabezado Superior (Filas 0 a 6)
+          let municipioDetectado = '';
+          let sedeDetectada = '';
+
+          for (let f = 0; f < Math.min(6, matriz.length); f++) {
+            const textoFila = matriz[f].join(' ').toLowerCase();
+            for (const muni of Object.keys(CATALOGO_GUBERNAMENTAL)) {
+              if (textoFila.includes(muni.toLowerCase())) {
+                municipioDetectado = muni;
+                break;
+              }
+            }
+            if (textoFila.includes('casa de la cultura') || textoFila.includes('biblioteca') || textoFila.includes('módulo') || textoFila.includes('centro impulso')) {
+              sedeDetectada = matriz[f].find(c => String(c).toLowerCase().includes('casa') || String(c).toLowerCase().includes('centro') || String(c).toLowerCase().includes('biblioteca')) || '';
+            }
+          }
+
+          // 2. Encontrar la Fila de Encabezados Reales
+          let filaEncabezadosIdx = -1;
+          for (let i = 0; i < Math.min(10, matriz.length); i++) {
+            const fila = matriz[i].map(c => String(c).toLowerCase().trim());
+            const tieneClaves = fila.some(c => 
+              c.includes('taller') || c.includes('disciplina') || c.includes('actividad') || 
+              c.includes('curso') || c.includes('docente') || c.includes('instructor') || c === 'no.' || c === 'no'
+            );
+            if (tieneClaves) {
+              filaEncabezadosIdx = i;
+              break;
+            }
+          }
+
+          if (filaEncabezadosIdx === -1) {
+            filaEncabezadosIdx = 0;
+          }
+
+          // 3. Extraer Datos con Mapeo Adaptativo
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: filaEncabezadosIdx, defval: '' });
           const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
           const registrosSQL = [];
 
           jsonData.forEach(row => {
             const keys = Object.keys(row);
-            const getVal = (pattern, fallback = '') => {
-              const k = keys.find(key => key.toLowerCase().includes(pattern.toLowerCase()));
-              return k && row[k] !== undefined ? row[k] : fallback;
+            const getVal = (patterns, fallback = '') => {
+              for (const p of patterns) {
+                const k = keys.find(key => key.toLowerCase().includes(p.toLowerCase()));
+                if (k && row[k] !== undefined && row[k] !== '') return row[k];
+              }
+              return fallback;
             };
 
-            const muni = String(getVal('muni', '')).trim();
-            const act = String(getVal('actividad', '') || getVal('disciplina', '') || getVal('taller', '')).trim();
+            const numVal = (patterns) => {
+              const val = getVal(patterns, 0);
+              const num = parseInt(val);
+              return isNaN(num) ? 0 : num;
+            };
 
-            if (muni && act) {
-              const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
-              const area = String(getVal('area', '') || getVal('programa', 'CDCM')).toUpperCase().includes('BIBLIO') ? 'BIBLIOTECAS' : 'CDCM';
-              const diasVal = String(getVal('dia', 'Lu, Mi, Vi')).trim();
-
-              registrosSQL.push({
-                folio: folio,
-                area_programa: area,
-                usuario: usuarioActivo,
-                municipio: muni,
-                sede: String(getVal('sede', '') || getVal('espacio', '') || getVal('biblioteca', 'Sede Municipal')).trim(),
-                disciplina: act,
-                programacion: String(getVal('program', 'Anual')).trim(),
-                docente: String(getVal('docente', '') || getVal('responsable', '') || getVal('encargado', 'Sin asignar')).trim(),
-                costo: String(getVal('costo', '') || getVal('cuota', 'Libre Acceso')).trim(),
-                horario: String(getVal('horario', '10:00 - 12:00')).trim(),
-                dias: diasVal,
-                sesion: diasVal,
-                mujeres: Number(getVal('mujer', 0)) || 0,
-                hombres: Number(getVal('hombre', 0)) || 0,
-                ninez: Number(getVal('niñ', 0)) || Number(getVal('ninez', 0)) || 0,
-                adolescencia: Number(getVal('adolesc', 0)) || 0,
-                juventudes: Number(getVal('juven', 0)) || 0,
-                adultos_mayores: Number(getVal('mayor', 0)) || Number(getVal('adulto', 0)) || 0,
-                discapacidad: Number(getVal('discap', 0)) || 0,
-                indigenas: Number(getVal('indig', 0)) || 0,
-                afromexicanas: Number(getVal('afro', 0)) || 0,
-                lgbtq: Number(getVal('lgbt', 0)) || 0
-              });
+            const actividad = String(getVal(['disciplina', 'taller', 'actividad', 'curso', 'nombre del taller', 'servicio'])).trim();
+            
+            if (!actividad || actividad.toLowerCase().includes('total') || actividad.toLowerCase().includes('suma')) {
+              return;
             }
+
+            const muni = String(getVal(['municipio', 'muni', 'población'], municipioDetectado || 'Guanajuato')).trim();
+            const sede = String(getVal(['sede', 'espacio', 'recinto', 'lugar', 'casa de la cultura', 'biblioteca'], sedeDetectada || 'Casa de la Cultura')).trim();
+            const docente = String(getVal(['docente', 'instructor', 'tallerista', 'profesor', 'responsable', 'titular', 'encargado'], 'Docente Asignado')).trim();
+            const horario = String(getVal(['horario', 'hora'], '16:00 - 18:00')).trim();
+            const dias = String(getVal(['dias', 'día', 'sesión', 'dias de sesión'], 'Lu, Mi, Vi')).trim();
+            const programacion = String(getVal(['programacion', 'programación', 'periodo'], 'Anual')).trim();
+            const cuota = String(getVal(['costo', 'modalidad', 'cuota', 'tipo de cuota'], 'Libre Acceso')).trim();
+
+            const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
+            const esBiblio = sede.toLowerCase().includes('biblioteca') || actividad.toLowerCase().includes('lectura') || actividad.toLowerCase().includes('libro');
+
+            registrosSQL.push({
+              folio: folio,
+              area_programa: esBiblio ? 'BIBLIOTECAS' : 'CDCM',
+              usuario: usuarioActivo,
+              municipio: muni,
+              sede: sede,
+              disciplina: actividad,
+              docente: docente,
+              programacion: programacion,
+              costo: cuota,
+              horario: horario,
+              dias: dias,
+              sesion: dias,
+              mujeres: numVal(['mujer', 'femenino', 'fem', 'mujeres']),
+              hombres: numVal(['hombre', 'masculino', 'masc', 'hombres']),
+              ninez: numVal(['niñ', 'infantil', '0 a 12', 'ninez']),
+              adolescencia: numVal(['adolesc', '13 a 17', 'adolescentes']),
+              juventudes: numVal(['juven', '18 a 29', 'jovenes']),
+              adultos_mayores: numVal(['mayor', '60 y mas', 'adulto mayor', 'tercera edad']),
+              discapacidad: numVal(['discap', 'discapacidad', 'pcd']),
+              indigenas: numVal(['indig', 'indigena', 'indígenas']),
+              afromexicanas: numVal(['afro', 'afromexicana', 'afrodescendiente']),
+              lgbtq: numVal(['lgbt', 'lgbtq', 'diversidad'])
+            });
           });
 
           if (registrosSQL.length === 0) {
-            return Swal.fire('Error en Columnas', 'No se pudieron mapear las columnas requeridas (Municipio, Actividad/Disciplina).', 'error');
+            return Swal.fire('Sin Coincidencias', 'No se pudieron extraer filas operativas válidas del archivo.', 'error');
           }
 
           const conf = await Swal.fire({
-            title: `¿Importar ${registrosSQL.length} registros?`,
-            text: `Se insertarán directamente en la base de datos de PostgreSQL.`,
+            title: `¿Importar ${registrosSQL.length} actividades?`,
+            html: `<b>Municipio detectado:</b> ${registrosSQL[0].municipio}<br><b>Sede:</b> ${registrosSQL[0].sede}<br><br>Se insertarán en la tabla unificada de Supabase.`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Sí, importar ahora',
@@ -1324,8 +1381,8 @@
           });
 
           if (conf.isConfirmed) {
-            Swal.fire({ title: 'Insertando registros en PostgreSQL...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
+            Swal.fire({ title: 'Sincronizando con PostgreSQL...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
             const batchSize = 100;
             for (let i = 0; i < registrosSQL.length; i += batchSize) {
               const batch = registrosSQL.slice(i, i + batchSize);
@@ -1333,13 +1390,14 @@
               if (error) throw error;
             }
 
-            Swal.fire('¡Importación Exitosa!', `Se sincronizaron ${registrosSQL.length} actividades en la Bitácora.`, 'success');
+            Swal.fire('¡Importación Exitosa!', `Se registraron ${registrosSQL.length} actividades para ${registrosSQL[0].municipio}.`, 'success');
             cargarBitacora();
             inicializarDashboardDirectivo();
           }
 
         } catch (err) {
-          Swal.fire('Error al procesar', err.message, 'error');
+          console.error(err);
+          Swal.fire('Error al procesar archivo', err.message, 'error');
         } finally {
           inputElement.value = '';
         }
