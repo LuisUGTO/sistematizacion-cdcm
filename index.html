@@ -528,6 +528,10 @@
     let chartInstPrioritarios = null;
     let chartInstGenero = null;
 
+    function normalizar(str) {
+      return String(str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
+
     function cambiarPestana(idPestana, elementoBtn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
@@ -639,7 +643,7 @@
       }
 
       if (area === 'BIBLIOTECAS') {
-        const bibs = memoriaBibliotecasSupabase.filter(b => b.municipio.toLowerCase().trim() === muniElegido.toLowerCase().trim());
+        const bibs = memoriaBibliotecasSupabase.filter(b => normalizar(b.municipio) === normalizar(muniElegido));
         if (bibs.length > 0) {
           selectSede.innerHTML = '<option value="">Seleccione la Biblioteca Pública...</option>';
           bibs.forEach((b) => {
@@ -1119,14 +1123,14 @@
           <td style="text-align: center;">${celdaFoto}</td>
           <td style="white-space: nowrap;">
             <button class="btn-pdf-tabla" onclick="reimprimirPDFPorIndice(${index})">PDF</button>
-            <button class="btn-peligro-sm" onclick="eliminarRegistroBitacora('${reg.folio}', ${reg.id || index})">✕</button>
+            <button class="btn-peligro-sm" onclick="eliminarRegistroBitacora('${reg.folio}')">✕</button>
           </td>
         `;
         cuerpo.appendChild(tr);
       });
     }
 
-    async function eliminarRegistroBitacora(folio, id) {
+    async function eliminarRegistroBitacora(folio) {
       const conf = await Swal.fire({
         title: '¿Eliminar registro?',
         text: `Se borrará el folio ${folio} de la base de datos.`,
@@ -1156,7 +1160,7 @@
     }
 
     function filtrarTablaBitacora() {
-      const texto = document.getElementById('buscadorBitacora').value.toLowerCase();
+      const texto = normalizar(document.getElementById('buscadorBitacora').value);
       const area = document.getElementById('filtroAreaBitacora').value;
       const muni = document.getElementById('filtroMunicipioBitacora').value;
 
@@ -1164,11 +1168,11 @@
         const coincideArea = !area || reg.area_programa === area || (!reg.area_programa && area === 'CDCM');
         const coincideMuni = !muni || reg.municipio === muni;
         const coincideTexto = !texto || 
-          (reg.folio && String(reg.folio).toLowerCase().includes(texto)) ||
-          (reg.municipio && String(reg.municipio).toLowerCase().includes(texto)) ||
-          (reg.sede && String(reg.sede).toLowerCase().includes(texto)) ||
-          (reg.disciplina && String(reg.disciplina).toLowerCase().includes(texto)) ||
-          (reg.docente && String(reg.docente).toLowerCase().includes(texto));
+          normalizar(reg.folio).includes(texto) ||
+          normalizar(reg.municipio).includes(texto) ||
+          normalizar(reg.sede).includes(texto) ||
+          normalizar(reg.disciplina).includes(texto) ||
+          normalizar(reg.docente).includes(texto);
 
         return coincideArea && coincideMuni && coincideTexto;
       });
@@ -1269,14 +1273,14 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- FUNCIÓN M: PROCESADOR EXCEL ADAPTATIVO RIGUROSO ---
+    // --- FUNCIÓN M: MOTOR UNIVERSAL Y TOLERANTE DE IMPORTACIÓN EXCEL ---
     async function procesarExcelMasivoRegistros(inputElement) {
       const file = inputElement.files[0];
       if (!file) return;
 
       Swal.fire({ 
         title: 'Analizando archivo municipal...', 
-        text: 'Identificando talleres y estructura de columnas...',
+        text: 'Escaneando hojas, disciplinas y desgloses demográficos...',
         allowOutsideClick: false, 
         didOpen: () => Swal.showLoading() 
       });
@@ -1286,138 +1290,175 @@
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          
-          const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-
-          if (!matriz || matriz.length === 0) {
-            return Swal.fire('Archivo Vacío', 'No se encontraron filas de datos.', 'warning');
-          }
-
-          // 1. Detectar Municipio (buscando en el nombre del archivo o en el texto de las primeras 10 filas)
-          let municipioDetectado = '';
-          const nombreArchivo = file.name.toLowerCase();
-
-          for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
-            if (nombreArchivo.includes(m.toLowerCase())) {
-              municipioDetectado = m;
-              break;
-            }
-          }
-
-          if (!municipioDetectado) {
-            for (let f = 0; f < Math.min(10, matriz.length); f++) {
-              const textoFila = matriz[f].join(' ').toLowerCase();
-              for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
-                if (textoFila.includes(m.toLowerCase())) {
-                  municipioDetectado = m;
-                  break;
-                }
-              }
-              if (municipioDetectado) break;
-            }
-          }
-
-          if (!municipioDetectado) municipioDetectado = 'Cuerámaro';
-
-          // 2. Buscar la Fila Real de Encabezados (debe tener al menos 2 palabras clave de columnas)
-          let filaEncabezadosIdx = -1;
-          for (let i = 0; i < Math.min(15, matriz.length); i++) {
-            const filaTextos = matriz[i].map(c => String(c).toLowerCase().trim());
-            let coincidencias = 0;
-            filaTextos.forEach(txt => {
-              if (txt.includes('taller') || txt.includes('disciplina') || txt.includes('actividad') || txt.includes('curso')) coincidencias++;
-              if (txt.includes('docente') || txt.includes('instructor') || txt.includes('profesor') || txt.includes('responsable')) coincidencias++;
-              if (txt.includes('mujer') || txt.includes('hombre') || txt.includes('total') || txt.includes('horario') || txt.includes('días')) coincidencias++;
-            });
-
-            if (coincidencias >= 2) {
-              filaEncabezadosIdx = i;
-              break;
-            }
-          }
-
-          if (filaEncabezadosIdx === -1) {
-            filaEncabezadosIdx = 0;
-          }
-
-          // 3. Extraer Datos
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: filaEncabezadosIdx, defval: '' });
           const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
           const registrosSQL = [];
 
-          jsonData.forEach(row => {
-            const keys = Object.keys(row);
-            const getVal = (patterns, fallback = '') => {
-              for (const p of patterns) {
-                const k = keys.find(key => key.toLowerCase().includes(p.toLowerCase()));
-                if (k && row[k] !== undefined && row[k] !== '') return row[k];
-              }
-              return fallback;
-            };
-
-            const numVal = (patterns) => {
-              const val = getVal(patterns, 0);
-              const num = parseInt(val);
-              return isNaN(num) ? 0 : num;
-            };
-
-            const actividad = String(getVal(['disciplina', 'taller', 'actividad', 'curso', 'nombre', 'servicio'])).trim();
-            
-            // Ignorar filas de membrete, fechas o totales
-            if (!actividad || 
-                actividad.toLowerCase().includes('total') || 
-                actividad.toLowerCase().includes('suma') || 
-                actividad.toLowerCase() === 'cueramaro' || 
-                actividad.toLowerCase() === 'cuerámaro' ||
-                /^\d{4,5}$/.test(actividad)) {
-              return;
+          // 1. Detectar municipio por nombre de archivo
+          let municipioArchivo = '';
+          const normFileName = normalizar(file.name);
+          for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
+            if (normFileName.includes(normalizar(m))) {
+              municipioArchivo = m;
+              break;
             }
-
-            const sede = String(getVal(['sede', 'espacio', 'recinto', 'lugar'], `Casa de la Cultura de ${municipioDetectado}`)).trim();
-            const docente = String(getVal(['docente', 'instructor', 'tallerista', 'profesor', 'responsable'], 'Docente Asignado')).trim();
-            const horario = String(getVal(['horario', 'hora'], '16:00 - 18:00')).trim();
-            const dias = String(getVal(['dias', 'día', 'sesión', 'sesion'], 'Lu, Mi, Vi')).trim();
-            const programacion = String(getVal(['programacion', 'programación', 'periodo'], 'Semestral')).trim();
-            const cuota = String(getVal(['costo', 'modalidad', 'cuota'], 'Libre Acceso')).trim();
-
-            const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
-            const esBiblio = sede.toLowerCase().includes('biblioteca') || actividad.toLowerCase().includes('lectura');
-
-            registrosSQL.push({
-              folio: folio,
-              area_programa: esBiblio ? 'BIBLIOTECAS' : 'CDCM',
-              usuario: usuarioActivo,
-              municipio: municipioDetectado,
-              sede: sede,
-              disciplina: actividad,
-              docente: docente,
-              programacion: programacion,
-              costo: cuota,
-              horario: horario,
-              dias: dias,
-              sesion: dias,
-              mujeres: numVal(['mujer', 'femenino', 'fem', 'mujeres']),
-              hombres: numVal(['hombre', 'masculino', 'masc', 'hombres']),
-              ninez: numVal(['niñ', 'infantil', '0 a 12', 'ninez']),
-              adolescencia: numVal(['adolesc', '13 a 17', 'adolescentes']),
-              juventudes: numVal(['juven', '18 a 29', 'jovenes']),
-              adultos_mayores: numVal(['mayor', '60 y mas', 'adulto mayor', 'tercera edad']),
-              discapacidad: numVal(['discap', 'pcd']),
-              indigenas: numVal(['indig']),
-              afromexicanas: numVal(['afro']),
-              lgbtq: numVal(['lgbt'])
-            });
-          });
-
-          if (registrosSQL.length === 0) {
-            return Swal.fire('Sin Coincidencias', 'No se encontraron filas de talleres u obras válidas en el archivo.', 'warning');
           }
 
+          // 2. Procesar cada hoja del libro
+          for (const sheetName of workbook.SheetNames) {
+            const worksheet = workbook.Sheets[sheetName];
+            const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+            if (!matriz || matriz.length < 3) continue;
+
+            let municipioHoja = municipioArchivo;
+            if (!municipioHoja) {
+              for (let f = 0; f < Math.min(8, matriz.length); f++) {
+                const filaTexto = normalizar(matriz[f].join(' '));
+                for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
+                  if (filaTexto.includes(normalizar(m))) {
+                    municipioHoja = m;
+                    break;
+                  }
+                }
+                if (municipioHoja) break;
+              }
+            }
+            if (!municipioHoja) municipioHoja = 'Cuerámaro';
+
+            // 3. Buscar la fila de encabezados con mayor puntaje
+            let mejorFilaIdx = -1;
+            let mejorPuntaje = 0;
+
+            for (let i = 0; i < Math.min(16, matriz.length); i++) {
+              const fila = matriz[i].map(c => normalizar(c));
+              let puntaje = 0;
+              fila.forEach(txt => {
+                if (txt.includes('taller') || txt.includes('disciplina') || txt.includes('actividad') || txt.includes('curso') || txt.includes('nombre') || txt.includes('evento')) puntaje += 3;
+                if (txt.includes('docente') || txt.includes('instructor') || txt.includes('profesor') || txt.includes('responsable') || txt.includes('maestro') || txt.includes('titular')) puntaje += 3;
+                if (txt.includes('sede') || txt.includes('lugar') || txt.includes('espacio') || txt.includes('recinto') || txt.includes('comunidad')) puntaje += 2;
+                if (txt.includes('horario') || txt.includes('hora') || txt.includes('dias') || txt.includes('sesion')) puntaje += 2;
+                if (txt.includes('mujer') || txt.includes('hombre') || txt.includes('total') || txt.includes('fem') || txt.includes('masc') || txt === 'm' || txt === 'h') puntaje += 2;
+                if (txt.includes('ninez') || txt.includes('adol') || txt.includes('juv') || txt.includes('mayor') || txt.includes('discap')) puntaje += 2;
+              });
+
+              if (puntaje > mejorPuntaje) {
+                mejorPuntaje = puntaje;
+                mejorFilaIdx = i;
+              }
+            }
+
+            if (mejorFilaIdx === -1) continue;
+
+            // 4. Mapear columnas combinando fila de encabezado y sub-encabezado
+            const colMap = {};
+            const numCols = Math.max(matriz[mejorFilaIdx].length, (matriz[mejorFilaIdx + 1] ? matriz[mejorFilaIdx + 1].length : 0));
+
+            for (let c = 0; c < numCols; c++) {
+              const h1 = normalizar(matriz[mejorFilaIdx] ? matriz[mejorFilaIdx][c] : '');
+              const h2 = normalizar(matriz[mejorFilaIdx + 1] ? matriz[mejorFilaIdx + 1][c] : '');
+              const combined = (h1 + ' ' + h2).trim();
+
+              if (!colMap.actividad && (combined.includes('taller') || combined.includes('disciplina') || combined.includes('actividad') || combined.includes('curso') || combined.includes('nombre') || combined.includes('evento'))) colMap.actividad = c;
+              if (!colMap.docente && (combined.includes('docente') || combined.includes('instructor') || combined.includes('profesor') || combined.includes('responsable') || combined.includes('maestro') || combined.includes('titular') || combined.includes('tallerista'))) colMap.docente = c;
+              if (!colMap.sede && (combined.includes('sede') || combined.includes('lugar') || combined.includes('espacio') || combined.includes('recinto') || combined.includes('comunidad') || combined.includes('modulo'))) colMap.sede = c;
+              if (!colMap.horario && (combined.includes('horario') || combined.includes('hora'))) colMap.horario = c;
+              if (!colMap.dias && (combined.includes('dias') || combined.includes('dia') || combined.includes('sesion'))) colMap.dias = c;
+              if (!colMap.costo && (combined.includes('costo') || combined.includes('cuota') || combined.includes('modalidad') || combined.includes('recuperacion'))) colMap.costo = c;
+              if (!colMap.programacion && (combined.includes('programacion') || combined.includes('periodo') || combined.includes('ciclo'))) colMap.programacion = c;
+
+              // Demografía
+              if (colMap.mujeres === undefined && (combined.includes('mujer') || combined.includes('femenin') || combined.includes('fem') || h2 === 'm' || h1 === 'm')) colMap.mujeres = c;
+              if (colMap.hombres === undefined && (combined.includes('hombre') || combined.includes('masculin') || combined.includes('masc') || h2 === 'h' || h1 === 'h')) colMap.hombres = c;
+              if (colMap.ninez === undefined && (combined.includes('nin') || combined.includes('infantil') || combined.includes('0 a 12') || combined.includes('0-12'))) colMap.ninez = c;
+              if (colMap.adolescencia === undefined && (combined.includes('adol') || combined.includes('13 a 17') || combined.includes('13-17'))) colMap.adolescencia = c;
+              if (colMap.juventudes === undefined && (combined.includes('juv') || combined.includes('18 a 29') || combined.includes('18-29') || combined.includes('joven'))) colMap.juventudes = c;
+              if (colMap.mayores === undefined && (combined.includes('mayor') || combined.includes('60') || combined.includes('adulto mayor') || combined.includes('tercera edad'))) colMap.mayores = c;
+              if (colMap.discapacidad === undefined && (combined.includes('discap') || combined.includes('pcd'))) colMap.discapacidad = c;
+              if (colMap.indigenas === undefined && combined.includes('indig')) colMap.indigenas = c;
+              if (colMap.afro === undefined && combined.includes('afro')) colMap.afro = c;
+              if (colMap.lgbt === undefined && combined.includes('lgbt')) colMap.lgbt = c;
+            }
+
+            // Si no se encontró columna de actividad específica, tomar la primera columna de texto
+            if (colMap.actividad === undefined) colMap.actividad = 1;
+            if (colMap.docente === undefined && colMap.actividad !== 2) colMap.docente = 2;
+
+            // Determinar fila donde inician los datos reales
+            let inicioDatos = mejorFilaIdx + 1;
+            const tieneSubEncabezado = matriz[mejorFilaIdx + 1] && matriz[mejorFilaIdx + 1].some(c => {
+              const t = normalizar(c);
+              return t === 'm' || t === 'h' || t === 'total' || t.includes('muj') || t.includes('hom');
+            });
+            if (tieneSubEncabezado) inicioDatos = mejorFilaIdx + 2;
+
+            // 5. Extraer filas
+            for (let r = inicioDatos; r < matriz.length; r++) {
+              const fila = matriz[r];
+              if (!fila || fila.length === 0) continue;
+
+              const actRaw = fila[colMap.actividad] !== undefined ? String(fila[colMap.actividad]).trim() : '';
+              const normAct = normalizar(actRaw);
+
+              // Filtrar filas no válidas
+              if (!actRaw || actRaw.length < 2 || 
+                  normAct.startsWith('total') || normAct.startsWith('suma') || 
+                  normAct.startsWith('subtotal') || normAct.startsWith('promedio') || 
+                  normAct.startsWith('observ') || normAct.startsWith('firma') || 
+                  normAct.startsWith('elabor') || normAct === 'cueramaro' || 
+                  /^\d{4,5}$/.test(normAct)) {
+                continue;
+              }
+
+              const parseNum = (colIdx) => {
+                if (colIdx === undefined || fila[colIdx] === undefined) return 0;
+                const n = parseInt(fila[colIdx]);
+                return isNaN(n) ? 0 : n;
+              };
+
+              const docenteVal = colMap.docente !== undefined && fila[colMap.docente] ? String(fila[colMap.docente]).trim() : 'Docente Asignado';
+              const sedeVal = colMap.sede !== undefined && fila[colMap.sede] ? String(fila[colMap.sede]).trim() : `Casa de la Cultura de ${municipioHoja}`;
+              const horarioVal = colMap.horario !== undefined && fila[colMap.horario] ? String(fila[colMap.horario]).trim() : '16:00 - 18:00';
+              const diasVal = colMap.dias !== undefined && fila[colMap.dias] ? String(fila[colMap.dias]).trim() : 'Lu, Mi, Vi';
+              const progVal = colMap.programacion !== undefined && fila[colMap.programacion] ? String(fila[colMap.programacion]).trim() : 'Semestral';
+              const costoVal = colMap.costo !== undefined && fila[colMap.costo] ? String(fila[colMap.costo]).trim() : 'Libre Acceso';
+
+              const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
+              const esBiblio = normAct.includes('lectura') || normalizar(sedeVal).includes('biblioteca');
+
+              registrosSQL.push({
+                folio: folio,
+                area_programa: esBiblio ? 'BIBLIOTECAS' : 'CDCM',
+                usuario: usuarioActivo,
+                municipio: municipioHoja,
+                sede: sedeVal,
+                disciplina: actRaw,
+                docente: docenteVal,
+                programacion: progVal,
+                costo: costoVal,
+                horario: horarioVal,
+                dias: diasVal,
+                sesion: diasVal,
+                mujeres: parseNum(colMap.mujeres),
+                hombres: parseNum(colMap.hombres),
+                ninez: parseNum(colMap.ninez),
+                adolescencia: parseNum(colMap.adolescencia),
+                juventudes: parseNum(colMap.juventudes),
+                adultos_mayores: parseNum(colMap.mayores),
+                discapacidad: parseNum(colMap.discapacidad),
+                indigenas: parseNum(colMap.indigenas),
+                afromexicanas: parseNum(colMap.afro),
+                lgbtq: parseNum(colMap.lgbt)
+              });
+            }
+          }
+
+          if (registrosSQL.length === 0) {
+            return Swal.fire('Sin Coincidencias', 'No se encontraron filas de actividades válidas en las hojas del archivo.', 'warning');
+          }
+
+          const municipioPrincipal = registrosSQL[0].municipio;
           const conf = await Swal.fire({
-            title: `¿Importar ${registrosSQL.length} actividades de ${municipioDetectado}?`,
-            html: `Se detectaron ${registrosSQL.length} talleres con sus desgloses demográficos.<br><br><b>Municipio:</b> ${municipioDetectado}`,
+            title: `¿Importar ${registrosSQL.length} actividades?`,
+            html: `<b>Municipio detectado:</b> ${municipioPrincipal}<br><b>Talleres y cursos identificados:</b> ${registrosSQL.length}<br><br>Se insertarán en Supabase vinculados al municipio de ${municipioPrincipal}.`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Sí, importar ahora',
@@ -1434,7 +1475,7 @@
               if (error) throw error;
             }
 
-            Swal.fire('¡Importación Exitosa!', `Se sincronizaron ${registrosSQL.length} talleres para ${municipioDetectado}.`, 'success');
+            Swal.fire('¡Importación Exitosa!', `Se registraron con éxito ${registrosSQL.length} actividades para ${municipioPrincipal}.`, 'success');
             cargarBitacora();
             inicializarDashboardDirectivo();
           }
