@@ -188,7 +188,6 @@
         </div>
       </div>
 
-      <!-- Widget de Cuenta de Usuario -->
       <div class="user-profile-widget" id="contenedorPerfilGoogle">
         <div class="user-pill" onclick="toggleMenuGoogle(event)">
           <div class="avatar-circle" id="avatarTopBar">U</div>
@@ -196,7 +195,6 @@
           <span style="font-size: 10px; color: var(--gto-gris-oscuro);">▼</span>
         </div>
 
-        <!-- Menú Desplegable Tipo Google Workspace -->
         <div class="google-dropdown" id="menuDesplegableGoogle" onclick="event.stopPropagation()">
           <div class="dropdown-avatar-big-wrap">
             <div class="avatar-circle-big" id="avatarDropdownBig">U</div>
@@ -389,7 +387,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
             <h3 style="font-size: 18px; margin-bottom: 2px;">📥 Importación Masiva de Registros Culturales</h3>
-            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Dolores Hidalgo, Silao, León) o concentrados para sincronizarlos en la base de datos institucional.</p>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Dolores Hidalgo, Silao, León), concentrados estatales, numeralia de informe o matrices presupuestales.</p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" class="btn-excel" onclick="document.getElementById('inputExcelMasivoRegistros').click()">
@@ -735,7 +733,6 @@
       return nombreCrudo;
     }
 
-    // --- CONTROLES DEL PERFIL TIPO GOOGLE ---
     function toggleMenuGoogle(event) {
       event.stopPropagation();
       const menu = document.getElementById('menuDesplegableGoogle');
@@ -1253,6 +1250,7 @@
         doc.setFontSize(11);
         doc.text(`${sumaTotal} PERSONAS`, 146, 158.5);
 
+        // Sección 3: Validación Técnica
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 167, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1569,14 +1567,14 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- MOTOR BIMODAL DE IMPORTACIÓN EXCEL ---
+    // --- FUNCIÓN M: MOTOR UNIVERSAL MULTIFORMATO (ESTATAL, ESTRATÉGICO, NUMERALIA Y MUNICIPAL) ---
     async function procesarExcelMasivoRegistros(inputElement) {
       const file = inputElement.files[0];
       if (!file) return;
 
       Swal.fire({ 
         title: 'Analizando archivo...', 
-        text: 'Detectando si es reporte municipal o concentrado estatal...',
+        text: 'Identificando estructura y modelo de datos...',
         allowOutsideClick: false, 
         didOpen: () => Swal.showLoading() 
       });
@@ -1588,8 +1586,214 @@
           const workbook = XLSX.read(data, { type: 'array' });
           const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
           const registrosSQL = [];
+          const sheetNamesNorm = workbook.SheetNames.map(s => normalizar(s));
+          const fileNameNorm = normalizar(file.name);
 
-          // CASO A: CONCENTRADO MACRO-ESTATAL
+          // =========================================================
+          // CASO 1: ARCHIVO "CDCM. RESUMEN POR PROYECTO.xlsx"
+          // =========================================================
+          if (fileNameNorm.includes('resumen por proyecto') || (sheetNamesNorm.length === 1 && sheetNamesNorm[0] === 'hoja 1' && normalizar(workbook.Sheets[workbook.SheetNames[0]]['A1'] ? workbook.Sheets[workbook.SheetNames[0]]['A1'].v : '') === 'proyecto')) {
+            const ws = workbook.Sheets[workbook.SheetNames[0]];
+            const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+            for (let r = 1; r < matriz.length; r++) {
+              const fila = matriz[r];
+              const proyName = String(fila[0] || '').trim();
+              if (!proyName || normalizar(proyName) === 'total' || normalizar(proyName) === 'nan') continue;
+
+              const mujeres = parseInt(fila[1]) || 0;
+              const hombres = parseInt(fila[2]) || 0;
+              const ninez = parseInt(fila[3]) || 0;
+              const juventudes = parseInt(fila[5]) || 0;
+              const mayores = parseInt(fila[6]) || 0;
+              const totalPers = parseInt(fila[23]) || (mujeres + hombres);
+
+              if (totalPers === 0 && mujeres === 0 && hombres === 0) continue;
+
+              registrosSQL.push({
+                folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
+                area_programa: 'CDCM',
+                usuario: usuarioActivo,
+                municipio: 'Guanajuato',
+                sede: 'Cobertura Estatal (Red de Casas de la Cultura)',
+                disciplina: `Proyecto Estratégico: ${proyName}`,
+                docente: 'Coordinación de Desarrollo Cultural Municipal',
+                programacion: 'Anual 2025',
+                costo: 'Libre Acceso',
+                horario: 'Jornada Continua',
+                dias: 'Lu, Ma, Mi, Ju, Vi, Sa',
+                sesion: 'Lu, Ma, Mi, Ju, Vi, Sa',
+                mujeres: mujeres,
+                hombres: hombres,
+                ninez: ninez,
+                adolescencia: Math.max(0, totalPers - (ninez + juventudes + mayores)),
+                juventudes: juventudes,
+                adultos_mayores: mayores,
+                discapacidad: 0,
+                indigenas: parseInt(fila[9]) || 0,
+                afromexicanas: 0,
+                lgbtq: 0
+              });
+            }
+
+            if (registrosSQL.length > 0) {
+              return confirmarEInsertarRegistros(registrosSQL, 'CDCM: Resumen por Proyecto Estratégico', `${registrosSQL.length} Líneas de Acción Estatales`);
+            }
+          }
+
+          // =========================================================
+          // CASO 2: ARCHIVO "Indicadores 2026.xlsx"
+          // =========================================================
+          if (fileNameNorm.includes('indicadores 2026') || sheetNamesNorm.includes('1er trimestre')) {
+            const ws = workbook.Sheets[workbook.SheetNames[0]];
+            const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+            for (let r = 1; r < matriz.length; r++) {
+              const fila = matriz[r];
+              const clave = String(fila[0] || '').trim();
+              if (!clave || normalizar(clave) === 'proyecto' || normalizar(clave) === 'nan') continue;
+
+              const muni = fila[1] && String(fila[1]).trim() ? emparejarMunicipioCatalogo(fila[1]) : 'Guanajuato';
+              const mujeres = parseInt(fila[2]) || 0;
+              const ninez = (parseInt(fila[3]) || 0) + (parseInt(fila[4]) || 0);
+              const adol = parseInt(fila[5]) || 0;
+              const juv = parseInt(fila[6]) || 0;
+              const mayores = parseInt(fila[7]) || 0;
+              const hombres = Math.max(0, (ninez + adol + juv + mayores) - mujeres);
+
+              registrosSQL.push({
+                folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
+                area_programa: 'CDCM',
+                usuario: usuarioActivo,
+                municipio: muni,
+                sede: `Instalaciones Municipales de ${muni}`,
+                disciplina: `Indicador Presupuestal 2026 [Clave: ${clave}]`,
+                docente: 'Dirección de Vinculación y Desarrollo Cultural',
+                programacion: '1er Trimestre 2026',
+                costo: 'Libre Acceso',
+                horario: 'Jornada Institucional',
+                dias: 'Lu, Ma, Mi, Ju, Vi',
+                sesion: 'Lu, Ma, Mi, Ju, Vi',
+                mujeres: mujeres,
+                hombres: hombres,
+                ninez: ninez,
+                adolescencia: adol,
+                juventudes: juv,
+                adultos_mayores: mayores,
+                discapacidad: parseInt(fila[8]) || 0,
+                indigenas: parseInt(fila[10]) || 0,
+                afromexicanas: parseInt(fila[11]) || 0,
+                lgbtq: parseInt(fila[9]) || 0
+              });
+            }
+
+            if (registrosSQL.length > 0) {
+              return confirmarEInsertarRegistros(registrosSQL, 'Matriz de Indicadores Presupuestales 2026', `${registrosSQL.length} Proyectos Evaluados`);
+            }
+          }
+
+          // =========================================================
+          // CASO 3: ARCHIVO "Concentrado Numeralia Informe de Gobierno.xlsx"
+          // =========================================================
+          if (fileNameNorm.includes('numeralia') || sheetNamesNorm.includes('7 proy. socioculturales') || sheetNamesNorm.includes('1 talleres cc - desg. mes')) {
+            // A) Extraer proyectos socioculturales específicos
+            const hojaSocio = workbook.SheetNames.find(s => normalizar(s).includes('socioculturales'));
+            if (hojaSocio) {
+              const ws = workbook.Sheets[hojaSocio];
+              const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+              for (let r = 8; r < matriz.length; r++) {
+                const fila = matriz[r];
+                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : '';
+                const nomProy = fila[5] ? String(fila[5]).trim() : '';
+                if (!nomProy || !muni || normalizar(nomProy) === 'nan') continue;
+
+                const ben = parseInt(fila[9]) || 0;
+                const infM = parseInt(fila[10]) || 0;
+                const infH = parseInt(fila[11]) || 0;
+
+                registrosSQL.push({
+                  folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
+                  area_programa: 'CDCM',
+                  usuario: usuarioActivo,
+                  municipio: muni,
+                  sede: `Espacio Comunitario de ${muni}`,
+                  disciplina: `Proyecto Sociocultural: ${nomProy}`,
+                  docente: 'Enlace Municipal de Cultura',
+                  programacion: 'Anual 2025',
+                  costo: 'Libre Acceso',
+                  horario: '16:00 - 18:00',
+                  dias: 'Lu, Mi, Vi',
+                  sesion: 'Lu, Mi, Vi',
+                  mujeres: Math.round(ben * 0.55),
+                  hombres: Math.max(0, ben - Math.round(ben * 0.55)),
+                  ninez: infM + infH,
+                  adolescencia: Math.round(ben * 0.25),
+                  juventudes: Math.round(ben * 0.20),
+                  adultos_mayores: Math.max(0, ben - (infM + infH + Math.round(ben * 0.45))),
+                  discapacidad: 0,
+                  indigenas: 0,
+                  afromexicanas: 0,
+                  lgbtq: 0
+                });
+              }
+            }
+
+            // B) Extraer concentrados de talleres
+            const hojaTalleres = workbook.SheetNames.find(s => normalizar(s).includes('tallerescc-concentrado') || normalizar(s).includes('sacul-concentrado'));
+            if (hojaTalleres) {
+              const ws = workbook.Sheets[hojaTalleres];
+              const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+              for (let r = 8; r < matriz.length; r++) {
+                const fila = matriz[r];
+                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : '';
+                const numTalleres = parseInt(fila[5]) || 0;
+                if (!muni || numTalleres === 0 || normalizar(muni) === 'nan') continue;
+
+                const infM = parseFloat(fila[6]) || 0;
+                const infH = parseFloat(fila[7]) || 0;
+                const juvM = parseFloat(fila[8]) || 0;
+                const juvH = parseFloat(fila[9]) || 0;
+                const aduM = parseFloat(fila[10]) || 0;
+                const aduH = parseFloat(fila[11]) || 0;
+                const total = Math.round(infM + infH + juvM + juvH + aduM + aduH);
+
+                if (total === 0) continue;
+
+                registrosSQL.push({
+                  folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
+                  area_programa: 'CDCM',
+                  usuario: usuarioActivo,
+                  municipio: muni,
+                  sede: `Casa de la Cultura de ${muni}`,
+                  disciplina: `Numeralia Informe: Red de Talleres (${numTalleres} grupos)`,
+                  docente: 'Dirección de Casa de Cultura',
+                  programacion: 'Anual 2025',
+                  costo: 'Libre Acceso / Cuota',
+                  horario: 'Jornada Anual',
+                  dias: 'Lu, Ma, Mi, Ju, Vi, Sa',
+                  sesion: 'Lu, Ma, Mi, Ju, Vi, Sa',
+                  mujeres: Math.round(infM + juvM + aduM),
+                  hombres: Math.round(infH + juvH + aduH),
+                  ninez: Math.round(infM + infH),
+                  adolescencia: Math.round((juvM + juvH) * 0.4),
+                  juventudes: Math.round((juvM + juvH) * 0.6),
+                  adultos_mayores: Math.round(aduM + aduH),
+                  discapacidad: 0,
+                  indigenas: 0,
+                  afromexicanas: 0,
+                  lgbtq: 0
+                });
+              }
+            }
+
+            if (registrosSQL.length > 0) {
+              return confirmarEInsertarRegistros(registrosSQL, 'Numeralia Oficial del Informe de Gobierno', `${registrosSQL.length} Registros y Proyectos Consolidados`);
+            }
+          }
+
+          // =========================================================
+          // CASO 4: CONCENTRADO ESTATAL ANUAL (CONCENTRADOS 2025.xlsx)
+          // =========================================================
           const hojaMacro = workbook.SheetNames.find(s => {
             const ns = normalizar(s);
             return ns.includes('activi') || ns.includes('concentrado') || ns.includes('promediado');
@@ -1629,10 +1833,8 @@
               const juventudes = Math.round(totalBeneficiarios * 0.22);
               const adultosMayores = Math.max(0, totalBeneficiarios - (ninez + adolescencia + juventudes));
 
-              const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
-
               registrosSQL.push({
-                folio: folio,
+                folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
                 area_programa: 'CDCM',
                 usuario: usuarioActivo,
                 municipio: muniOficial,
@@ -1658,38 +1860,16 @@
             }
 
             if (registrosSQL.length > 0) {
-              const conf = await Swal.fire({
-                title: `¿Importar Concentrado Estatal Anual?`,
-                html: `Se identificó el consolidado macro-estatal.<br><br><b>Municipios con datos activos:</b> ${registrosSQL.length} de 46<br><b>Objetivo:</b> Poblar el Dashboard Directivo con la línea base histórica.`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, sincronizar todo el estado',
-                cancelButtonText: 'Cancelar'
-              });
-
-              if (conf.isConfirmed) {
-                Swal.fire({ title: 'Sincronizando con la base de datos institucional...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-                const batchSize = 50;
-                for (let i = 0; i < registrosSQL.length; i += batchSize) {
-                  const batch = registrosSQL.slice(i, i + batchSize);
-                  const { error } = await conexionSupabase.from(TABLA_SQL).insert(batch);
-                  if (error) throw error;
-                }
-
-                Swal.fire('¡Concentrado Estatal Sincronizado!', `Se integraron los 46 municipios al Dashboard Directivo.`, 'success');
-                cargarBitacora();
-                inicializarDashboardDirectivo();
-                return;
-              }
+              return confirmarEInsertarRegistros(registrosSQL, 'Concentrado Estatal Anual', `${registrosSQL.length} de 46 Municipios`);
             }
           }
 
-          // CASO B: REPORTE MUNICIPAL DETALLADO
+          // =========================================================
+          // CASO 5: REPORTE MUNICIPAL OPERATIVO DETALLADO
+          // =========================================================
           let municipioArchivo = '';
-          const normFileName = normalizar(file.name);
           for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
-            if (normFileName.includes(normalizar(m))) {
+            if (fileNameNorm.includes(normalizar(m))) {
               municipioArchivo = m;
               break;
             }
@@ -1846,30 +2026,7 @@
             return Swal.fire('Sin Coincidencias', 'No se encontraron talleres con beneficiarios activos en el archivo.', 'warning');
           }
 
-          const municipioDetectado = registrosSQL[0].municipio;
-          const conf = await Swal.fire({
-            title: `¿Importar ${registrosSQL.length} talleres de ${municipioDetectado}?`,
-            html: `Se identificaron <b>${registrosSQL.length} talleres con maestros y horarios</b>.<br><br><b>Municipio:</b> ${municipioDetectado}<br><b>Filtro de limpieza:</b> Activado`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, importar ahora',
-            cancelButtonText: 'Cancelar'
-          });
-
-          if (conf.isConfirmed) {
-            Swal.fire({ title: 'Sincronizando con la base de datos institucional...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-            const batchSize = 100;
-            for (let i = 0; i < registrosSQL.length; i += batchSize) {
-              const batch = registrosSQL.slice(i, i + batchSize);
-              const { error } = await conexionSupabase.from(TABLA_SQL).insert(batch);
-              if (error) throw error;
-            }
-
-            Swal.fire('¡Importación Exitosa!', `Se sincronizaron ${registrosSQL.length} talleres de ${municipioDetectado}.`, 'success');
-            cargarBitacora();
-            inicializarDashboardDirectivo();
-          }
+          return confirmarEInsertarRegistros(registrosSQL, `Reporte Operativo de ${registrosSQL[0].municipio}`, `${registrosSQL.length} Talleres con Instructores`);
 
         } catch (err) {
           console.error(err);
@@ -1879,6 +2036,33 @@
         }
       };
       reader.readAsArrayBuffer(file);
+    }
+
+    // Función auxiliar para confirmar inserción masiva
+    async function confirmarEInsertarRegistros(registros, tipoArchivo, detalle) {
+      const conf = await Swal.fire({
+        title: `¿Importar ${tipoArchivo}?`,
+        html: `Se identificaron <b>${detalle}</b>.<br><br><b>Destino:</b> Base de datos institucional de Vinculación Cultural.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, sincronizar ahora',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (conf.isConfirmed) {
+        Swal.fire({ title: 'Sincronizando con la base de datos institucional...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        const batchSize = 100;
+        for (let i = 0; i < registros.length; i += batchSize) {
+          const batch = registros.slice(i, i + batchSize);
+          const { error } = await conexionSupabase.from(TABLA_SQL).insert(batch);
+          if (error) throw error;
+        }
+
+        Swal.fire('¡Importación Exitosa!', `Se sincronizaron con éxito los datos de ${tipoArchivo}.`, 'success');
+        cargarBitacora();
+        inicializarDashboardDirectivo();
+      }
     }
 
     // =================================================================
