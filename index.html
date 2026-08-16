@@ -6,9 +6,10 @@
   <title>Sistematización CDCM | Gobierno de Guanajuato</title>
   
   <!-- ================================================================= -->
-  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, Chart.js, SweetAlert2, jsPDF)     -->
+  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, Chart.js, SweetAlert2, jsPDF, SheetJS) -->
   <!-- ================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -64,13 +65,19 @@
     input[type="text"], input[type="email"], input[type="number"], input[type="time"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s ease; background: #fafafa; }
     input:focus, select:focus { outline: none; border-color: var(--gto-azul-primario); background: white; box-shadow: 0 0 0 3px var(--gto-azul-claro); }
 
-    /* Destacado Selector de Área */
     .area-selector-container { background: #f0f7ff; border: 2px solid var(--gto-azul-secundario); border-radius: 12px; padding: 16px; margin-bottom: 22px; }
 
     /* Botones */
     .btn-gto { background-color: var(--gto-azul-primario); color: white; border: none; border-radius: 10px; padding: 14px 24px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
     .btn-gto:hover { background-color: #003662; transform: translateY(-1px); }
-    .btn-secundario { background-color: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; border: none; padding: 10px; border-radius: 8px; cursor: pointer;}
+    .btn-secundario { background-color: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-secundario:hover { background-color: #b5cde6; }
+    .btn-excel { background-color: #107c41; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-excel:hover { background-color: #0c5e31; }
+
+    /* Dropzone para Importación */
+    .dropzone-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 22px; text-align: center; background: #f8fafc; margin-bottom: 20px; transition: all 0.2s; }
+    .dropzone-box:hover { border-color: var(--gto-azul-primario); background: #f0f7ff; }
 
     /* Selector de Días */
     .dias-selector { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -288,12 +295,12 @@
             <div class="evidencia-box">
               <h4 style="color: var(--gto-azul-primario); margin-bottom: 8px;">Geolocalización GPS</h4>
               <p id="txtCoordenadas" style="font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 12px;">Coordenadas no capturadas</p>
-              <button type="button" id="btnCapturarGPS" class="btn-secundario" style="width: 100%;">Obtener Ubicación Actual</button>
+              <button type="button" id="btnCapturarGPS" class="btn-secundario" style="width: 100%; justify-content: center;">Obtener Ubicación Actual</button>
             </div>
             <div class="evidencia-box">
               <h4 style="color: var(--gto-azul-primario); margin-bottom: 8px;">Respaldo Fotográfico</h4>
               <p id="txtFoto" style="font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 12px;">Sin foto seleccionada</p>
-              <button type="button" onclick="document.getElementById('inputFoto').click()" class="btn-secundario" style="width: 100%;">Adjuntar Imagen</button>
+              <button type="button" onclick="document.getElementById('inputFoto').click()" class="btn-secundario" style="width: 100%; justify-content: center;">Adjuntar Imagen</button>
               <input type="file" id="inputFoto" accept="image/*" class="hidden" />
             </div>
           </div>
@@ -306,7 +313,7 @@
       </form>
     </div>
 
-    <!-- PESTAÑA 2: BITÁCORA Y CONSULTA DE REGISTROS -->
+    <!-- PESTAÑA 2: BITÁCORA, EXPORTACIÓN E IMPORTACIÓN MASIVA -->
     <div id="tab-bitacora" class="tab-content">
       
       <!-- Mini Tarjetas KPI -->
@@ -325,14 +332,36 @@
         </div>
       </div>
 
-      <!-- Tarjeta Principal de la Tabla -->
+      <!-- Tarjeta de Importación Masiva (Colapsable / Dropzone) -->
+      <div class="card" style="padding: 24px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+          <div>
+            <h3 style="font-size: 18px; margin-bottom: 2px;">📥 Importación Masiva de Registros Culturales</h3>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Carga concentrados estadísticos desde archivos Excel (.xlsx / .xls / .csv) directo a Supabase.</p>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn-excel" onclick="document.getElementById('inputExcelMasivoRegistros').click()">
+              📂 Subir Archivo Excel
+            </button>
+            <button type="button" class="btn-secundario" onclick="descargarPlantillaRegistros()">
+              📥 Descargar Plantilla Oficial (.xlsx)
+            </button>
+            <input type="file" id="inputExcelMasivoRegistros" accept=".xlsx, .xls, .csv" class="hidden" onchange="procesarExcelMasivoRegistros(this)" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta Principal de la Tabla de Bitácora -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 18px;">
           <div>
             <h2>Bitácora de Capturas Registradas</h2>
-            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Explora registros en tiempo real de CDCM y Red de Bibliotecas, consulta fotos y re-descarga acuses.</p>
+            <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Explora registros en tiempo real, consulta fotos, descarga acuses o exporta datos a Excel.</p>
           </div>
-          <button onclick="cargarBitacora()" class="btn-secundario" style="font-size: 12px; padding: 8px 16px;">↻ Actualizar Datos</button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="exportarBitacoraExcel()" class="btn-excel">📊 Exportar a Excel (.xlsx)</button>
+            <button onclick="cargarBitacora()" class="btn-secundario">↻ Actualizar Datos</button>
+          </div>
         </div>
 
         <!-- Barra de Búsqueda y Filtros -->
@@ -390,7 +419,7 @@
             <select id="filtroMunicipioDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 180px;">
               <option value="">Todo el Estado (Global)</option>
             </select>
-            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario" style="font-size: 12px; padding: 10px 16px;">↻ Refrescar</button>
+            <button onclick="inicializarDashboardDirectivo()" class="btn-secundario">↻ Refrescar</button>
           </div>
         </div>
       </div>
@@ -435,7 +464,7 @@
       <p id="modalSubtituloFoto" style="font-size: 12px; color: var(--gto-gris-oscuro);"></p>
       <img id="modalImagenSrc" src="" alt="Evidencia de Campo" />
       <div style="margin-top: 16px;">
-        <a id="btnDescargarFotoOriginal" href="#" target="_blank" class="btn-secundario" style="text-decoration: none; display: inline-block; font-size: 12px;">Abrir Imagen en Pestaña Completa</a>
+        <a id="btnDescargarFotoOriginal" href="#" target="_blank" class="btn-secundario" style="text-decoration: none; display: inline-block;">Abrir Imagen en Pestaña Completa</a>
       </div>
     </div>
   </div>
@@ -475,6 +504,7 @@
     let memoriaRegistrosBitacora = [];
     let memoriaBibliotecasSupabase = [];
     let memoriaDocentesCDCM = [];
+    let registrosFiltradosActuales = [];
 
     // Instancias de Chart.js
     let chartInstMunicipios = null;
@@ -514,14 +544,12 @@
     // --- FUNCIÓN C: CARGAR CATÁLOGOS BASE DESDE SUPABASE ---
     async function cargarCatalogosBase() {
       try {
-        // Cargar Docentes CDCM
         const { data: dataDoc } = await conexionSupabase
           .from('cat_docentes')
           .select('nombre_docente')
           .order('nombre_docente', { ascending: true });
         memoriaDocentesCDCM = dataDoc || [];
 
-        // Cargar Bibliotecas
         const { data: dataBib } = await conexionSupabase
           .from('cat_bibliotecas')
           .select('*')
@@ -536,6 +564,7 @@
 
     function actualizarSelectorDocentesCDCM() {
       const selectDoc = document.getElementById('selectorDocente');
+      if (!selectDoc) return;
       selectDoc.innerHTML = '<option value="">Seleccione al docente / tallerista...</option>';
       if (memoriaDocentesCDCM.length > 0) {
         memoriaDocentesCDCM.forEach(item => {
@@ -549,7 +578,7 @@
       }
     }
 
-    // --- FUNCIÓN D: CAMBIO DINÁMICO DE ÁREA OPERATIVA (CDCM vs BIBLIOTECAS) ---
+    // --- FUNCIÓN D: CAMBIO DINÁMICO DE ÁREA OPERATIVA ---
     function cambiarAreaOperativa() {
       const area = document.getElementById('selectorArea').value;
       const labelSede = document.getElementById('labelSede');
@@ -558,7 +587,6 @@
       const inputDisciplina = document.getElementById('inputDisciplina');
       const selectMuni = document.getElementById('selectorMunicipio');
       
-      // Resetear selecciones
       selectMuni.value = '';
       document.getElementById('selectorSede').innerHTML = '<option value="">Primero elija municipio...</option>';
 
@@ -568,7 +596,6 @@
         labelDocente.textContent = 'Bibliotecario(a) / Responsable Asignado';
         inputDisciplina.placeholder = 'Ej. Círculo de lectura, La Hora del Cuento, Préstamo en sala...';
         
-        // Convertir selector docente a input de texto autocompletable
         document.getElementById('contenedorDocenteDinamico').innerHTML = `
           <input type="text" id="selectorDocente" placeholder="Se autocompleta al elegir la biblioteca..." required />
         `;
@@ -597,12 +624,10 @@
       }
 
       if (area === 'BIBLIOTECAS') {
-        // Filtrar del catálogo de bibliotecas cargado de Supabase
         const bibs = memoriaBibliotecasSupabase.filter(b => b.municipio.toLowerCase().trim() === muniElegido.toLowerCase().trim());
-        
         if (bibs.length > 0) {
           selectSede.innerHTML = '<option value="">Seleccione la Biblioteca Pública...</option>';
-          bibs.forEach((b, idx) => {
+          bibs.forEach((b) => {
             const opt = document.createElement('option');
             opt.value = b.nombre_biblioteca;
             opt.textContent = b.nombre_biblioteca;
@@ -613,7 +638,6 @@
           selectSede.innerHTML = `<option value="">No hay bibliotecas en ${muniElegido}</option>`;
         }
       } else {
-        // Filtrar del catálogo CDCM
         selectSede.innerHTML = '<option value="">Seleccione el Espacio Cultural...</option>';
         const listaSedes = CATALOGO_GUBERNAMENTAL[muniElegido];
         if (listaSedes) {
@@ -627,7 +651,6 @@
       }
     });
 
-    // --- EVENTO: AUTOCOMPLETAR RESPONSABLE DE BIBLIOTECA AL ELEGIR SEDE ---
     document.getElementById('selectorSede').addEventListener('change', function() {
       const area = document.getElementById('selectorArea').value;
       if (area === 'BIBLIOTECAS') {
@@ -670,7 +693,7 @@
       }
     });
 
-    // --- EVENTO: INICIO DE SESIÓN INSTITUCIONAL (MAGIC LINK OTP) ---
+    // --- EVENTO: LOGIN INSTIUCIONAL ---
     document.getElementById('formIngreso').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('correoLogin').value.trim();
@@ -696,11 +719,12 @@
     });
 
     const numeroSeguro = (idInput) => { 
-      const valor = parseInt(document.getElementById(idInput).value); 
+      const el = document.getElementById(idInput);
+      if(!el) return 0;
+      const valor = parseInt(el.value); 
       return isNaN(valor) ? 0 : valor; 
     };
 
-    // --- HELPERS PARA PROCESAMIENTO DE IMÁGENES EN PDF ---
     function cargarImagenURL(url) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -713,9 +737,7 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
             resolve(canvas.toDataURL('image/png'));
-          } catch (e) {
-            resolve(null);
-          }
+          } catch (e) { resolve(null); }
         };
         img.onerror = () => resolve(null);
         img.src = url;
@@ -732,14 +754,10 @@
       });
     }
 
-    // --- FUNCIÓN E: GENERACIÓN DE ACUSE EN PDF INSTITUCIONAL DINÁMICO ---
+    // --- FUNCIÓN E: GENERACIÓN DE ACUSE EN PDF INSTITUCIONAL ---
     async function generarAcusePDF(paquete, folio, archivoFoto = null) {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
-      });
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
       const AZUL_GTO = [0, 75, 135];
       const AZUL_ACCESO = [105, 179, 231];
@@ -751,16 +769,13 @@
       const esBiblio = paquete.area_programa === 'BIBLIOTECAS';
       const nombrePrograma = esBiblio ? 'RED ESTATAL DE BIBLIOTECAS PÚBLICAS' : 'CENTROS Y MÓDULOS CULTURALES (CDCM)';
 
-      // 1. Encabezado
       doc.setFillColor(...AZUL_GTO);
       doc.rect(0, 0, 210, 4, 'F');
       doc.setFillColor(...AZUL_ACCESO);
       doc.rect(0, 4, 210, 1.5, 'F');
 
       const logoData = await cargarImagenURL('Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png');
-      if (logoData) {
-        doc.addImage(logoData, 'PNG', 14, 8, 28, 22);
-      }
+      if (logoData) doc.addImage(logoData, 'PNG', 14, 8, 28, 22);
 
       const inicioTextoX = logoData ? 46 : 14;
       doc.setFont("helvetica", "bold");
@@ -786,12 +801,11 @@
       doc.setLineWidth(0.6);
       doc.line(14, 32, 196, 32);
 
-      // 2. Tarjeta Folio
       doc.setFillColor(...FONDO_TARJETA);
       doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
       doc.setDrawColor(...BORDE_LINEA);
       doc.setLineWidth(0.2);
-      doc.roundedRect(14, 36, 182, 2, 2, 'S');
+      doc.roundedRect(14, 36, 182, 18, 2, 2, 'S');
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(7);
@@ -817,7 +831,6 @@
       doc.setFont("helvetica", "normal");
       doc.text(paquete.usuario || 'planeacionscul@guanajuato.gob.mx', 102, 49);
 
-      // 3. Sección 1: Datos Generales
       doc.setFillColor(...AZUL_GTO);
       doc.rect(14, 57, 182, 6, 'F');
       doc.setTextColor(255, 255, 255);
@@ -831,7 +844,6 @@
 
       doc.setFontSize(7.8);
       doc.setTextColor(...GRIS_TEXTO);
-
       doc.setFont("helvetica", "bold"); doc.text("Municipio:", 18, 69);
       doc.setFont("helvetica", "normal"); doc.text(paquete.municipio || 'N/A', 40, 69);
       
@@ -856,7 +868,6 @@
       doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
       doc.setFont("helvetica", "normal"); doc.text(paquete.horario || 'N/A', 124, 90);
 
-      // 4. Sección 2: Desglose Demográfico
       doc.setFillColor(...AZUL_GTO);
       doc.rect(14, 100, 182, 6, 'F');
       doc.setTextColor(255, 255, 255);
@@ -929,7 +940,6 @@
       doc.setFontSize(11);
       doc.text(`${sumaTotal} PERSONAS`, 146, 158.5);
 
-      // 5. Sección 3: Validación Técnica
       doc.setFillColor(...AZUL_GTO);
       doc.rect(14, 167, 182, 6, 'F');
       doc.setTextColor(255, 255, 255);
@@ -955,7 +965,7 @@
       doc.setTextColor(5, 150, 105);
       doc.text("Sincronizado en tiempo real a PostgreSQL", 54, 189);
 
-      const hashSello = `GTO-CDCM-2026-${folio}-${Date.now().toString(36).toUpperCase()}`;
+      const hashSello = `GTO-VINC-2026-${folio}-${Date.now().toString(36).toUpperCase()}`;
       doc.setTextColor(...GRIS_TEXTO);
       doc.setFont("helvetica", "bold"); doc.text("Sello Digital:", 18, 197);
       doc.setFont("courier", "normal");
@@ -1012,7 +1022,6 @@
         doc.text("Sin respaldo fotográfico adjunto.", 125, 214);
       }
 
-      // 6. Pie de Página
       doc.setDrawColor(...BORDE_LINEA);
       doc.line(14, 268, 196, 268);
 
@@ -1039,6 +1048,7 @@
         if (error) throw error;
 
         memoriaRegistrosBitacora = (data || []).reverse();
+        registrosFiltradosActuales = [...memoriaRegistrosBitacora];
         actualizarMetricasKPI(memoriaRegistrosBitacora);
         renderizarFilasBitacora(memoriaRegistrosBitacora);
 
@@ -1105,7 +1115,7 @@
       const area = document.getElementById('filtroAreaBitacora').value;
       const muni = document.getElementById('filtroMunicipioBitacora').value;
 
-      const filtrados = memoriaRegistrosBitacora.filter(reg => {
+      registrosFiltradosActuales = memoriaRegistrosBitacora.filter(reg => {
         const coincideArea = !area || reg.area_programa === area || (!reg.area_programa && area === 'CDCM');
         const coincideMuni = !muni || reg.municipio === muni;
         const coincideTexto = !texto || 
@@ -1118,12 +1128,12 @@
         return coincideArea && coincideMuni && coincideTexto;
       });
 
-      renderizarFilasBitacora(filtrados);
+      renderizarFilasBitacora(registrosFiltradosActuales);
     }
 
     // --- FUNCIÓN J: RE-EMISIÓN DE PDF HISTÓRICO ---
     async function reimprimirPDFPorIndice(indice) {
-      const registro = memoriaRegistrosBitacora[indice];
+      const registro = registrosFiltradosActuales[indice] || memoriaRegistrosBitacora[indice];
       if (!registro) return;
       Swal.fire({
         title: 'Generando Acuse...',
@@ -1133,6 +1143,208 @@
         icon: 'info'
       });
       await generarAcusePDF(registro, registro.folio, null);
+    }
+
+    // --- FUNCIÓN K: EXPORTAR A EXCEL (.XLSX) ---
+    function exportarBitacoraExcel() {
+      const datosAExportar = registrosFiltradosActuales.length > 0 ? registrosFiltradosActuales : memoriaRegistrosBitacora;
+      
+      if (datosAExportar.length === 0) {
+        return Swal.fire('Sin Datos', 'No hay registros en la bitácora para exportar.', 'info');
+      }
+
+      const filasMapeadas = datosAExportar.map(r => {
+        const total = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
+                      (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
+        return {
+          "Folio Oficial": r.folio || '',
+          "Programa / Área": r.area_programa || 'CDCM',
+          "Municipio": r.municipio || '',
+          "Sede / Espacio": r.sede || '',
+          "Actividad / Disciplina": r.disciplina || '',
+          "Docente / Responsable": r.docente || '',
+          "Programación": r.programacion || '',
+          "Modalidad Cuota": r.costo || '',
+          "Días de Sesión": r.dias || r.sesion || '',
+          "Horario": r.horario || '',
+          "Total Beneficiarios": total,
+          "Mujeres": Number(r.mujeres) || 0,
+          "Hombres": Number(r.hombres) || 0,
+          "Niñez": Number(r.ninez) || 0,
+          "Adolescencia": Number(r.adolescencia) || 0,
+          "Juventudes": Number(r.juventudes) || 0,
+          "Adultos Mayores": Number(r.adultos_mayores) || 0,
+          "Discapacidad": Number(r.discapacidad) || 0,
+          "Indígenas": Number(r.indigenas) || 0,
+          "Afromexicanas": Number(r.afromexicanas) || 0,
+          "LGBTQ+": Number(r.lgbtq) || 0,
+          "Latitud": r.latitud || '',
+          "Longitud": r.longitud || '',
+          "URL Evidencia Foto": r.foto_url || '',
+          "Enlace que Capturó": r.usuario || ''
+        };
+      });
+
+      const hoja = XLSX.utils.json_to_sheet(filasMapeadas);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Bitacora_Vinculacion");
+      
+      const fechaArchivo = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(libro, `Bitacora_Registros_Culturales_${fechaArchivo}.xlsx`);
+    }
+
+    // --- FUNCIÓN L: DESCARGAR PLANTILLA EXCEL DE REGISTROS ---
+    function descargarPlantillaRegistros() {
+      const plantillaEjemplo = [
+        {
+          "Area_Programa": "CDCM",
+          "Municipio": "Silao de la Victoria",
+          "Sede": "Casa de la Cultura Isauro Rionda Arreguín",
+          "Disciplina_Actividad": "Taller de Pintura y Acuarela",
+          "Docente_Responsable": "Lic. Miguel Galván",
+          "Programacion": "Semestral",
+          "Modalidad_Cuota": "Libre Acceso",
+          "Dias": "Lu, Mi, Vi",
+          "Horario": "16:00 - 18:00",
+          "Mujeres": 12,
+          "Hombres": 8,
+          "Ninez": 10,
+          "Adolescencia": 6,
+          "Juventudes": 4,
+          "Adultos_Mayores": 0,
+          "Discapacidad": 1,
+          "Indigenas": 0,
+          "Afromexicanas": 0,
+          "LGBTQ": 0
+        },
+        {
+          "Area_Programa": "BIBLIOTECAS",
+          "Municipio": "Guanajuato",
+          "Sede": "Biblioteca Central Estatal Wigberto Jiménez Moreno",
+          "Disciplina_Actividad": "La Hora del Cuento Infantil",
+          "Docente_Responsable": "Lic. Juan Manuel Saldaña",
+          "Programacion": "Anual",
+          "Modalidad_Cuota": "Libre Acceso",
+          "Dias": "Ma, Ju",
+          "Horario": "10:00 - 12:00",
+          "Mujeres": 18,
+          "Hombres": 14,
+          "Ninez": 22,
+          "Adolescencia": 5,
+          "Juventudes": 3,
+          "Adultos_Mayores": 2,
+          "Discapacidad": 0,
+          "Indigenas": 0,
+          "Afromexicanas": 0,
+          "LGBTQ": 0
+        }
+      ];
+
+      const hoja = XLSX.utils.json_to_sheet(plantillaEjemplo);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Plantilla_Registros");
+      XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
+    }
+
+    // --- FUNCIÓN M: PROCESAR EXCEL MASIVO DE REGISTROS ---
+    async function procesarExcelMasivoRegistros(inputElement) {
+      const file = inputElement.files[0];
+      if (!file) return;
+
+      Swal.fire({ title: 'Leyendo archivo Excel...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+          if (!jsonData || jsonData.length === 0) {
+            return Swal.fire('Archivo Vacío', 'No se encontraron datos en el archivo.', 'warning');
+          }
+
+          const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
+          const registrosSQL = [];
+
+          jsonData.forEach(row => {
+            const keys = Object.keys(row);
+            const getVal = (pattern, fallback = '') => {
+              const k = keys.find(key => key.toLowerCase().includes(pattern.toLowerCase()));
+              return k && row[k] !== undefined ? row[k] : fallback;
+            };
+
+            const muni = String(getVal('muni', '')).trim();
+            const act = String(getVal('actividad', '') || getVal('disciplina', '') || getVal('taller', '')).trim();
+
+            if (muni && act) {
+              const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
+              const area = String(getVal('area', '') || getVal('programa', 'CDCM')).toUpperCase().includes('BIBLIO') ? 'BIBLIOTECAS' : 'CDCM';
+              const diasVal = String(getVal('dia', 'Lu, Mi, Vi')).trim();
+
+              registrosSQL.push({
+                folio: folio,
+                area_programa: area,
+                usuario: usuarioActivo,
+                municipio: muni,
+                sede: String(getVal('sede', '') || getVal('espacio', '') || getVal('biblioteca', 'Sede Municipal')).trim(),
+                disciplina: act,
+                programacion: String(getVal('program', 'Anual')).trim(),
+                docente: String(getVal('docente', '') || getVal('responsable', '') || getVal('encargado', 'Sin asignar')).trim(),
+                costo: String(getVal('costo', '') || getVal('cuota', 'Libre Acceso')).trim(),
+                horario: String(getVal('horario', '10:00 - 12:00')).trim(),
+                dias: diasVal,
+                sesion: diasVal,
+                mujeres: Number(getVal('mujer', 0)) || 0,
+                hombres: Number(getVal('hombre', 0)) || 0,
+                ninez: Number(getVal('niñ', 0)) || Number(getVal('ninez', 0)) || 0,
+                adolescencia: Number(getVal('adolesc', 0)) || 0,
+                juventudes: Number(getVal('juven', 0)) || 0,
+                adultos_mayores: Number(getVal('mayor', 0)) || Number(getVal('adulto', 0)) || 0,
+                discapacidad: Number(getVal('discap', 0)) || 0,
+                indigenas: Number(getVal('indig', 0)) || 0,
+                afromexicanas: Number(getVal('afro', 0)) || 0,
+                lgbtq: Number(getVal('lgbt', 0)) || 0
+              });
+            }
+          });
+
+          if (registrosSQL.length === 0) {
+            return Swal.fire('Error en Columnas', 'No se pudieron mapear las columnas requeridas (Municipio, Actividad/Disciplina).', 'error');
+          }
+
+          const conf = await Swal.fire({
+            title: `¿Importar ${registrosSQL.length} registros?`,
+            text: `Se insertarán directamente en la base de datos de PostgreSQL.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, importar ahora',
+            cancelButtonText: 'Cancelar'
+          });
+
+          if (conf.isConfirmed) {
+            Swal.fire({ title: 'Insertando registros en PostgreSQL...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            const batchSize = 100;
+            for (let i = 0; i < registrosSQL.length; i += batchSize) {
+              const batch = registrosSQL.slice(i, i + batchSize);
+              const { error } = await conexionSupabase.from(TABLA_SQL).insert(batch);
+              if (error) throw error;
+            }
+
+            Swal.fire('¡Importación Exitosa!', `Se sincronizaron ${registrosSQL.length} actividades en la Bitácora.`, 'success');
+            cargarBitacora();
+            inicializarDashboardDirectivo();
+          }
+
+        } catch (err) {
+          Swal.fire('Error al procesar', err.message, 'error');
+        } finally {
+          inputElement.value = '';
+        }
+      };
+      reader.readAsArrayBuffer(file);
     }
 
     // --- MODAL DE VISUALIZACIÓN DE FOTOS ---
@@ -1172,7 +1384,6 @@
         datos = datos.filter(r => r.municipio === filtroMuni);
       }
 
-      // Conteo por Municipio
       const conteoPorMuni = {};
       datos.forEach(r => {
         const m = r.municipio || 'Sin Municipio';
@@ -1181,7 +1392,6 @@
         conteoPorMuni[m] = (conteoPorMuni[m] || 0) + total;
       });
 
-      // Grupos de Edad
       let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
       datos.forEach(r => {
         sumaNinez += (Number(r.ninez) || 0);
@@ -1190,7 +1400,6 @@
         sumaMayores += (Number(r.adultos_mayores) || 0);
       });
 
-      // Sectores Prioritarios
       let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
       datos.forEach(r => {
         sumaDiscapacidad += (Number(r.discapacidad) || 0);
@@ -1199,14 +1408,12 @@
         sumaLGBT += (Number(r.lgbtq) || 0);
       });
 
-      // Género
       let sumaMujeres = 0, sumaHombres = 0;
       datos.forEach(r => {
         sumaMujeres += (Number(r.mujeres) || 0);
         sumaHombres += (Number(r.hombres) || 0);
       });
 
-      // Renderizar Gráfica 1: Municipios
       const ctxMuni = document.getElementById('chartMunicipios').getContext('2d');
       if (chartInstMunicipios) chartInstMunicipios.destroy();
       chartInstMunicipios = new Chart(ctxMuni, {
@@ -1228,7 +1435,6 @@
         }
       });
 
-      // Renderizar Gráfica 2: Edad
       const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
       if (chartInstGruposEdad) chartInstGruposEdad.destroy();
       chartInstGruposEdad = new Chart(ctxEdad, {
@@ -1249,7 +1455,6 @@
         }
       });
 
-      // Renderizar Gráfica 3: Prioritarios
       const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
       if (chartInstPrioritarios) chartInstPrioritarios.destroy();
       chartInstPrioritarios = new Chart(ctxPrio, {
@@ -1272,7 +1477,6 @@
         }
       });
 
-      // Renderizar Gráfica 4: Género
       const ctxGen = document.getElementById('chartGenero').getContext('2d');
       if (chartInstGenero) chartInstGenero.destroy();
       chartInstGenero = new Chart(ctxGen, {
@@ -1294,7 +1498,7 @@
       });
     }
 
-    // --- EVENTO: ENVÍO DE FORMULARIO Y PERSISTENCIA EN SUPABASE ---
+    // --- EVENTO: ENVÍO DE FORMULARIO INDIVIDUAL ---
     document.getElementById('formularioCaptura').addEventListener('submit', async (e) => {
       e.preventDefault();
       if(memoriaDias.size === 0) return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión.', 'warning');
@@ -1308,7 +1512,6 @@
       btnGuardar.disabled = true;
       btnGuardar.innerText = "Subiendo datos y evidencia...";
 
-      // 1. Subida de Foto a Storage
       if (inputArchivoFoto.files && inputArchivoFoto.files.length > 0) {
         const archivo = inputArchivoFoto.files[0];
         const extension = archivo.name.split('.').pop();
@@ -1335,7 +1538,6 @@
         urlFotoFinal = dataUrl.publicUrl;
       }
 
-      // 2. Paquete SQL Completo con Subárea
       const areaActual = document.getElementById('selectorArea').value;
       const paqueteSQL = {
         folio: folioGenerado,
@@ -1367,7 +1569,6 @@
         lgbtq: numeroSeguro('p_lgbt')
       };
 
-      // 3. Inserción en PostgreSQL
       const { error: errorSQL } = await conexionSupabase.from(TABLA_SQL).insert([paqueteSQL]);
       
       btnGuardar.disabled = false;
@@ -1378,7 +1579,6 @@
         return Swal.fire('Error SQL', errorSQL.message, 'error');
       }
 
-      // 4. Confirmación y PDF
       Swal.fire({
         title: '¡Sincronizado!',
         html: `El registro y la evidencia se guardaron correctamente.<br><br><b>Folio Oficial:</b><br><span style="font-size: 24px; color: #004B87; font-weight: 900;">${folioGenerado}</span><br><br><small>Generando acuse institucional en PDF...</small>`,
@@ -1387,7 +1587,6 @@
 
       await generarAcusePDF(paqueteSQL, folioGenerado, inputArchivoFoto.files[0]);
 
-      // 5. Reset
       document.getElementById('formularioCaptura').reset();
       cambiarAreaOperativa();
       memoriaDias.clear(); 
