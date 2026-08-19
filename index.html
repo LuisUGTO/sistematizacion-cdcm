@@ -6,7 +6,16 @@
   <title>Sistematización Institucional | Secretaría de Cultura de Guanajuato</title>
   
   <!-- ================================================================= -->
-  <!-- 1. LIBRERÍAS EXTERNAS                                             -->
+  <!-- 1. CONFIGURACIÓN PWA & OFFLINE (Zonas Rurales y Móvil)            -->
+  <!-- ================================================================= -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#004B87" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="offline-db.js"></script>
+
+  <!-- ================================================================= -->
+  <!-- 2. LIBRERÍAS EXTERNAS                                             -->
   <!-- ================================================================= -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -21,7 +30,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- ================================================================= -->
-  <!-- 2. ESTILOS VISUALES INSTITUCIONALES (Gobierno de Guanajuato)       -->
+  <!-- 3. ESTILOS VISUALES INSTITUCIONALES (Gobierno de Guanajuato)       -->
   <!-- ================================================================= -->
   <style>
     :root {
@@ -48,12 +57,17 @@
     .brand-titles small { font-size: 11px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; letter-spacing: 1px;}
     .brand-titles span { font-family: 'Vollkorn', serif; font-size: 20px; font-weight: 700; color: var(--gto-azul-primario); }
     
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+
+    /* Insignia de Conexión Offline / Online */
+    #badgeEstadoRed { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; background: #dcfce7; color: #166534; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(0,0,0,0.05); transition: all 0.25s; cursor: default; }
+
     /* Perfil Estilo Google Workspace */
     .user-profile-widget { position: relative; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
     .user-pill { display: flex; align-items: center; gap: 10px; background: var(--gto-fondo-app); padding: 4px 12px 4px 6px; border-radius: 40px; border: 1px solid var(--gto-azul-claro); transition: all 0.2s; }
     .user-pill:hover { background: #e8f0fe; border-color: var(--gto-azul-primario); }
     .avatar-circle { width: 34px; height: 34px; border-radius: 50%; background: var(--gto-azul-primario); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .user-info-text { font-size: 12px; font-weight: 600; color: var(--gto-texto-fijo); max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-info-text { font-size: 12px; font-weight: 600; color: var(--gto-texto-fijo); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* Dropdown Flotante Tipo Google */
     .google-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 320px; background: white; border-radius: 18px; box-shadow: 0 10px 35px rgba(0, 75, 135, 0.18); border: 1px solid rgba(0,75,135,0.12); padding: 20px; z-index: 2000; animation: fadeIn 0.25s ease; display: none; text-align: center; }
@@ -177,7 +191,7 @@
     </div>
   </div>
 
-  <!-- 4. ENCABEZADO INSTITUCIONAL CON PERFIL TIPO GOOGLE -->
+  <!-- 4. ENCABEZADO INSTITUCIONAL CON PERFIL TIPO GOOGLE Y STATUS OFFLINE -->
   <header class="topbar">
     <div class="topbar-container">
       <div class="brand-group">
@@ -188,40 +202,49 @@
         </div>
       </div>
 
-      <div class="user-profile-widget" id="contenedorPerfilGoogle">
-        <div class="user-pill" onclick="toggleMenuGoogle(event)">
-          <div class="avatar-circle" id="avatarTopBar">U</div>
-          <span class="user-info-text" id="etiquetaUsuario">cargando...</span>
-          <span style="font-size: 10px; color: var(--gto-gris-oscuro);">▼</span>
+      <div class="topbar-actions">
+        
+        <!-- Insignia de Estado de Red (Offline / Online) -->
+        <div id="badgeEstadoRed" title="Estado de la conexión a la base de datos">
+          <span>🟢</span> En línea
         </div>
 
-        <div class="google-dropdown" id="menuDesplegableGoogle" onclick="event.stopPropagation()">
-          <div class="dropdown-avatar-big-wrap">
-            <div class="avatar-circle-big" id="avatarDropdownBig">U</div>
-            <button class="btn-cambiar-foto" onclick="document.getElementById('inputFotoPerfil').click()" title="Cambiar foto de perfil">📷</button>
-            <input type="file" id="inputFotoPerfil" accept="image/*" class="hidden" onchange="actualizarFotoPerfil(this)" />
-          </div>
-          <div class="dropdown-name" id="dropdownNombreUsuario">Enlace Institucional</div>
-          <div class="dropdown-email" id="dropdownEmailUsuario">planeacionscul@guanajuato.gob.mx</div>
-
-          <div class="dropdown-links">
-            <div class="dropdown-item" onclick="abrirModalPersonalizarPerfil()">
-              <span>👤</span> Personalizar Perfil
-            </div>
-            <div class="dropdown-item" onclick="abrirModalAsistenciaTecnica()">
-              <span>💡</span> Asistencia y Soporte Técnico
-            </div>
-            <a href="admin.html" class="dropdown-item">
-              <span>⚙️</span> Panel de Catálogos (Admin)
-            </a>
+        <!-- Widget de Cuenta de Usuario -->
+        <div class="user-profile-widget" id="contenedorPerfilGoogle">
+          <div class="user-pill" onclick="toggleMenuGoogle(event)">
+            <div class="avatar-circle" id="avatarTopBar">U</div>
+            <span class="user-info-text" id="etiquetaUsuario">cargando...</span>
+            <span style="font-size: 10px; color: var(--gto-gris-oscuro);">▼</span>
           </div>
 
-          <button id="btnCerrarSesion" class="btn-gto" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; padding:10px; font-size:12px;">
-            Cerrar Sesión Institucional
-          </button>
+          <div class="google-dropdown" id="menuDesplegableGoogle" onclick="event.stopPropagation()">
+            <div class="dropdown-avatar-big-wrap">
+              <div class="avatar-circle-big" id="avatarDropdownBig">U</div>
+              <button class="btn-cambiar-foto" onclick="document.getElementById('inputFotoPerfil').click()" title="Cambiar foto de perfil">📷</button>
+              <input type="file" id="inputFotoPerfil" accept="image/*" class="hidden" onchange="actualizarFotoPerfil(this)" />
+            </div>
+            <div class="dropdown-name" id="dropdownNombreUsuario">Enlace Institucional</div>
+            <div class="dropdown-email" id="dropdownEmailUsuario">planeacionscul@guanajuato.gob.mx</div>
+
+            <div class="dropdown-links">
+              <div class="dropdown-item" onclick="abrirModalPersonalizarPerfil()">
+                <span>👤</span> Personalizar Perfil
+              </div>
+              <div class="dropdown-item" onclick="abrirModalAsistenciaTecnica()">
+                <span>💡</span> Asistencia y Soporte Técnico
+              </div>
+              <a href="admin.html" class="dropdown-item">
+                <span>⚙️</span> Panel de Catálogos (Admin)
+              </a>
+            </div>
+
+            <button id="btnCerrarSesion" class="btn-gto" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; padding:10px; font-size:12px;">
+              Cerrar Sesión Institucional
+            </button>
+          </div>
         </div>
+
       </div>
-
     </div>
   </header>
 
@@ -234,7 +257,7 @@
       <button class="tab-btn" onclick="cambiarPestana('tab-dashboard', this); inicializarDashboardDirectivo();">3. Dashboard Directivo</button>
     </div>
 
-    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA DINÁMICO -->
+    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA DINÁMICO & MODO CAMPO -->
     <div id="tab-captura" class="tab-content activo">
       <form id="formularioCaptura">
         
@@ -387,7 +410,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
             <h3 style="font-size: 18px; margin-bottom: 2px;">📥 Importación Masiva de Registros Culturales</h3>
-            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Dolores Hidalgo, Silao, León), concentrados estatales o numeralia de informe.</p>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px;">Arrastra reportes municipales de actividades (ej. Cuerámaro, Dolores Hidalgo, Silao, León), concentrados estatales, numeralia de informe o matrices presupuestales.</p>
           </div>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" class="btn-excel" onclick="document.getElementById('inputExcelMasivoRegistros').click()">
@@ -454,7 +477,7 @@
     <!-- PESTAÑA 3: DASHBOARD DIRECTIVO GEOESPACIAL Y ANALÍTICO -->
     <div id="tab-dashboard" class="tab-content">
       
-      <!-- Barra de Filtros Directivos con SELECTOR DE NIVEL / PERSPECTIVA -->
+      <!-- Barra de Filtros Directivos con SELECTOR DE PERSPECTIVA -->
       <div class="card" style="margin-bottom: 20px; padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
           <div>
@@ -463,7 +486,7 @@
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             
-            <!-- SELECTOR DE PERSPECTIVA ANALÍTICA (ELIMINA EL SESGO) -->
+            <!-- SELECTOR DE PERSPECTIVA ANALÍTICA (SIN SESGO) -->
             <select id="filtroNivelDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 230px; font-weight: 700; border-color: var(--gto-azul-primario); background: #f0f7ff;">
               <option value="TODOS">🌐 Vista Consolidada General</option>
               <option value="OPERATIVO">🟢 1. Operación Diaria (Talleres Municipales)</option>
@@ -702,7 +725,7 @@
     };
   </script>
 
-  <!-- 8. LÓGICA DE APLICACIÓN -->
+  <!-- 8. LÓGICA DE APLICACIÓN CON INTEGRACIÓN OFFLINE -->
   <script>
     const URL_SUPABASE = 'https://azhlshuiazhgjpjckkce.supabase.co';
     const LLAVE_PUBLICA = 'sb_publishable_wSABUjH15RrjBQ577R2bSA_jX6I4mAM';
@@ -741,9 +764,30 @@
       if (norm.includes('silao')) return 'Silao de la Victoria';
       if (norm.includes('juventino')) return 'Santa Cruz de Juventino Rosas';
       if (norm.includes('apaseo el g')) return 'Apaseo el Grande';
-      return null; // Si no es un municipio válido de GTO, retorna null
+      return null;
     }
 
+    // --- CONTROLES DE ESTADO DE RED & OFFLINE ---
+    async function actualizarEstadoConexionUI() {
+      const badge = document.getElementById('badgeEstadoRed');
+      if (!badge) return;
+      
+      const pendientes = typeof obtenerPendientesOffline === 'function' ? await obtenerPendientesOffline() : [];
+      
+      if (navigator.onLine) {
+        badge.style.background = '#dcfce7';
+        badge.style.color = '#166534';
+        badge.innerHTML = pendientes.length > 0 
+          ? `<span>🟡</span> Sincronizando (${pendientes.length} pendientes)...`
+          : `<span>🟢</span> En línea`;
+      } else {
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#92400e';
+        badge.innerHTML = `<span>📡</span> Modo Campo (Offline) · ${pendientes.length} guardados`;
+      }
+    }
+
+    // --- CONTROLES DEL PERFIL TIPO GOOGLE ---
     function toggleMenuGoogle(event) {
       event.stopPropagation();
       const menu = document.getElementById('menuDesplegableGoogle');
@@ -870,6 +914,7 @@
 
     async function cargarCatalogosBase() {
       try {
+        if (!navigator.onLine) return;
         const { data: dataDoc } = await conexionSupabase
           .from('cat_docentes')
           .select('nombre_docente')
@@ -1371,6 +1416,11 @@
       cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--gto-gris-oscuro); padding: 25px;">Sincronizando bitácora desde la base de datos institucional...</td></tr>`;
 
       try {
+        if (!navigator.onLine) {
+          cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #92400e; padding: 25px;">Modo Campo (Offline) activo. Las capturas se están resguardando localmente.</td></tr>`;
+          return;
+        }
+
         const { data, error } = await conexionSupabase
           .from(TABLA_SQL)
           .select('*');
@@ -1825,7 +1875,7 @@
               if (!muniRaw || normMuni.startsWith('total') || normMuni.startsWith('suma') || normMuni === 'nan') continue;
 
               const muniOficial = emparejarMunicipioCatalogo(muniRaw);
-              if (!muniOficial) continue; // Candado estricto: solo municipios de GTO
+              if (!muniOficial) continue;
 
               const totalActividades = parseInt(fila[1]) || 1;
               const totalBeneficiarios = parseInt(fila[2]) || 0;
@@ -2073,6 +2123,7 @@
     // =================================================================
     async function inicializarDashboardDirectivo() {
       if (memoriaRegistrosBitacora.length === 0) {
+        if (!navigator.onLine) return;
         const { data } = await conexionSupabase.from(TABLA_SQL).select('*');
         memoriaRegistrosBitacora = data || [];
       }
@@ -2100,15 +2151,12 @@
       
       let datos = memoriaRegistrosBitacora;
 
-      // FILTRO 1: NIVEL / PERSPECTIVA ANALÍTICA
+      // FILTRO 1: PERSPECTIVA ANALÍTICA
       if (filtroNivel === 'OPERATIVO') {
-        // Solo talleres individuales de enlaces o reportes operativos
         datos = datos.filter(r => !r.disciplina.includes('Concentrado Anual') && !r.disciplina.includes('Proyecto Estratégico') && !r.disciplina.includes('Indicador Presupuestal'));
       } else if (filtroNivel === 'CONCENTRADO') {
-        // Solo sábanas macro anuales de los 46 municipios
         datos = datos.filter(r => r.disciplina.includes('Concentrado Anual') || r.disciplina.includes('Numeralia Informe'));
       } else if (filtroNivel === 'ESTRATEGICO') {
-        // Solo proyectos especiales e indicadores 2026
         datos = datos.filter(r => r.disciplina.includes('Proyecto Estratégico') || r.disciplina.includes('Indicador Presupuestal') || r.disciplina.includes('Proyecto Sociocultural'));
       }
 
@@ -2120,7 +2168,7 @@
         datos = datos.filter(r => r.municipio === filtroMuni);
       }
 
-      // 1. CÁLCULO ESTRICTO CON LOS 46 MUNICIPIOS OFICIALES
+      // CÁLCULO ESTRICTO DE 46 MUNICIPIOS
       const conteoPorMuni = {};
       const actsPorMuni = {};
       let totalBeneficiariosGlobal = 0;
@@ -2128,7 +2176,7 @@
 
       datos.forEach(r => {
         const muniOficial = emparejarMunicipioCatalogo(r.municipio);
-        if (!muniOficial) return; // Candado: descarta celdas corruptas como 775.0643939
+        if (!muniOficial) return;
 
         const totalFila = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
                           (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
@@ -2142,7 +2190,6 @@
         }
       });
 
-      // 2. ACTUALIZAR TARJETAS KPI
       document.getElementById('dashTotalBeneficiarios').innerText = totalBeneficiariosGlobal.toLocaleString('es-MX');
       document.getElementById('dashTotalActividades').innerText = datos.length.toLocaleString('es-MX');
       
@@ -2154,7 +2201,6 @@
       const tasaGratuita = datos.length > 0 ? Math.round((totalGratuitos / datos.length) * 100) : 100;
       document.getElementById('dashTasaGratuidad').innerText = `${tasaGratuita}%`;
 
-      // 3. ACTUALIZAR MAPA INTERACTIVO
       if (capaMarcadoresMapa) {
         capaMarcadoresMapa.clearLayers();
         const maxBen = Math.max(...Object.values(conteoPorMuni), 100);
@@ -2190,7 +2236,6 @@
         });
       }
 
-      // 4. TOP 10 MUNICIPIOS (Ordenado y sin anomalías)
       const top10Pares = Object.entries(conteoPorMuni)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10);
@@ -2217,7 +2262,6 @@
         }
       });
 
-      // 5. GRÁFICOS DEMOGRÁFICOS
       let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
       let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
       let sumaMujeres = 0, sumaHombres = 0;
@@ -2239,7 +2283,6 @@
         sumaHombres += (Number(r.hombres) || 0);
       });
 
-      // Dona Edad
       const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
       if (chartInstGruposEdad) chartInstGruposEdad.destroy();
       chartInstGruposEdad = new Chart(ctxEdad, {
@@ -2260,7 +2303,6 @@
         }
       });
 
-      // Barras Prioritarios
       const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
       if (chartInstPrioritarios) chartInstPrioritarios.destroy();
       chartInstPrioritarios = new Chart(ctxPrio, {
@@ -2283,7 +2325,6 @@
         }
       });
 
-      // Pie Género
       const ctxGen = document.getElementById('chartGenero').getContext('2d');
       if (chartInstGenero) chartInstGenero.destroy();
       chartInstGenero = new Chart(ctxGen, {
@@ -2304,7 +2345,6 @@
         }
       });
 
-      // 6. TABLA EJECUTIVA (46 MUNICIPIOS)
       const cuerpoResumen = document.getElementById('cuerpoTablaResumenMuni');
       cuerpoResumen.innerHTML = '';
       
@@ -2362,7 +2402,7 @@
       XLSX.writeFile(libro, `Resumen_Ejecutivo_Directivo_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // --- SUBIDA FORMULARIO MANUAL ---
+    // --- SUBIDA FORMULARIO MANUAL CON RESPALDO OFFLINE AUTOMÁTICO ---
     document.getElementById('formularioCaptura').addEventListener('submit', async (e) => {
       e.preventDefault();
       if(memoriaDias.size === 0) return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión.', 'warning');
@@ -2370,37 +2410,10 @@
       const stringDias = Array.from(memoriaDias).join(', ');
       const folioGenerado = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
       const inputArchivoFoto = document.getElementById('inputFoto');
-      let urlFotoFinal = null;
-
       const btnGuardar = document.getElementById('btnGuardarSQL');
+
       btnGuardar.disabled = true;
-      btnGuardar.innerText = "Subiendo datos y evidencia...";
-
-      if (inputArchivoFoto.files && inputArchivoFoto.files.length > 0) {
-        const archivo = inputArchivoFoto.files[0];
-        const extension = archivo.name.split('.').pop();
-        const nombreLimpio = `${folioGenerado}_${Date.now()}.${extension}`;
-
-        const { error: errorFoto } = await conexionSupabase.storage
-          .from('evidencias')
-          .upload(nombreLimpio, archivo, {
-            cacheControl: '3600',
-            upsert: true
-          });
-
-        if (errorFoto) {
-          console.error("Error en Storage:", errorFoto);
-          btnGuardar.disabled = false;
-          btnGuardar.innerText = "Guardar Captura y Generar Acuse PDF";
-          return Swal.fire('Error en Foto', `No se pudo subir la imagen: ${errorFoto.message}`, 'error');
-        }
-
-        const { data: dataUrl } = conexionSupabase.storage
-          .from('evidencias')
-          .getPublicUrl(nombreLimpio);
-        
-        urlFotoFinal = dataUrl.publicUrl;
-      }
+      btnGuardar.innerText = "Procesando captura...";
 
       const areaActual = document.getElementById('selectorArea').value;
       const paqueteSQL = {
@@ -2419,7 +2432,7 @@
         dias: stringDias,
         latitud: memoriaCoords.lat, 
         longitud: memoriaCoords.lng,
-        foto_url: urlFotoFinal,
+        foto_url: null,
 
         mujeres: numeroSeguro('p_mujeres'), 
         hombres: numeroSeguro('p_hombres'),
@@ -2432,6 +2445,54 @@
         afromexicanas: numeroSeguro('p_afro'), 
         lgbtq: numeroSeguro('p_lgbt')
       };
+
+      // 1. SI ESTÁ SIN CONEXIÓN (MODO CAMPO / ZONA RURAL)
+      if (!navigator.onLine) {
+        let fotoB64 = null;
+        if (inputArchivoFoto.files && inputArchivoFoto.files[0]) {
+          fotoB64 = await leerArchivoDataURL(inputArchivoFoto.files[0]);
+        }
+
+        await guardarCapturaLocal(paqueteSQL, fotoB64);
+        btnGuardar.disabled = false;
+        btnGuardar.innerText = "Guardar Captura y Generar Acuse PDF";
+
+        Swal.fire({
+          title: '📡 Guardado en Modo Campo',
+          html: `El registro y su evidencia se almacenaron localmente en la memoria del dispositivo.<br><br><b>Folio Oficial:</b><br><span style="font-size: 24px; color: #004B87; font-weight: 900;">${folioGenerado}</span><br><br><small>Se sincronizará en automático al detectar internet.</small>`,
+          icon: 'success'
+        });
+
+        await generarAcusePDF(paqueteSQL, folioGenerado, inputArchivoFoto.files[0]);
+
+        limpiarFormularioDespuesDeGuardar();
+        actualizarEstadoConexionUI();
+        return;
+      }
+
+      // 2. SI ESTÁ EN LÍNEA
+      let urlFotoFinal = null;
+      if (inputArchivoFoto.files && inputArchivoFoto.files.length > 0) {
+        const archivo = inputArchivoFoto.files[0];
+        const extension = archivo.name.split('.').pop();
+        const nombreLimpio = `${folioGenerado}_${Date.now()}.${extension}`;
+
+        const { error: errorFoto } = await conexionSupabase.storage
+          .from('evidencias')
+          .upload(nombreLimpio, archivo, {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (!errorFoto) {
+          const { data: dataUrl } = conexionSupabase.storage
+            .from('evidencias')
+            .getPublicUrl(nombreLimpio);
+          urlFotoFinal = dataUrl.publicUrl;
+        }
+      }
+
+      paqueteSQL.foto_url = urlFotoFinal;
 
       const { error: errorSQL } = await conexionSupabase.from(TABLA_SQL).insert([paqueteSQL]);
       
@@ -2451,6 +2512,12 @@
 
       await generarAcusePDF(paqueteSQL, folioGenerado, inputArchivoFoto.files[0]);
 
+      limpiarFormularioDespuesDeGuardar();
+      cargarBitacora();
+      inicializarDashboardDirectivo();
+    });
+
+    function limpiarFormularioDespuesDeGuardar() {
       document.getElementById('formularioCaptura').reset();
       cambiarAreaOperativa();
       memoriaDias.clear(); 
@@ -2458,10 +2525,7 @@
       document.getElementById('txtCoordenadas').textContent = "Coordenadas no capturadas";
       document.getElementById('txtFoto').textContent = "Sin foto seleccionada";
       memoriaCoords = { lat: null, lng: null };
-
-      cargarBitacora();
-      inicializarDashboardDirectivo();
-    });
+    }
 
     function abrirModalFoto(url, folio, descripcion) {
       document.getElementById('modalTituloFoto').innerText = `Evidencia: ${folio}`;
@@ -2476,6 +2540,22 @@
       document.getElementById('modalImagenSrc').src = '';
     }
 
+    // --- REGISTRO DEL SERVICE WORKER Y EVENTOS DE CONEXIÓN ---
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker registrado para modo offline.'))
+        .catch(err => console.log('Error en Service Worker:', err));
+    }
+
+    window.addEventListener('online', async () => {
+      actualizarEstadoConexionUI();
+      if (typeof sincronizarPendientesConNube === 'function') {
+        await sincronizarPendientesConNube();
+      }
+    });
+
+    window.addEventListener('offline', actualizarEstadoConexionUI);
+
     window.addEventListener('DOMContentLoaded', async () => {
       conexionSupabase = window.supabase.createClient(URL_SUPABASE, LLAVE_PUBLICA);
       
@@ -2483,6 +2563,11 @@
       await cargarCatalogosBase();
       cargarBitacora();
       cargarDatosPerfilLocal();
+      actualizarEstadoConexionUI();
+
+      if (navigator.onLine && typeof sincronizarPendientesConNube === 'function') {
+        sincronizarPendientesConNube();
+      }
 
       const { data } = await conexionSupabase.auth.getSession();
       sesionActual = data.session;
