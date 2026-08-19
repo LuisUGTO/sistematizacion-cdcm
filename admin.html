@@ -3,19 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mantenimiento y Catálogos | Secretaría de Cultura Guanajuato</title>
+  <title>Panel de Administración y Catálogos | Secretaría de Cultura de Guanajuato</title>
   
-  <!-- ================================================================= -->
-  <!-- 1. LIBRERÍAS EXTERNAS (Supabase, SheetJS, SweetAlert2)            -->
-  <!-- ================================================================= -->
+  <!-- Librerías Externas -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- ================================================================= -->
-  <!-- 2. ESTILOS VISUALES INSTITUCIONALES                               -->
-  <!-- ================================================================= -->
   <style>
     :root {
       --gto-azul-primario: #004B87;
@@ -25,477 +19,453 @@
       --gto-fondo-app: #F5F5F7;
       --gto-blanco-papel: #FFFFFF;
       --gto-texto-fijo: #1D1D1F;
-      --gto-sombra-institucional: 0 10px 25px -5px rgba(0, 75, 135, 0.12);
+      --gto-verde-exito: #059669;
+      --gto-sombra: 0 10px 25px -5px rgba(0, 75, 135, 0.12);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--gto-fondo-app); color: var(--gto-texto-fijo); -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--gto-fondo-app); color: var(--gto-texto-fijo); }
     h1, h2, h3 { font-family: 'Vollkorn', serif; color: var(--gto-azul-primario); }
 
-    /* Barra Superior */
     .topbar { background: var(--gto-blanco-papel); border-bottom: 3px solid var(--gto-azul-secundario); padding: 12px 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .topbar-container { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .topbar-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .brand-group { display: flex; align-items: center; gap: 16px; }
-    .brand-titles { display: flex; flex-direction: column; }
-    .brand-titles small { font-size: 11px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; letter-spacing: 1px;}
-    .brand-titles span { font-family: 'Vollkorn', serif; font-size: 20px; font-weight: 700; color: var(--gto-azul-primario); }
-    .nav-actions { display: flex; align-items: center; gap: 12px; }
-    .btn-nav { background: var(--gto-azul-claro); color: var(--gto-azul-primario); border: none; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; }
-    .btn-salir { background: none; border: none; color: #dc2626; font-weight: 700; cursor: pointer; font-size: 12px; }
+    .brand-titles small { font-size: 11px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; letter-spacing: 1px; }
+    .brand-titles span { font-family: 'Vollkorn', serif; font-size: 19px; font-weight: 700; color: var(--gto-azul-primario); }
+    
+    .btn-regresar { background: var(--gto-fondo-app); border: 1px solid var(--gto-azul-claro); color: var(--gto-azul-primario); padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .btn-regresar:hover { background: #e8f0fe; }
 
-    /* Contenedor y Tarjetas */
-    .main-wrapper { max-width: 1240px; margin: 30px auto; padding: 0 20px; }
-    .card { background: var(--gto-blanco-papel); border-radius: 16px; padding: 32px; box-shadow: var(--gto-sombra-institucional); border: 1px solid rgba(0, 75, 135, 0.08); margin-bottom: 24px; }
+    .main-wrapper { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+    .card { background: var(--gto-blanco-papel); border-radius: 16px; padding: 28px; box-shadow: var(--gto-sombra); border: 1px solid rgba(0, 75, 135, 0.08); margin-bottom: 24px; }
 
-    /* Pestañas */
-    .tabs-nav { display: flex; gap: 10px; margin-bottom: 24px; }
-    .tab-btn { background: var(--gto-blanco-papel); border: 1px solid #d1d5db; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; color: var(--gto-gris-oscuro); transition: all 0.2s;}
-    .tab-btn.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); box-shadow: 0 4px 12px rgba(0,75,135,0.15); }
+    .tabs-nav { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; }
+    .tab-btn { background: white; border: 1px solid #cbd5e1; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; color: var(--gto-gris-oscuro); font-size: 13px; transition: all 0.2s; white-space: nowrap; }
+    .tab-btn.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); }
     .tab-content { display: none; }
-    .tab-content.activo { display: block; animation: fadeIn 0.4s; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+    .tab-content.activo { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-    /* Dropzone para Excel */
-    .dropzone-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 24px; text-align: center; background: #f8fafc; margin-bottom: 24px; transition: all 0.2s; }
-    .dropzone-box:hover { border-color: var(--gto-azul-primario); background: #f0f7ff; }
-
-    /* Formularios y Tablas */
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    label { display: block; font-size: 12px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; margin-bottom: 6px; }
-    input[type="text"], input[type="email"], input[type="password"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-family: 'Inter', sans-serif; font-size: 14px; background: #fafafa; }
+    .grid-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; margin-bottom: 20px; background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; }
+    label { display: block; font-size: 11px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+    input[type="text"], select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13px; font-family: 'Inter', sans-serif; }
     input:focus, select:focus { outline: none; border-color: var(--gto-azul-primario); background: white; box-shadow: 0 0 0 3px var(--gto-azul-claro); }
 
-    .btn-gto { background-color: var(--gto-azul-primario); color: white; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
-    .btn-gto:hover { background-color: #003662; }
-    .btn-secundario { background-color: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 12px;}
-    .btn-peligro { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; font-weight: 700; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+    .btn-gto { background: var(--gto-azul-primario); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .btn-gto:hover { background: #003662; }
+    .btn-peligro-sm { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 6px 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 11px; }
+    .btn-peligro-sm:hover { background: #fecaca; }
 
-    .tabla-container { width: 100%; overflow-x: auto; margin-top: 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .tabla-container { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; margin-top: 10px; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-    th { background: #f1f5f9; color: var(--gto-azul-primario); padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--gto-azul-claro); }
-    td { padding: 12px 16px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
+    th { background: #f1f5f9; color: var(--gto-azul-primario); padding: 12px 14px; font-weight: 700; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--gto-azul-claro); }
+    td { padding: 12px 14px; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
     tr:hover { background-color: #f8fafc; }
 
-    /* Modal Login */
-    .login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #004B87 0%, #17314e 100%); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
-    .login-box { background: white; border-radius: 20px; padding: 40px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); border-bottom: 6px solid var(--gto-azul-secundario); }
-    .hidden { display: none !important; }
+    .badge-admin { background: #fef3c7; color: #92400e; font-weight: 700; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
+    .badge-user { background: #e0f2fe; color: #0369a1; font-weight: 700; padding: 4px 8px; border-radius: 6px; font-size: 11px; }
+    
+    .loading-overlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; }
+    .spinner { width: 44px; height: 44px; border: 4px solid #e2e8f0; border-top-color: var(--gto-azul-primario); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <!-- 3. LOGIN ADMINISTRATIVO -->
-  <div id="loginAdminView" class="login-overlay">
-    <div class="login-box">
-      <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" style="height: 180px; width: auto; margin: 0 auto; display: block; margin-bottom: 16px;" onerror="this.style.display='none'">
-      <h1>Panel Directivo</h1>
-      <p>Gestión de Catálogos Maestros de Vinculación Cultural</p>
-      
-      <form id="formLoginAdmin">
-        <div style="text-align: left; margin-bottom: 16px;">
-          <label for="adminEmail">Correo Institucional</label>
-          <input type="email" id="adminEmail" placeholder="usuario@guanajuato.gob.mx" required />
-        </div>
-        <div style="text-align: left; margin-bottom: 20px;">
-          <label for="adminPass">Contraseña de Administrador</label>
-          <input type="password" id="adminPass" placeholder="Ingresa contraseña..." required />
-        </div>
-        <button type="submit" class="btn-gto" style="width: 100%; padding: 14px;">Acceder al Panel</button>
-      </form>
-    </div>
+  <!-- Overlay de Validación de Seguridad -->
+  <div id="authCheckOverlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <h3 style="font-size: 18px; margin-bottom: 4px;">Validando Permisos Institucionales...</h3>
+    <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Comprobando rol de Administrador en el sistema.</p>
   </div>
 
-  <!-- 4. ENCABEZADO -->
   <header class="topbar">
     <div class="topbar-container">
       <div class="brand-group">
-        <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="GTO" style="height: 55px; width: auto;" onerror="this.style.display='none'">
+        <img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="GTO" style="height: 52px; width: auto;" onerror="this.style.display='none'">
         <div class="brand-titles">
-          <small>Secretaría de Cultura</small>
-          <span>Panel de Mantenimiento de Catálogos</span>
+          <small>Secretaría de Cultura de Guanajuato</small>
+          <span>Panel de Catálogos y Usuarios</span>
         </div>
       </div>
-      <div class="nav-actions">
-        <a href="index.html" class="btn-nav">← Ir al Sistema Operativo</a>
-        <button id="btnCerrarSesionAdmin" class="btn-salir">Cerrar Sesión</button>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span id="userBadgeAdmin" style="font-size: 12px; font-weight: 600; color: var(--gto-gris-oscuro);">...</span>
+        <a href="index.html" class="btn-regresar">⬅ Regresar al Sistema</a>
       </div>
     </div>
   </header>
 
-  <!-- 5. CONTENEDOR PRINCIPAL -->
   <main class="main-wrapper">
     
     <div class="tabs-nav">
-      <button class="tab-btn activo" onclick="cambiarPestana('tab-docentes', this)">1. Docentes y Talleristas (CDCM)</button>
-      <button class="tab-btn" onclick="cambiarPestana('tab-bibliotecas', this); cargarTablaBibliotecas();">2. Directorio de Bibliotecas Públicas</button>
+      <button class="tab-btn activo" onclick="cambiarTab('tab-docentes', this)">1. Docentes y Talleristas (CDCM)</button>
+      <button class="tab-btn" onclick="cambiarTab('tab-bibliotecas', this)">2. Red Estatal de Bibliotecas</button>
+      <button class="tab-btn" onclick="cambiarTab('tab-usuarios', this)">3. Gestión de Usuarios y Roles</button>
     </div>
 
-    <!-- PESTAÑA 1: DOCENTES CDCM -->
-    <div id="tab-docentes" class="tab-content activo card">
-      <div style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">
+    <!-- PESTAÑA 1: DOCENTES Y TALLERISTAS -->
+    <div id="tab-docentes" class="tab-content activo">
+      <div class="card">
         <h2>Catálogo de Docentes y Talleristas</h2>
-        <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Registra a los instructores disponibles para los Centros y Módulos Culturales.</p>
-      </div>
+        <p style="color: var(--gto-gris-oscuro); font-size: 13px; margin-bottom: 18px;">Instructores registrados para Centros y Módulos Culturales (CDCM).</p>
+        
+        <form id="formNuevoDocente" class="grid-form" style="grid-template-columns: 1fr auto;">
+          <div>
+            <label for="inputNombreDocente">Nombre Completo del Docente / Instructor</label>
+            <input type="text" id="inputNombreDocente" placeholder="Ej. Gerardo Curiel, Alma Rodríguez..." required />
+          </div>
+          <button type="submit" class="btn-gto">+ Registrar Docente</button>
+        </form>
 
-      <form id="formNuevoDocente" style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px;">
-        <div style="flex: 1; min-width: 280px;">
-          <input type="text" id="inputNuevoDocente" placeholder="Nombre completo del docente o tallerista..." required />
+        <div class="tabla-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre del Docente</th>
+                <th>Estatus</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTablaDocentes">
+              <tr><td colspan="4" style="text-align:center; padding:20px;">Cargando catálogo...</td></tr>
+            </tbody>
+          </table>
         </div>
-        <button type="submit" id="btnAgregarDocente" class="btn-gto">
-          + Agregar Docente
-        </button>
-      </form>
-
-      <div class="tabla-container">
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 80px;">#</th>
-              <th>Nombre del Docente / Tallerista</th>
-              <th style="width: 140px; text-align: center;">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="cuerpoTablaDocentes">
-            <tr><td colspan="3" style="text-align: center; padding: 20px;">Cargando catálogo...</td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
 
-    <!-- PESTAÑA 2: DIRECTORIO DE BIBLIOTECAS PÚBLICAS -->
-    <div id="tab-bibliotecas" class="tab-content card">
-      <div style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">
-        <h2>Directorio Maestro de la Red Estatal de Bibliotecas Públicas</h2>
-        <p style="color: var(--gto-gris-oscuro); font-size: 13px;">Gestiona las más de 180 bibliotecas del estado o importa el directorio completo desde Excel.</p>
-      </div>
+    <!-- PESTAÑA 2: RED ESTATAL DE BIBLIOTECAS -->
+    <div id="tab-bibliotecas" class="tab-content">
+      <div class="card">
+        <h2>Catálogo de Bibliotecas Públicas</h2>
+        <p style="color: var(--gto-gris-oscuro); font-size: 13px; margin-bottom: 18px;">Espacios y encargados asignados para la Red Estatal de Fomento a la Lectura.</p>
 
-      <!-- Zona de Carga Masiva Excel con Botón de Descarga de Plantilla -->
-      <div class="dropzone-box">
-        <h4 style="color: var(--gto-azul-primario); font-size: 16px; margin-bottom: 6px;">📂 Cargar Directorio de Bibliotecas desde Excel (.xlsx / .xls)</h4>
-        <p style="color: var(--gto-gris-oscuro); font-size: 13px; margin-bottom: 16px;">Selecciona el archivo Excel con las columnas <b>Municipio, Nombre de la Biblioteca, Responsable, Num_DGB</b></p>
-        
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-          <button type="button" class="btn-gto" onclick="document.getElementById('inputExcelBibliotecas').click()">
-            📁 Seleccionar Archivo Excel para Importar
-          </button>
-          <button type="button" class="btn-secundario" onclick="descargarPlantillaPrueba()">
-            📥 Descargar Plantilla Oficial Excel (.xlsx)
-          </button>
-        </div>
-        <input type="file" id="inputExcelBibliotecas" accept=".xlsx, .xls, .csv" class="hidden" onchange="procesarExcelBibliotecas(this)" />
-      </div>
-
-      <!-- Formulario Manual de Biblioteca -->
-      <form id="formNuevaBiblioteca" style="margin-bottom: 24px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-        <h4 style="margin-bottom: 12px; color: var(--gto-azul-primario);">+ Alta Individual de Biblioteca</h4>
-        <div class="grid-3">
+        <form id="formNuevaBiblioteca" class="grid-form">
           <div>
-            <label>Municipio</label>
-            <input type="text" id="muniBiblio" placeholder="Ej. Guanajuato, Silao..." required />
+            <label for="selectMuniBiblio">Municipio</label>
+            <select id="selectMuniBiblio" required>
+              <option value="">Seleccione municipio...</option>
+            </select>
           </div>
           <div>
-            <label>Nombre de la Biblioteca</label>
-            <input type="text" id="nomBiblio" placeholder="Ej. Biblioteca Central Estatal..." required />
+            <label for="inputNombreBiblio">Nombre de la Biblioteca Pública</label>
+            <input type="text" id="inputNombreBiblio" placeholder="Ej. Biblioteca Central Estatal Wigberto Jiménez..." required />
+          </div>
+          <div style="grid-column: span 2;">
+            <label for="inputRespBiblio">Bibliotecario(a) / Responsable Asignado</label>
+            <input type="text" id="inputRespBiblio" placeholder="Nombre completo del encargado..." required />
           </div>
           <div>
-            <label>Responsable / Encargado</label>
-            <input type="text" id="respBiblio" placeholder="Nombre del bibliotecario(a)..." />
+            <button type="submit" class="btn-gto" style="width: 100%;">+ Registrar Sede</button>
           </div>
+        </form>
+
+        <div class="tabla-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Municipio</th>
+                <th>Biblioteca Pública</th>
+                <th>Responsable</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTablaBibliotecas">
+              <tr><td colspan="4" style="text-align:center; padding:20px;">Cargando catálogo...</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div style="margin-top: 14px; text-align: right;">
-          <button type="submit" id="btnGuardarBiblioManual" class="btn-gto">Guardar Biblioteca en Catálogo</button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: GESTIÓN DE USUARIOS Y ROLES (PROFILES) -->
+    <div id="tab-usuarios" class="tab-content">
+      <div class="card">
+        <h2>Control de Usuarios y Roles Institucionales</h2>
+        <p style="color: var(--gto-gris-oscuro); font-size: 13px; margin-bottom: 18px;">Asigna permisos directivos, supervisores o capturistas a los correos registrados en la plataforma.</p>
+
+        <div class="tabla-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Correo Institucional</th>
+                <th>Rol Asignado</th>
+                <th>Estatus</th>
+                <th>Modificar Permiso</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpoTablaUsuarios">
+              <tr><td colspan="4" style="text-align:center; padding:20px;">Cargando usuarios...</td></tr>
+            </tbody>
+          </table>
         </div>
-      </form>
-
-      <!-- Barra de Filtros -->
-      <div class="grid-2" style="margin-bottom: 14px;">
-        <input type="text" id="buscadorBibliotecas" placeholder="🔍 Buscar por municipio, nombre de biblioteca o responsable..." onkeyup="filtrarTablaBibliotecas()" />
-        <button onclick="cargarTablaBibliotecas()" class="btn-secundario" style="text-align: center;">↻ Refrescar Lista</button>
       </div>
-
-      <!-- Tabla de Bibliotecas -->
-      <div class="tabla-container">
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 60px;">#</th>
-              <th>Municipio</th>
-              <th>Nombre Oficial de la Biblioteca</th>
-              <th>Responsable / Encargado</th>
-              <th style="width: 120px; text-align: center;">Acción</th>
-            </tr>
-          </thead>
-          <tbody id="cuerpoTablaBibliotecas">
-            <tr><td colspan="5" style="text-align: center; padding: 20px;">Cargando bibliotecas...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
     </div>
 
   </main>
 
-  <!-- 6. LÓGICA DE APLICACIÓN -->
   <script>
     const URL_SUPABASE = 'https://azhlshuiazhgjpjckkce.supabase.co';
     const LLAVE_PUBLICA = 'sb_publishable_wSABUjH15RrjBQ577R2bSA_jX6I4mAM';
-    const TABLA_DOCENTES = 'cat_docentes';
-    const TABLA_BIBLIOTECAS = 'cat_bibliotecas';
-    const CLAVE_MAESTRA = 'SCulVin';
 
     let conexionSupabase = null;
-    let memoriaBibliotecas = [];
+    let sesionActual = null;
+    let perfilAdmin = null;
 
-    function cambiarPestana(idPestana, elementoBtn) {
+    const CATALOGO_MUNICIPIOS = [
+      "Abasolo", "Acámbaro", "Apaseo el Alto", "Apaseo el Grande", "Atarjea", "Celaya",
+      "Comonfort", "Coroneo", "Cortazar", "Cuerámaro", "Doctor Mora", "Dolores Hidalgo C.I.N.",
+      "Guanajuato", "Huanímaro", "Irapuato", "Jaral del Progreso", "Jerécuaro", "León",
+      "Manuel Doblado", "Moroleón", "Ocampo", "Pénjamo", "Pueblo Nuevo", "Purísima del Rincón",
+      "Romita", "Salamanca", "Salvatierra", "San Diego de la Unión", "San Felipe",
+      "San Francisco del Rincón", "San José Iturbide", "San Luis de la Paz",
+      "San Miguel de Allende", "Santa Catarina", "Santa Cruz de Juventino Rosas",
+      "Santiago Maravatío", "Silao de la Victoria", "Tarandacuao", "Tarimoro",
+      "Tierra Blanca", "Uriangato", "Valle de Santiago", "Victoria", "Villagrán",
+      "Xichú", "Yuriria"
+    ];
+
+    function cambiarTab(idTab, btn) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
-      elementoBtn.classList.add('activo');
-      document.getElementById(idPestana).classList.add('activo');
+      btn.classList.add('activo');
+      document.getElementById(idTab).classList.add('activo');
     }
 
-    function verificarSesionAdmin() {
-      const adminActivo = sessionStorage.getItem('cdcm_admin_auth');
-      if (adminActivo) {
-        document.getElementById('loginAdminView').classList.add('hidden');
-        cargarTablaDocentes();
-      } else {
-        document.getElementById('loginAdminView').classList.remove('hidden');
-      }
-    }
+    // --- 1. SEGURIDAD: VERIFICACIÓN DE SESIÓN Y ROL ADMIN ---
+    async function verificarAccesoAdmin() {
+      const { data } = await conexionSupabase.auth.getSession();
+      sesionActual = data.session;
 
-    document.getElementById('formLoginAdmin').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('adminEmail').value.trim();
-      const pass = document.getElementById('adminPass').value.trim();
-
-      if (!email.endsWith('@guanajuato.gob.mx')) return Swal.fire('Aviso', 'Utilice correo institucional (@guanajuato.gob.mx).', 'warning');
-      if (pass !== CLAVE_MAESTRA) return Swal.fire('Error', 'Contraseña incorrecta.', 'error');
-
-      sessionStorage.setItem('cdcm_admin_auth', email);
-      document.getElementById('loginAdminView').classList.add('hidden');
-      cargarTablaDocentes();
-    });
-
-    document.getElementById('btnCerrarSesionAdmin').addEventListener('click', () => {
-      sessionStorage.removeItem('cdcm_admin_auth');
-      window.location.reload();
-    });
-
-    // --- SECCIÓN A: DOCENTES ---
-    async function cargarTablaDocentes() {
-      const cuerpo = document.getElementById('cuerpoTablaDocentes');
-      try {
-        const { data, error } = await conexionSupabase.from(TABLA_DOCENTES).select('*').order('nombre_docente', { ascending: true });
-        if (error) throw error;
-
-        cuerpo.innerHTML = '';
-        if (!data || data.length === 0) {
-          cuerpo.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px;">Sin docentes registrados.</td></tr>`;
-          return;
-        }
-        data.forEach((doc, idx) => {
-          cuerpo.innerHTML += `
-            <tr>
-              <td><b>${idx + 1}</b></td>
-              <td><b style="color:var(--gto-azul-primario);">${doc.nombre_docente}</b></td>
-              <td style="text-align:center;"><button class="btn-peligro" onclick="eliminarDocente('${doc.nombre_docente}')">Eliminar</button></td>
-            </tr>`;
+      if (!sesionActual) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Sesión Requerida',
+          text: 'Debes iniciar sesión con tu correo institucional antes de ingresar.',
+          confirmButtonText: 'Ir a Iniciar Sesión'
         });
-      } catch (err) {
-        cuerpo.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red; padding:20px;">${err.message}</td></tr>`;
+        window.location.href = 'index.html';
+        return;
       }
+
+      // Consultar rol en public.profiles
+      const { data: perfil, error } = await conexionSupabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', sesionActual.user.id)
+        .single();
+
+      if (error || !perfil || perfil.rol !== 'ADMIN' || !perfil.activo) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Acceso Denegado',
+          text: 'Tu cuenta institucional no cuenta con permisos de Administrador.',
+          confirmButtonText: 'Entendido'
+        });
+        window.location.href = 'index.html';
+        return;
+      }
+
+      perfilAdmin = perfil;
+      document.getElementById('userBadgeAdmin').innerText = `${perfil.email} (ADMIN)`;
+      document.getElementById('authCheckOverlay').style.display = 'none';
+
+      // Cargar los 3 módulos
+      poblarSelectMunicipios();
+      cargarDocentes();
+      cargarBibliotecas();
+      cargarUsuariosRoles();
+    }
+
+    function poblarSelectMunicipios() {
+      const sel = document.getElementById('selectMuniBiblio');
+      sel.innerHTML = '<option value="">Seleccione municipio...</option>';
+      CATALOGO_MUNICIPIOS.sort().forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        sel.appendChild(opt);
+      });
+    }
+
+    // --- 2. CATÁLOGO DOCENTES ---
+    async function cargarDocentes() {
+      const tbody = document.getElementById('cuerpoTablaDocentes');
+      const { data, error } = await conexionSupabase
+        .from('cat_docentes')
+        .select('*')
+        .order('nombre_docente', { ascending: true });
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      data.forEach((d, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${idx + 1}</b></td>
+          <td><b>${d.nombre_docente}</b></td>
+          <td><span style="color:#059669; font-weight:700;">🟢 Activo</span></td>
+          <td>
+            <button class="btn-peligro-sm" onclick="eliminarDocente(${d.id})">✕ Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     document.getElementById('formNuevoDocente').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const input = document.getElementById('inputNuevoDocente');
-      const nombre = input.value.trim();
+      const nombre = document.getElementById('inputNombreDocente').value.trim();
       if (!nombre) return;
-      
-      const { error } = await conexionSupabase.from(TABLA_DOCENTES).insert([{ nombre_docente: nombre }]);
+
+      const { error } = await conexionSupabase.from('cat_docentes').insert([{ nombre_docente: nombre }]);
       if (error) return Swal.fire('Error', error.message, 'error');
-      
-      input.value = '';
-      cargarTablaDocentes();
-      Swal.fire('Guardado', `Docente "${nombre}" agregado.`, 'success');
+
+      Swal.fire('Registrado', 'Docente añadido al catálogo oficial.', 'success');
+      document.getElementById('inputNombreDocente').value = '';
+      cargarDocentes();
     });
 
-    async function eliminarDocente(nombre) {
-      const conf = await Swal.fire({ title: '¿Eliminar?', text: `Se quitará a ${nombre}`, icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar' });
+    async function eliminarDocente(id) {
+      const conf = await Swal.fire({
+        title: '¿Eliminar docente?',
+        text: 'Se quitará del selector de captura.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: 'Sí, eliminar'
+      });
       if (conf.isConfirmed) {
-        await conexionSupabase.from(TABLA_DOCENTES).delete().eq('nombre_docente', nombre);
-        cargarTablaDocentes();
+        await conexionSupabase.from('cat_docentes').delete().eq('id', id);
+        cargarDocentes();
       }
     }
 
-    // --- SECCIÓN B: BIBLIOTECAS ---
-    async function cargarTablaBibliotecas() {
-      const cuerpo = document.getElementById('cuerpoTablaBibliotecas');
-      try {
-        const { data, error } = await conexionSupabase.from(TABLA_BIBLIOTECAS).select('*').order('municipio', { ascending: true });
-        if (error) throw error;
-        memoriaBibliotecas = data || [];
-        renderizarFilasBibliotecas(memoriaBibliotecas);
-      } catch (err) {
-        cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">${err.message}</td></tr>`;
-      }
-    }
+    // --- 3. CATÁLOGO BIBLIOTECAS ---
+    async function cargarBibliotecas() {
+      const tbody = document.getElementById('cuerpoTablaBibliotecas');
+      const { data, error } = await conexionSupabase
+        .from('cat_bibliotecas')
+        .select('*')
+        .order('municipio', { ascending: true });
 
-    function renderizarFilasBibliotecas(lista) {
-      const cuerpo = document.getElementById('cuerpoTablaBibliotecas');
-      cuerpo.innerHTML = '';
-      if (lista.length === 0) {
-        cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">No hay bibliotecas en el catálogo. Carga el Excel o agrega una manual.</td></tr>`;
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
         return;
       }
-      lista.forEach((b, idx) => {
-        cuerpo.innerHTML += `
-          <tr>
-            <td><b>${idx + 1}</b></td>
-            <td><b>${b.municipio}</b></td>
-            <td style="color:var(--gto-azul-primario); font-weight:600;">${b.nombre_biblioteca}</td>
-            <td>${b.responsable || '<small style="color:#94a3b8;">No especificado</small>'}</td>
-            <td style="text-align:center;"><button class="btn-peligro" onclick="eliminarBiblioteca(${b.id})">Eliminar</button></td>
-          </tr>`;
-      });
-    }
 
-    function filtrarTablaBibliotecas() {
-      const t = document.getElementById('buscadorBibliotecas').value.toLowerCase();
-      const filtrados = memoriaBibliotecas.filter(b => 
-        (b.municipio && b.municipio.toLowerCase().includes(t)) ||
-        (b.nombre_biblioteca && b.nombre_biblioteca.toLowerCase().includes(t)) ||
-        (b.responsable && b.responsable.toLowerCase().includes(t))
-      );
-      renderizarFilasBibliotecas(filtrados);
+      tbody.innerHTML = '';
+      data.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${b.municipio}</b></td>
+          <td>${b.nombre_biblioteca}</td>
+          <td><small style="color:#004B87; font-weight:700;">👤 ${b.responsable || 'Sin asignar'}</small></td>
+          <td>
+            <button class="btn-peligro-sm" onclick="eliminarBiblioteca(${b.id})">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     document.getElementById('formNuevaBiblioteca').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const muni = document.getElementById('muniBiblio').value.trim();
-      const nom = document.getElementById('nomBiblio').value.trim();
-      const resp = document.getElementById('respBiblio').value.trim();
+      const muni = document.getElementById('selectMuniBiblio').value;
+      const nombre = document.getElementById('inputNombreBiblio').value.trim();
+      const resp = document.getElementById('inputRespBiblio').value.trim();
 
-      const { error } = await conexionSupabase.from(TABLA_BIBLIOTECAS).insert([{
+      const { error } = await conexionSupabase.from('cat_bibliotecas').insert([{
         municipio: muni,
-        nombre_biblioteca: nom,
+        nombre_biblioteca: nombre,
         responsable: resp
       }]);
 
       if (error) return Swal.fire('Error', error.message, 'error');
-      document.getElementById('formNuevaBiblioteca').reset();
-      cargarTablaBibliotecas();
-      Swal.fire('Guardada', 'Biblioteca agregada con éxito.', 'success');
+
+      Swal.fire('Registrada', 'Biblioteca añadida al catálogo.', 'success');
+      document.getElementById('inputNombreBiblio').value = '';
+      document.getElementById('inputRespBiblio').value = '';
+      cargarBibliotecas();
     });
 
     async function eliminarBiblioteca(id) {
-      const conf = await Swal.fire({ title: '¿Eliminar biblioteca?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar' });
+      const conf = await Swal.fire({
+        title: '¿Eliminar biblioteca?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: 'Sí, eliminar'
+      });
       if (conf.isConfirmed) {
-        await conexionSupabase.from(TABLA_BIBLIOTECAS).delete().eq('id', id);
-        cargarTablaBibliotecas();
+        await conexionSupabase.from('cat_bibliotecas').delete().eq('id', id);
+        cargarBibliotecas();
       }
     }
 
-    // --- SECCIÓN C: PROCESADOR EXCEL INTELIGENTE (SheetJS) ---
-    async function procesarExcelBibliotecas(inputElement) {
-      const file = inputElement.files[0];
-      if (!file) return;
+    // --- 4. GESTIÓN DE ROLES DE USUARIOS (PROFILES) ---
+    async function cargarUsuariosRoles() {
+      const tbody = document.getElementById('cuerpoTablaUsuarios');
+      const { data, error } = await conexionSupabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      Swal.fire({ title: 'Leyendo archivo Excel...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
+        return;
+      }
 
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+      tbody.innerHTML = '';
+      data.forEach(user => {
+        const badgeRol = user.rol === 'ADMIN' 
+          ? `<span class="badge-admin">👑 ADMIN</span>` 
+          : `<span class="badge-user">👤 ${user.rol}</span>`;
 
-          if (!jsonData || jsonData.length === 0) {
-            return Swal.fire('Archivo Vacío', 'No se encontraron datos en la hoja seleccionada.', 'warning');
-          }
-
-          const filasParaSubir = [];
-          jsonData.forEach(row => {
-            const keys = Object.keys(row);
-            const keyMuni = keys.find(k => k.toLowerCase().includes('muni')) || '';
-            const keyNom = keys.find(k => k.toLowerCase().includes('nombre') || k.toLowerCase().includes('biblioteca')) || '';
-            const keyResp = keys.find(k => k.toLowerCase().includes('responsable') || k.toLowerCase().includes('encargado') || k.toLowerCase().includes('director')) || '';
-            const keyDgb = keys.find(k => k.toLowerCase().includes('dgb') || k.toLowerCase().includes('red') || k.toLowerCase().includes('colecci')) || '';
-
-            const municipio = String(row[keyMuni] || '').trim();
-            const nombre = String(row[keyNom] || '').trim();
-            const responsable = String(row[keyResp] || '').trim();
-            const num_dgb = String(row[keyDgb] || '').trim();
-
-            if (municipio && nombre) {
-              filasParaSubir.push({
-                municipio: municipio,
-                nombre_biblioteca: nombre,
-                responsable: responsable,
-                num_dgb: num_dgb
-              });
-            }
-          });
-
-          if (filasParaSubir.length === 0) {
-            return Swal.fire('Sin coincidencia', 'No se pudieron mapear las columnas Municipio y Nombre de Biblioteca en el archivo.', 'error');
-          }
-
-          const conf = await Swal.fire({
-            title: `¿Importar ${filasParaSubir.length} bibliotecas?`,
-            text: `Se insertarán en la base de datos de Supabase.`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, importar ahora'
-          });
-
-          if (conf.isConfirmed) {
-            Swal.fire({ title: 'Subiendo a PostgreSQL...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
-            const batchSize = 100;
-            for (let i = 0; i < filasParaSubir.length; i += batchSize) {
-              const batch = filasParaSubir.slice(i, i + batchSize);
-              const { error } = await conexionSupabase.from(TABLA_BIBLIOTECAS).insert(batch);
-              if (error) throw error;
-            }
-
-            Swal.fire('¡Directorio Importado!', `Se registraron con éxito ${filasParaSubir.length} bibliotecas.`, 'success');
-            cargarTablaBibliotecas();
-          }
-
-        } catch (err) {
-          Swal.fire('Error al procesar', err.message, 'error');
-        } finally {
-          inputElement.value = '';
-        }
-      };
-      reader.readAsArrayBuffer(file);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${user.email}</b><br><small style="color:var(--gto-gris-oscuro);">${user.nombre || 'Sin nombre asignado'}</small></td>
+          <td>${badgeRol}</td>
+          <td>${user.activo ? '<span style="color:#059669; font-weight:700;">Activo</span>' : '<span style="color:#dc2626; font-weight:700;">Inactivo</span>'}</td>
+          <td>
+            <select onchange="cambiarRolUsuario('${user.user_id}', this.value)" style="padding:6px 10px; width:auto; font-size:12px;">
+              <option value="CAPTURISTA" ${user.rol === 'CAPTURISTA' ? 'selected' : ''}>Capturista</option>
+              <option value="SUPERVISOR" ${user.rol === 'SUPERVISOR' ? 'selected' : ''}>Supervisor</option>
+              <option value="DIRECTIVO" ${user.rol === 'DIRECTIVO' ? 'selected' : ''}>Directivo</option>
+              <option value="ADMIN" ${user.rol === 'ADMIN' ? 'selected' : ''}>Administrador</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    // --- FUNCIÓN: GENERAR Y DESCARGAR ARCHIVO DE PRUEBA ---
-    function descargarPlantillaPrueba() {
-      const datosPrueba = [
-        { "Municipio": "Guanajuato", "Nombre de la Biblioteca": "Biblioteca Central Estatal Wigberto Jiménez Moreno", "Responsable": "Lic. Juan Manuel Saldaña", "Num_DGB": "1024" },
-        { "Municipio": "Silao de la Victoria", "Nombre de la Biblioteca": "Biblioteca Pública Catalina D'Erzel", "Responsable": "Mtra. Laura Elena Sánchez", "Num_DGB": "1058" },
-        { "Municipio": "León", "Nombre de la Biblioteca": "Biblioteca Pública Ignacio García Téllez", "Responsable": "Lic. Roberto Mendoza Ruiz", "Num_DGB": "2103" },
-        { "Municipio": "Irapuato", "Nombre de la Biblioteca": "Biblioteca Pública Municipal Benito Juárez", "Responsable": "Mtro. Carlos Morales Gómez", "Num_DGB": "1845" },
-        { "Municipio": "Salamanca", "Nombre de la Biblioteca": "Biblioteca Bartolomé Sánchez Torrado", "Responsable": "Lic. Ana Lilia Torres", "Num_DGB": "1920" },
-        { "Municipio": "San Miguel de Allende", "Nombre de la Biblioteca": "Biblioteca Pública de San Miguel de Allende", "Responsable": "Mtra. Elena Vega Castro", "Num_DGB": "2304" },
-        { "Municipio": "Celaya", "Nombre de la Biblioteca": "Biblioteca Pública Municipal Efraín Huerta", "Responsable": "Lic. David Romero Silva", "Num_DGB": "1412" },
-        { "Municipio": "Dolores Hidalgo C.I.N.", "Nombre de la Biblioteca": "Biblioteca Pública Esperanza Zambrano", "Responsable": "Mtro. Jorge Ramírez Peña", "Num_DGB": "1630" }
-      ];
+    async function cambiarRolUsuario(userId, nuevoRol) {
+      const { error } = await conexionSupabase
+        .from('profiles')
+        .update({ rol: nuevoRol, updated_at: new Date().toISOString() })
+        .eq('user_id', userId);
 
-      const hoja = XLSX.utils.json_to_sheet(datosPrueba);
-      const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, hoja, "Directorio_Bibliotecas");
-      XLSX.writeFile(libro, "prueba_bibliotecas.xlsx");
+      if (error) return Swal.fire('Error', error.message, 'error');
+
+      Swal.fire({
+        title: 'Rol Actualizado',
+        text: `El usuario ahora cuenta con permisos de ${nuevoRol}.`,
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      cargarUsuariosRoles();
     }
 
+    // Inicializar al cargar el DOM
     window.addEventListener('DOMContentLoaded', () => {
       conexionSupabase = window.supabase.createClient(URL_SUPABASE, LLAVE_PUBLICA);
-      verificarSesionAdmin();
+      verificarAccesoAdmin();
     });
   </script>
 </body>
