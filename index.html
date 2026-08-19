@@ -86,10 +86,29 @@
     .col-span-2 { grid-column: span 2; }
 
     label { display: block; font-size: 12px; font-weight: 700; color: var(--gto-gris-oscuro); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-    input[type="text"], input[type="email"], input[type="number"], input[type="time"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s ease; background: #fafafa; }
+    input[type="text"], input[type="email"], input[type="number"], input[type="date"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #d1d5db; font-family: 'Inter', sans-serif; font-size: 14px; transition: all 0.2s ease; background: #fafafa; }
     input:focus, select:focus { outline: none; border-color: var(--gto-azul-primario); background: white; box-shadow: 0 0 0 3px var(--gto-azul-claro); }
 
     .area-selector-container { background: #f0f7ff; border: 2px solid var(--gto-azul-secundario); border-radius: 12px; padding: 16px; margin-bottom: 22px; }
+
+    /* Estilos del Nuevo Constructor de Horarios */
+    .schedule-box-container { background: #f8fafc; border: 1px solid var(--gto-azul-claro); border-radius: 14px; padding: 22px; margin-top: 10px; }
+    .tipo-fecha-switch { display: flex; gap: 12px; margin-bottom: 16px; }
+    .radio-pill-label { flex: 1; padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 10px; background: white; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .radio-pill-label input[type="radio"] { accent-color: var(--gto-azul-primario); width: 16px; height: 16px; }
+    .radio-pill-label:has(input:checked) { border-color: var(--gto-azul-primario); background: #f0f7ff; color: var(--gto-azul-primario); }
+
+    .bloque-horario-item { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+    .bloque-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .dias-selector-bloque { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .dia-pill-mini { flex: 1; min-width: 38px; text-align: center; padding: 8px 2px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 700; font-size: 12px; cursor: pointer; color: var(--gto-gris-oscuro); user-select: none; transition: all 0.15s; }
+    .dia-pill-mini.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); }
+    
+    .presets-horario { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn-preset { background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 600; color: #475569; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .btn-preset:hover { background: #e2e8f0; color: var(--gto-azul-primario); }
+
+    .resumen-calendario-preview { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #166534; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-top: 14px; }
 
     .btn-gto { background-color: var(--gto-azul-primario); color: white; border: none; border-radius: 10px; padding: 14px 24px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
     .btn-gto:hover { background-color: #003662; transform: translateY(-1px); }
@@ -97,12 +116,8 @@
     .btn-secundario:hover { background-color: #b5cde6; }
     .btn-excel { background-color: #107c41; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
     .btn-excel:hover { background-color: #0c5e31; }
-    .btn-peligro-sm { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; font-weight: 700; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-left: 6px; }
+    .btn-peligro-sm { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; font-weight: 700; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; }
     .btn-peligro-sm:hover { background-color: #fecaca; }
-
-    .dias-selector { display: flex; gap: 8px; flex-wrap: wrap; }
-    .dia-pill { flex: 1; min-width: 42px; text-align: center; padding: 10px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--gto-gris-oscuro); transition: all 0.15s; }
-    .dia-pill.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); box-shadow: 0 4px 10px rgba(0,75,135,0.2); }
 
     .evidencia-box { border: 2px dashed #cbd5e1; padding: 20px; border-radius: 12px; text-align: center; background: #f8fafc; }
     .hidden { display: none !important; }
@@ -266,12 +281,13 @@
             </div>
             
             <div>
-              <label for="selectorProgramacion">Programación</label>
+              <label for="selectorProgramacion">Modalidad de Programación</label>
               <select id="selectorProgramacion" required>
-                <option value="Anual">Anual</option>
-                <option value="Semestral">Semestral</option>
+                <option value="Semestral">Semestral (Ciclo Regular)</option>
+                <option value="Anual">Anual (Permanente)</option>
                 <option value="Verano">Verano / Mis Vacaciones en la Biblio</option>
-                <option value="Mensual">Mensual / Sesión Única</option>
+                <option value="Mensual">Mensual / Intensivo</option>
+                <option value="Sesión Única">Sesión Única / Evento Especial</option>
               </select>
             </div>
             
@@ -291,32 +307,62 @@
                 <option value="Costo">Con Cuota de Recuperación</option>
               </select>
             </div>
-            
-            <div class="col-span-2">
-              <label>Días de sesión</label>
-              <div class="dias-selector" id="contenedorDias">
-                <div class="dia-pill" data-dia="Lu">Lu</div>
-                <div class="dia-pill" data-dia="Ma">Ma</div>
-                <div class="dia-pill" data-dia="Mi">Mi</div>
-                <div class="dia-pill" data-dia="Ju">Ju</div>
-                <div class="dia-pill" data-dia="Vi">Vi</div>
-                <div class="dia-pill" data-dia="Sa">Sa</div>
-                <div class="dia-pill" data-dia="Do">Do</div>
+          </div>
+
+          <!-- NUEVO CONSTRUCTOR DINÁMICO DE FECHAS Y HORARIOS -->
+          <div class="schedule-box-container">
+            <h3 style="font-size: 16px; margin-bottom: 6px; color: var(--gto-azul-primario);">📅 Calendario, Vigencia y Horarios Dinámicos</h3>
+            <p style="color: var(--gto-gris-oscuro); font-size: 12px; margin-bottom: 16px;">Define las fechas exactas del evento o taller y agrega los bloques de horarios por día que correspondan.</p>
+
+            <!-- Selector de tipo de periodo -->
+            <div class="tipo-fecha-switch">
+              <label class="radio-pill-label">
+                <input type="radio" name="tipoFecha" value="RANGO" checked onchange="cambiarTipoFechasUI()" />
+                <span>🗓️ Ciclo o Taller Periódico (Fecha Inicio - Fin)</span>
+              </label>
+              <label class="radio-pill-label">
+                <input type="radio" name="tipoFecha" value="UNICA" onchange="cambiarTipoFechasUI()" />
+                <span>📌 Sesión o Evento de Fecha Única</span>
+              </label>
+            </div>
+
+            <!-- Inputs de Fecha -->
+            <div id="contenedorFechasRango" class="grid-2" style="margin-bottom: 18px;">
+              <div>
+                <label for="inputFechaInicio">Fecha de Inicio</label>
+                <input type="date" id="inputFechaInicio" onchange="actualizarResumenHorarioCompilado()" />
+              </div>
+              <div>
+                <label for="inputFechaFin">Fecha de Conclusión</label>
+                <input type="date" id="inputFechaFin" onchange="actualizarResumenHorarioCompilado()" />
               </div>
             </div>
-            
-            <div>
-              <label for="horaInicio">Hora Inicio</label>
-              <input type="time" id="horaInicio" required />
+
+            <div id="contenedorFechaUnica" class="hidden" style="margin-bottom: 18px;">
+              <label for="inputFechaExacta">Fecha Exacta del Evento / Sesión</label>
+              <input type="date" id="inputFechaExacta" onchange="actualizarResumenHorarioCompilado()" />
             </div>
-            
-            <div>
-              <label for="horaFin">Hora Cierre</label>
-              <input type="time" id="horaFin" required />
+
+            <!-- Contenedor dinámico de bloques de horario -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <label style="margin:0; font-size:12px; color:var(--gto-azul-primario);">Bloques de Días y Horarios</label>
+              <button type="button" class="btn-secundario" onclick="agregarNuevoBloqueHorario()" style="padding:6px 12px; font-size:11px;">
+                + Agregar otro bloque de horario
+              </button>
+            </div>
+
+            <div id="listaBloquesHorarios"></div>
+
+            <!-- Resumen en vivo -->
+            <div class="resumen-calendario-preview">
+              <span>📋</span>
+              <div id="txtResumenHorarioCompilado">Selecciona días y horarios para generar la programación...</div>
             </div>
           </div>
+
         </div>
 
+        <!-- SECCIÓN 2: POBLACIÓN ATENDIDA -->
         <div class="card">
           <h2 style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">2. Población Atendida (En N° de Personas)</h2>
           <div class="grid-5">
@@ -333,6 +379,7 @@
           </div>
         </div>
 
+        <!-- SECCIÓN 3: SENSORES DE VERIFICACIÓN -->
         <div class="card">
           <h2 style="margin-bottom: 20px;">3. Sensores de Verificación</h2>
           <div class="grid-2">
@@ -679,7 +726,7 @@
     };
   </script>
 
-  <!-- 8. LÓGICA DE APLICACIÓN CON GESTOR ROBUSTO DE URLs FIRMADAS -->
+  <!-- 8. LÓGICA DE APLICACIÓN Y CONSTRUCTOR DINÁMICO DE HORARIOS -->
   <script>
     const URL_SUPABASE = 'https://azhlshuiazhgjpjckkce.supabase.co';
     const LLAVE_PUBLICA = 'sb_publishable_wSABUjH15RrjBQ577R2bSA_jX6I4mAM';
@@ -687,14 +734,16 @@
 
     let conexionSupabase = null;
     let sesionActual = null;
-    let memoriaDias = new Set();
     let memoriaCoords = { lat: null, lng: null };
     let memoriaRegistrosBitacora = [];
     let memoriaBibliotecasSupabase = [];
     let memoriaDocentesCDCM = [];
     let registrosFiltradosActuales = [];
 
-    // Caché en memoria para URLs firmadas (evita saturar la API)
+    // Arreglo de bloques dinámicos de horarios
+    let bloquesHorarioActivos = [];
+
+    // Caché de URLs firmadas
     const cacheUrlsFirmadas = new Map();
 
     let chartInstTopMuni = null;
@@ -723,11 +772,222 @@
       return null;
     }
 
-    // --- EXTRACTOR Y GENERADOR DE URLs FIRMADAS (BUCKET PRIVADO) ---
+    // --- MÓDULO CONSTRUCTOR DINÁMICO DE HORARIOS Y PERIODOS ---
+    function generarOpcionesHoraSelect(horaSeleccionada) {
+      let opciones = '';
+      const horas = [];
+      for (let h = 7; h <= 21; h++) {
+        const hStr = String(h).padStart(2, '0');
+        horas.push(`${hStr}:00`);
+        horas.push(`${hStr}:30`);
+      }
+      horas.push('22:00');
+
+      horas.forEach(hr => {
+        const [hNum, mNum] = hr.split(':').map(Number);
+        const ampm = hNum >= 12 ? 'PM' : 'AM';
+        const h12 = hNum % 12 === 0 ? 12 : hNum % 12;
+        const texto = `${String(h12).padStart(2, '0')}:${String(mNum).padStart(2, '0')} ${ampm} (${hr})`;
+        const selected = hr === horaSeleccionada ? 'selected' : '';
+        opciones += `<option value="${hr}" ${selected}>${texto}</option>`;
+      });
+      return opciones;
+    }
+
+    function cambiarTipoFechasUI() {
+      const tipo = document.querySelector('input[name="tipoFecha"]:checked').value;
+      const boxRango = document.getElementById('contenedorFechasRango');
+      const boxUnica = document.getElementById('contenedorFechaUnica');
+
+      if (tipo === 'RANGO') {
+        boxRango.classList.remove('hidden');
+        boxUnica.classList.add('hidden');
+      } else {
+        boxRango.classList.add('hidden');
+        boxUnica.classList.remove('hidden');
+      }
+      actualizarResumenHorarioCompilado();
+    }
+
+    function agregarNuevoBloqueHorario(diasIniciales = ['Lu', 'Mi', 'Vi'], hInicio = '16:00', hFin = '18:00') {
+      const idBloque = 'bloque_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      const bloque = {
+        id: idBloque,
+        dias: new Set(diasIniciales),
+        horaInicio: hInicio,
+        horaFin: hFin
+      };
+      bloquesHorarioActivos.push(bloque);
+      renderizarListaBloquesHorario();
+      actualizarResumenHorarioCompilado();
+    }
+
+    function eliminarBloqueHorario(idBloque) {
+      if (bloquesHorarioActivos.length <= 1) {
+        return Swal.fire('Aviso', 'Debe mantenerse por lo menos un bloque de horario activo.', 'info');
+      }
+      bloquesHorarioActivos = bloquesHorarioActivos.filter(b => b.id !== idBloque);
+      renderizarListaBloquesHorario();
+      actualizarResumenHorarioCompilado();
+    }
+
+    function alternarDiaBloque(idBloque, siglaDia) {
+      const b = bloquesHorarioActivos.find(item => item.id === idBloque);
+      if (!b) return;
+      if (b.dias.has(siglaDia)) {
+        b.dias.delete(siglaDia);
+      } else {
+        b.dias.add(siglaDia);
+      }
+      renderizarListaBloquesHorario();
+      actualizarResumenHorarioCompilado();
+    }
+
+    function aplicarPresetHorario(idBloque, tipoPreset) {
+      const b = bloquesHorarioActivos.find(item => item.id === idBloque);
+      if (!b) return;
+
+      if (tipoPreset === 'MATUTINO') {
+        b.horaInicio = '09:00'; b.horaFin = '13:00';
+      } else if (tipoPreset === 'VESPERTINO') {
+        b.horaInicio = '16:00'; b.horaFin = '20:00';
+      } else if (tipoPreset === 'SABATINO') {
+        b.dias = new Set(['Sa']);
+        b.horaInicio = '08:00'; b.horaFin = '13:00';
+      } else if (tipoPreset === 'ESCOLAR') {
+        b.dias = new Set(['Lu', 'Ma', 'Mi', 'Ju', 'Vi']);
+        b.horaInicio = '15:00'; b.horaFin = '18:00';
+      }
+      renderizarListaBloquesHorario();
+      actualizarResumenHorarioCompilado();
+    }
+
+    function cambiarHoraBloque(idBloque, tipoCampo, valorHora) {
+      const b = bloquesHorarioActivos.find(item => item.id === idBloque);
+      if (!b) return;
+      if (tipoCampo === 'inicio') b.horaInicio = valorHora;
+      if (tipoCampo === 'fin') b.horaFin = valorHora;
+      actualizarResumenHorarioCompilado();
+    }
+
+    function renderizarListaBloquesHorario() {
+      const contenedor = document.getElementById('listaBloquesHorarios');
+      contenedor.innerHTML = '';
+
+      const diasSemana = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+
+      bloquesHorarioActivos.forEach((bloque, index) => {
+        const div = document.createElement('div');
+        div.className = 'bloque-horario-item';
+
+        let htmlPills = '';
+        diasSemana.forEach(d => {
+          const activo = bloque.dias.has(d) ? 'activo' : '';
+          htmlPills += `<div class="dia-pill-mini ${activo}" onclick="alternarDiaBloque('${bloque.id}', '${d}')">${d}</div>`;
+        });
+
+        div.innerHTML = `
+          <div class="bloque-header">
+            <span style="font-size:12px; font-weight:700; color:var(--gto-azul-primario);">Bloque #${index + 1}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="presets-horario" style="margin:0;">
+                <button type="button" class="btn-preset" onclick="aplicarPresetHorario('${bloque.id}', 'MATUTINO')">Matutino</button>
+                <button type="button" class="btn-preset" onclick="aplicarPresetHorario('${bloque.id}', 'VESPERTINO')">Vespertino</button>
+                <button type="button" class="btn-preset" onclick="aplicarPresetHorario('${bloque.id}', 'SABATINO')">Sábados</button>
+              </div>
+              ${bloquesHorarioActivos.length > 1 ? `<button type="button" class="btn-peligro-sm" onclick="eliminarBloqueHorario('${bloque.id}')" title="Eliminar bloque">✕</button>` : ''}
+            </div>
+          </div>
+
+          <label style="font-size:10px; margin-bottom:4px;">Días de sesión de este bloque:</label>
+          <div class="dias-selector-bloque">${htmlPills}</div>
+
+          <div class="grid-2">
+            <div>
+              <label style="font-size:10px;">Hora Entrada</label>
+              <select onchange="cambiarHoraBloque('${bloque.id}', 'inicio', this.value)">
+                ${generarOpcionesHoraSelect(bloque.horaInicio)}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:10px;">Hora Salida</label>
+              <select onchange="cambiarHoraBloque('${bloque.id}', 'fin', this.value)">
+                ${generarOpcionesHoraSelect(bloque.horaFin)}
+              </select>
+            </div>
+          </div>
+        `;
+        contenedor.appendChild(div);
+      });
+    }
+
+    function compilarDatosCalendarioYHorario() {
+      const tipoFecha = document.querySelector('input[name="tipoFecha"]:checked')?.value || 'RANGO';
+      let textoVigencia = '';
+      let fechaIniVal = '';
+      let fechaFinVal = '';
+
+      if (tipoFecha === 'RANGO') {
+        const fIni = document.getElementById('inputFechaInicio').value;
+        const fFin = document.getElementById('inputFechaFin').value;
+        fechaIniVal = fIni;
+        fechaFinVal = fFin;
+        if (fIni && fFin) {
+          textoVigencia = `Del ${fIni.split('-').reverse().join('/')} al ${fFin.split('-').reverse().join('/')}`;
+        } else if (fIni) {
+          textoVigencia = `Inicio: ${fIni.split('-').reverse().join('/')}`;
+        }
+      } else {
+        const fUnica = document.getElementById('inputFechaExacta').value;
+        fechaIniVal = fUnica;
+        fechaFinVal = fUnica;
+        if (fUnica) {
+          textoVigencia = `Fecha: ${fUnica.split('-').reverse().join('/')}`;
+        }
+      }
+
+      const segmentosHorarios = [];
+      const todosLosDiasSet = new Set();
+
+      bloquesHorarioActivos.forEach(b => {
+        if (b.dias.size > 0) {
+          const diasStr = Array.from(b.dias).join(', ');
+          b.dias.forEach(d => todosLosDiasSet.add(d));
+          segmentosHorarios.push(`${diasStr} (${b.horaInicio} a ${b.horaFin})`);
+        }
+      });
+
+      const textoHorarioCompilado = segmentosHorarios.length > 0 
+        ? segmentosHorarios.join(' | ') + (textoVigencia ? ` [${textoVigencia}]` : '')
+        : 'Horario pendiente de definir';
+
+      const textoDiasCompilado = todosLosDiasSet.size > 0 
+        ? Array.from(todosLosDiasSet).join(', ') 
+        : 'N/A';
+
+      return {
+        tipoFecha,
+        fechaInicio: fechaIniVal,
+        fechaFin: fechaFinVal,
+        textoVigencia,
+        horarioCompleto: textoHorarioCompilado,
+        diasCompletos: textoDiasCompilado,
+        totalDiasActivos: todosLosDiasSet.size
+      };
+    }
+
+    function actualizarResumenHorarioCompilado() {
+      const resumen = compilarDatosCalendarioYHorario();
+      const txt = document.getElementById('txtResumenHorarioCompilado');
+      if (txt) {
+        txt.innerHTML = `<b>Programación:</b> ${resumen.horarioCompleto}`;
+      }
+    }
+
+    // --- FUNCIÓN PARA RESOLVER URLs FIRMADAS (STORAGE PRIVADO) ---
     function limpiarPathEvidencia(urlOPath) {
       if (!urlOPath) return null;
       if (urlOPath.startsWith('data:image')) return urlOPath;
-      // Extrae únicamente el nombre del archivo si viene la URL completa anterior
       if (urlOPath.includes('/evidencias/')) {
         return urlOPath.split('/evidencias/').pop().split('?')[0];
       }
@@ -748,13 +1008,11 @@
       try {
         const { data, error } = await conexionSupabase.storage
           .from('evidencias')
-          .createSignedUrl(nombreArchivo, 3600); // Enlace cifrado temporal (1 hora)
+          .createSignedUrl(nombreArchivo, 3600);
 
         if (!error && data?.signedUrl) {
           cacheUrlsFirmadas.set(nombreArchivo, data.signedUrl);
           return data.signedUrl;
-        } else {
-          console.warn('Error al firmar imagen:', error);
         }
       } catch (err) {
         console.error('Error al generar URL firmada:', err);
@@ -1021,19 +1279,6 @@
       }
     });
 
-    document.querySelectorAll('.dia-pill').forEach(boton => {
-      boton.addEventListener('click', () => {
-        const sigla = boton.dataset.dia;
-        if(memoriaDias.has(sigla)) { 
-          memoriaDias.delete(sigla); 
-          boton.classList.remove('activo'); 
-        } else { 
-          memoriaDias.add(sigla); 
-          boton.classList.add('activo'); 
-        }
-      });
-    });
-
     document.getElementById('btnCapturarGPS').addEventListener('click', () => {
       if(!navigator.geolocation) return alert('Navegador sin GPS.');
       document.getElementById('txtCoordenadas').textContent = "Buscando...";
@@ -1112,6 +1357,7 @@
       });
     }
 
+    // --- GENERADOR DE ACUSE PDF INSTITUCIONAL ---
     async function generarAcusePDF(paquete, folio, archivoFoto = null) {
       try {
         const { jsPDF } = window.jspdf;
@@ -1225,7 +1471,9 @@
         doc.setFont("helvetica", "normal"); doc.text(String(paquete.dias || paquete.sesion || 'N/A'), 134, 83);
         
         doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
-        doc.setFont("helvetica", "normal"); doc.text(String(paquete.horario || 'N/A'), 124, 90);
+        doc.setFont("helvetica", "normal"); 
+        const txtHorarioAjustado = doc.splitTextToSize(String(paquete.horario || 'N/A'), 60);
+        doc.text(txtHorarioAjustado, 124, 90);
 
         // Sección 2
         doc.setFillColor(...AZUL_GTO);
@@ -1473,7 +1721,7 @@
           <td>${insigniaArea}<br><span class="badge-folio">${reg.folio || 'S/F'}</span></td>
           <td><b>${reg.municipio || 'N/A'}</b><br><small style="color: #64748b;">${reg.sede || 'N/A'}</small></td>
           <td><b>${reg.disciplina || 'N/A'}</b><br><small style="color: #004B87;">👤 ${reg.docente || 'Sin responsable'}</small></td>
-          <td>${reg.horario || 'N/A'}<br><small style="color: #64748b;">📅 ${reg.dias || reg.sesion || 'N/A'}</small></td>
+          <td><small style="color: #334155; font-weight:600;">${reg.horario || 'N/A'}</small><br><small style="color: #64748b;">📅 ${reg.dias || reg.sesion || 'N/A'}</small></td>
           <td><b style="color: #004B87; font-size: 14px;">${total}</b> <small>pers.</small></td>
           <td style="text-align: center;">${celdaFoto}</td>
           <td style="white-space: nowrap;">
@@ -1570,7 +1818,7 @@
           "Programación": r.programacion || '',
           "Modalidad Cuota": r.costo || '',
           "Días de Sesión": r.dias || r.sesion || '',
-          "Horario": r.horario || '',
+          "Horario y Calendario": r.horario || '',
           "Total Beneficiarios": total,
           "Mujeres": Number(r.mujeres) || 0,
           "Hombres": Number(r.hombres) || 0,
@@ -1628,12 +1876,15 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- SUBIDA FORMULARIO MANUAL CON RESPALDO PRIVADO OFFLINE/ONLINE ---
+    // --- SUBIDA FORMULARIO MANUAL CON RESPALDO PRIVADO Y HORARIOS DINÁMICOS ---
     document.getElementById('formularioCaptura').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if(memoriaDias.size === 0) return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión.', 'warning');
 
-      const stringDias = Array.from(memoriaDias).join(', ');
+      const calendarioCompilado = compilarDatosCalendarioYHorario();
+      if (calendarioCompilado.totalDiasActivos === 0) {
+        return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión en tus bloques de horario.', 'warning');
+      }
+
       const folioGenerado = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
       const inputArchivoFoto = document.getElementById('inputFoto');
       const btnGuardar = document.getElementById('btnGuardarSQL');
@@ -1652,10 +1903,9 @@
         programacion: document.getElementById('selectorProgramacion').value,
         docente: document.getElementById('selectorDocente').value.trim(),
         costo: document.getElementById('selectorModalidad').value,
-        horario: `${document.getElementById('horaInicio').value} - ${document.getElementById('horaFin').value}`,
-        
-        sesion: stringDias, 
-        dias: stringDias,
+        horario: calendarioCompilado.horarioCompleto,
+        sesion: calendarioCompilado.diasCompletos, 
+        dias: calendarioCompilado.diasCompletos,
         latitud: memoriaCoords.lat, 
         longitud: memoriaCoords.lng,
         foto_url: null,
@@ -1714,7 +1964,6 @@
         }
       }
 
-      // Almacenamos el path relativo seguro, no la URL pública
       paqueteSQL.foto_url = nombreLimpio;
 
       const { error: errorSQL } = await conexionSupabase.from(TABLA_SQL).insert([paqueteSQL]);
@@ -1743,8 +1992,12 @@
     function limpiarFormularioDespuesDeGuardar() {
       document.getElementById('formularioCaptura').reset();
       cambiarAreaOperativa();
-      memoriaDias.clear(); 
-      document.querySelectorAll('.dia-pill').forEach(b => b.classList.remove('activo'));
+      
+      // Reiniciar constructor de horarios
+      bloquesHorarioActivos = [];
+      agregarNuevoBloqueHorario(['Lu', 'Mi', 'Vi'], '16:00', '18:00');
+      cambiarTipoFechasUI();
+
       document.getElementById('txtCoordenadas').textContent = "Coordenadas no capturadas";
       document.getElementById('txtFoto').textContent = "Sin foto seleccionada";
       memoriaCoords = { lat: null, lng: null };
@@ -1788,6 +2041,9 @@
     window.addEventListener('DOMContentLoaded', async () => {
       conexionSupabase = window.supabase.createClient(URL_SUPABASE, LLAVE_PUBLICA);
       
+      // Inicializar el primer bloque de horario por defecto
+      agregarNuevoBloqueHorario(['Lu', 'Mi', 'Vi'], '16:00', '18:00');
+
       cargarPlegableMunicipios();
       await cargarCatalogosBase();
       cargarBitacora();
