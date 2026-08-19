@@ -52,23 +52,15 @@ async function eliminarCapturaLocal(folio) {
   });
 }
 
-// Sincronización automática con Supabase al recuperar internet
+// Sincronización automática: almacena la ruta del archivo privado
 async function sincronizarPendientesConNube() {
   if (!navigator.onLine || !conexionSupabase) return;
   const pendientes = await obtenerPendientesOffline();
   if (pendientes.length === 0) return;
 
-  Swal.fire({
-    title: 'Conexión Restablecida',
-    text: `Sincronizando ${pendientes.length} registros capturados en campo...`,
-    timer: 2000,
-    showConfirmButton: false,
-    icon: 'info'
-  });
-
   for (const item of pendientes) {
     try {
-      let urlFotoNube = null;
+      let pathFoto = item.foto_url;
       if (item.foto_offline) {
         const extension = 'jpg';
         const nombreLimpio = `${item.folio}_offline_${Date.now()}.${extension}`;
@@ -78,12 +70,11 @@ async function sincronizarPendientesConNube() {
           .upload(nombreLimpio, blob, { cacheControl: '3600', upsert: true });
 
         if (!errFoto) {
-          const { data: dUrl } = conexionSupabase.storage.from('evidencias').getPublicUrl(nombreLimpio);
-          urlFotoNube = dUrl.publicUrl;
+          pathFoto = nombreLimpio;
         }
       }
 
-      const registroSQL = { ...item, foto_url: urlFotoNube || item.foto_url };
+      const registroSQL = { ...item, foto_url: pathFoto };
       delete registroSQL.foto_offline;
       delete registroSQL.fecha_guardado_local;
 
@@ -96,7 +87,7 @@ async function sincronizarPendientesConNube() {
     }
   }
 
-  actualizarEstadoConexionUI();
+  if (typeof actualizarEstadoConexionUI === 'function') actualizarEstadoConexionUI();
   if (typeof cargarBitacora === 'function') cargarBitacora();
   if (typeof inicializarDashboardDirectivo === 'function') inicializarDashboardDirectivo();
 }

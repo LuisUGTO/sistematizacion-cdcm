@@ -5,33 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sistematización Institucional | Secretaría de Cultura de Guanajuato</title>
   
-  <!-- ================================================================= -->
-  <!-- 1. CONFIGURACIÓN PWA & OFFLINE (Zonas Rurales y Móvil)            -->
-  <!-- ================================================================= -->
+  <!-- Configuración PWA & Offline -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#004B87" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <script src="offline-db.js"></script>
 
-  <!-- ================================================================= -->
-  <!-- 2. LIBRERÍAS EXTERNAS                                             -->
-  <!-- ================================================================= -->
+  <!-- Librerías Externas -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   
-  <!-- Librería de Mapas Interactivos (Leaflet) -->
+  <!-- Mapas Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- ================================================================= -->
-  <!-- 3. ESTILOS VISUALES INSTITUCIONALES (Gobierno de Guanajuato)       -->
-  <!-- ================================================================= -->
   <style>
     :root {
       --gto-azul-primario: #004B87;
@@ -49,7 +42,6 @@
     body { font-family: 'Inter', sans-serif; background-color: var(--gto-fondo-app); color: var(--gto-texto-fijo); -webkit-font-smoothing: antialiased; }
     h1, h2, h3 { font-family: 'Vollkorn', serif; color: var(--gto-azul-primario); }
 
-    /* Barra Superior */
     .topbar { background: var(--gto-blanco-papel); border-bottom: 3px solid var(--gto-azul-secundario); padding: 10px 24px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
     .topbar-container { max-width: 1240px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .brand-group { display: flex; align-items: center; gap: 16px; }
@@ -58,18 +50,14 @@
     .brand-titles span { font-family: 'Vollkorn', serif; font-size: 20px; font-weight: 700; color: var(--gto-azul-primario); }
     
     .topbar-actions { display: flex; align-items: center; gap: 12px; }
-
-    /* Insignia de Conexión Offline / Online */
     #badgeEstadoRed { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; background: #dcfce7; color: #166534; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(0,0,0,0.05); transition: all 0.25s; cursor: default; }
 
-    /* Perfil Estilo Google Workspace */
     .user-profile-widget { position: relative; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
     .user-pill { display: flex; align-items: center; gap: 10px; background: var(--gto-fondo-app); padding: 4px 12px 4px 6px; border-radius: 40px; border: 1px solid var(--gto-azul-claro); transition: all 0.2s; }
     .user-pill:hover { background: #e8f0fe; border-color: var(--gto-azul-primario); }
     .avatar-circle { width: 34px; height: 34px; border-radius: 50%; background: var(--gto-azul-primario); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .user-info-text { font-size: 12px; font-weight: 600; color: var(--gto-texto-fijo); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Dropdown Flotante Tipo Google */
     .google-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 320px; background: white; border-radius: 18px; box-shadow: 0 10px 35px rgba(0, 75, 135, 0.18); border: 1px solid rgba(0,75,135,0.12); padding: 20px; z-index: 2000; animation: fadeIn 0.25s ease; display: none; text-align: center; }
     .google-dropdown.show { display: block; }
     .dropdown-avatar-big-wrap { position: relative; width: 72px; height: 72px; margin: 0 auto 12px; }
@@ -83,17 +71,14 @@
     .dropdown-item:hover { background: #f0f7ff; color: var(--gto-azul-primario); font-weight: 600; }
     .dropdown-item span { font-size: 16px; }
 
-    /* Estructura Principal y Tarjetas */
     .main-wrapper { max-width: 1240px; margin: 30px auto; padding: 0 20px; }
     .card { background: var(--gto-blanco-papel); border-radius: 16px; padding: 32px; box-shadow: var(--gto-sombra-institucional); border: 1px solid rgba(0, 75, 135, 0.08); margin-bottom: 24px; }
 
-    /* Modal de Acceso / Login */
     .login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #004B87 0%, #17314e 100%); display: flex; justify-content: center; align-items: center; z-index: 3000; padding: 20px; }
     .login-box { background: white; border-radius: 20px; padding: 40px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); border-bottom: 6px solid var(--gto-azul-secundario); }
     .login-box h1 { font-size: 28px; margin: 16px 0 8px 0; }
     .login-box p { color: var(--gto-gris-oscuro); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
 
-    /* Grids y Formularios */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -106,7 +91,6 @@
 
     .area-selector-container { background: #f0f7ff; border: 2px solid var(--gto-azul-secundario); border-radius: 12px; padding: 16px; margin-bottom: 22px; }
 
-    /* Botones */
     .btn-gto { background-color: var(--gto-azul-primario); color: white; border: none; border-radius: 10px; padding: 14px 24px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
     .btn-gto:hover { background-color: #003662; transform: translateY(-1px); }
     .btn-secundario { background-color: var(--gto-azul-claro); color: var(--gto-azul-primario); font-weight: 700; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
@@ -116,7 +100,6 @@
     .btn-peligro-sm { background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; font-weight: 700; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-left: 6px; }
     .btn-peligro-sm:hover { background-color: #fecaca; }
 
-    /* Selector de Días */
     .dias-selector { display: flex; gap: 8px; flex-wrap: wrap; }
     .dia-pill { flex: 1; min-width: 42px; text-align: center; padding: 10px 4px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; color: var(--gto-gris-oscuro); transition: all 0.15s; }
     .dia-pill.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); box-shadow: 0 4px 10px rgba(0,75,135,0.2); }
@@ -124,7 +107,6 @@
     .evidencia-box { border: 2px dashed #cbd5e1; padding: 20px; border-radius: 12px; text-align: center; background: #f8fafc; }
     .hidden { display: none !important; }
     
-    /* Pestañas de Navegación */
     .tabs-nav { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 5px;}
     .tab-btn { background: var(--gto-blanco-papel); border: 1px solid #d1d5db; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; color: var(--gto-gris-oscuro); white-space: nowrap; transition: all 0.2s;}
     .tab-btn.activo { background: var(--gto-azul-primario); color: white; border-color: var(--gto-azul-primario); box-shadow: 0 4px 12px rgba(0,75,135,0.15); }
@@ -132,14 +114,12 @@
     .tab-content.activo { display: block; animation: fadeIn 0.4s; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
 
-    /* Tarjetas KPI Ejecutivas */
     .kpi-card { background: #f8fafc; border: 1px solid var(--gto-azul-claro); border-radius: 14px; padding: 20px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
     .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,75,135,0.08); }
     .kpi-card h4 { font-size: 11px; text-transform: uppercase; color: var(--gto-gris-oscuro); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.5px; }
     .kpi-card .kpi-num { font-size: 28px; font-weight: 900; color: var(--gto-azul-primario); font-family: 'Vollkorn', serif; line-height: 1.2; }
     .kpi-card small { font-size: 11px; color: var(--gto-gris-oscuro); font-weight: 500; }
 
-    /* Tabla de Bitácora Operativa */
     .tabla-container { width: 100%; overflow-x: auto; margin-top: 18px; border-radius: 10px; border: 1px solid #e2e8f0; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
     th { background: #f1f5f9; color: var(--gto-azul-primario); padding: 12px 14px; font-weight: 700; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--gto-azul-claro); }
@@ -155,15 +135,12 @@
     .btn-pdf-tabla { background: var(--gto-azul-primario); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-pdf-tabla:hover { background: #003662; }
 
-    /* Estilos del Dashboard y Mapa */
     .chart-box { background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
     .chart-box h3 { font-size: 16px; margin-bottom: 4px; }
     .chart-box p { font-size: 12px; color: var(--gto-gris-oscuro); margin-bottom: 14px; }
     .canvas-container { position: relative; width: 100%; height: 280px; }
-    
     #mapaGto { height: 420px; width: 100%; border-radius: 12px; z-index: 1; border: 1px solid #cbd5e1; }
 
-    /* Modal de Fotografía */
     .modal-foto-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: center; z-index: 4000; padding: 20px; }
     .modal-foto-box { background: white; border-radius: 16px; max-width: 700px; width: 100%; padding: 24px; text-align: center; position: relative; }
     .modal-foto-box img { max-width: 100%; max-height: 70vh; border-radius: 10px; object-fit: contain; margin-top: 12px; }
@@ -191,7 +168,7 @@
     </div>
   </div>
 
-  <!-- 4. ENCABEZADO INSTITUCIONAL CON PERFIL TIPO GOOGLE Y STATUS OFFLINE -->
+  <!-- 4. ENCABEZADO INSTITUCIONAL -->
   <header class="topbar">
     <div class="topbar-container">
       <div class="brand-group">
@@ -203,13 +180,10 @@
       </div>
 
       <div class="topbar-actions">
-        
-        <!-- Insignia de Estado de Red (Offline / Online) -->
         <div id="badgeEstadoRed" title="Estado de la conexión a la base de datos">
           <span>🟢</span> En línea
         </div>
 
-        <!-- Widget de Cuenta de Usuario -->
         <div class="user-profile-widget" id="contenedorPerfilGoogle">
           <div class="user-pill" onclick="toggleMenuGoogle(event)">
             <div class="avatar-circle" id="avatarTopBar">U</div>
@@ -243,7 +217,6 @@
             </button>
           </div>
         </div>
-
       </div>
     </div>
   </header>
@@ -257,7 +230,7 @@
       <button class="tab-btn" onclick="cambiarPestana('tab-dashboard', this); inicializarDashboardDirectivo();">3. Dashboard Directivo</button>
     </div>
 
-    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA DINÁMICO & MODO CAMPO -->
+    <!-- PESTAÑA 1: FORMULARIO DE CAPTURA OPERATIVA -->
     <div id="tab-captura" class="tab-content activo">
       <form id="formularioCaptura">
         
@@ -344,7 +317,6 @@
           </div>
         </div>
 
-        <!-- SECCIÓN 2: POBLACIÓN ATENDIDA -->
         <div class="card">
           <h2 style="margin-bottom: 20px; border-bottom: 2px solid var(--gto-fondo-app); padding-bottom: 10px;">2. Población Atendida (En N° de Personas)</h2>
           <div class="grid-5">
@@ -361,7 +333,6 @@
           </div>
         </div>
 
-        <!-- SECCIÓN 3: SENSORES DE VERIFICACIÓN -->
         <div class="card">
           <h2 style="margin-bottom: 20px;">3. Sensores de Verificación</h2>
           <div class="grid-2">
@@ -389,7 +360,6 @@
     <!-- PESTAÑA 2: BITÁCORA, EXPORTACIÓN E IMPORTACIÓN MASIVA -->
     <div id="tab-bitacora" class="tab-content">
       
-      <!-- Mini Tarjetas KPI -->
       <div class="grid-3" style="margin-bottom: 20px;">
         <div class="kpi-card">
           <h4>Actividades Capturadas</h4>
@@ -405,7 +375,6 @@
         </div>
       </div>
 
-      <!-- Tarjeta de Importación Masiva Universal -->
       <div class="card" style="padding: 24px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
@@ -424,7 +393,6 @@
         </div>
       </div>
 
-      <!-- Tarjeta Principal de la Tabla de Bitácora -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 18px;">
           <div>
@@ -437,7 +405,6 @@
           </div>
         </div>
 
-        <!-- Barra de Búsqueda y Filtros -->
         <div class="grid-3" style="margin-bottom: 15px;">
           <input type="text" id="buscadorBitacora" placeholder="🔍 Buscar por folio, taller, docente o sede..." onkeyup="filtrarTablaBitacora()" />
           <select id="filtroAreaBitacora" onchange="filtrarTablaBitacora()">
@@ -450,7 +417,6 @@
           </select>
         </div>
 
-        <!-- Tabla de Datos -->
         <div class="tabla-container">
           <table>
             <thead>
@@ -477,7 +443,6 @@
     <!-- PESTAÑA 3: DASHBOARD DIRECTIVO GEOESPACIAL Y ANALÍTICO -->
     <div id="tab-dashboard" class="tab-content">
       
-      <!-- Barra de Filtros Directivos con SELECTOR DE PERSPECTIVA -->
       <div class="card" style="margin-bottom: 20px; padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
           <div>
@@ -486,7 +451,6 @@
           </div>
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             
-            <!-- SELECTOR DE PERSPECTIVA ANALÍTICA (SIN SESGO) -->
             <select id="filtroNivelDashboard" onchange="actualizarGraficasDashboard()" style="min-width: 230px; font-weight: 700; border-color: var(--gto-azul-primario); background: #f0f7ff;">
               <option value="TODOS">🌐 Vista Consolidada General</option>
               <option value="OPERATIVO">🟢 1. Operación Diaria (Talleres Municipales)</option>
@@ -509,7 +473,6 @@
         </div>
       </div>
 
-      <!-- Tarjetas KPI Directivas -->
       <div class="grid-4" style="margin-bottom: 24px;">
         <div class="kpi-card">
           <h4>Beneficiarios Atendidos</h4>
@@ -533,7 +496,6 @@
         </div>
       </div>
 
-      <!-- MAPA TERRITORIAL INTERACTIVO DE GUANAJUATO (Leaflet) -->
       <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 14px; gap: 10px;">
           <div>
@@ -547,40 +509,32 @@
         <div id="mapaGto"></div>
       </div>
 
-      <!-- Grid de Gráficos Analíticos -->
       <div class="grid-2" style="margin-bottom: 24px;">
-        
-        <!-- Gráfico 1: Top 10 Municipios -->
         <div class="chart-box">
           <h3>🏆 Top 10 Municipios con Mayor Afluencia</h3>
           <p>Municipios con mayor volumen de beneficiarios alcanzados.</p>
           <div class="canvas-container"><canvas id="chartTopMunicipios"></canvas></div>
         </div>
 
-        <!-- Gráfico 2: Composición Etaria -->
         <div class="chart-box">
           <h3>👥 Distribución por Grupos de Edad</h3>
           <p>Proporción de Niñez, Adolescencia, Juventudes y Adultos Mayores.</p>
           <div class="canvas-container"><canvas id="chartGruposEdad"></canvas></div>
         </div>
 
-        <!-- Gráfico 3: Atención Prioritaria -->
         <div class="chart-box">
           <h3>🤝 Sectores de Atención Prioritaria</h3>
           <p>Inclusión de personas con discapacidad, indígenas, afromexicanas y LGBTQ+.</p>
           <div class="canvas-container"><canvas id="chartPrioritarios"></canvas></div>
         </div>
 
-        <!-- Gráfico 4: Balance de Género -->
         <div class="chart-box">
           <h3>⚖️ Balance de Género</h3>
           <p>Proporción de Mujeres vs Hombres en las actividades de vinculación.</p>
           <div class="canvas-container"><canvas id="chartGenero"></canvas></div>
         </div>
-
       </div>
 
-      <!-- Tabla Resumen Ejecutivo de Municipios -->
       <div class="card" style="padding: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 14px;">
           <div>
@@ -624,7 +578,7 @@
     </div>
   </div>
 
-  <!-- 7. CATÁLOGO OFICIAL Y COORDENADAS DE LOS 46 MUNICIPIOS DE GUANAJUATO -->
+  <!-- 7. CATÁLOGO OFICIAL Y COORDENADAS DE LOS 46 MUNICIPIOS -->
   <script>
     const CATALOGO_GUBERNAMENTAL = {
       "Abasolo": ["Casa de la Cultura Abasolo", "Museo Miguel Hidalgo", "Plaza Principal"],
@@ -725,7 +679,7 @@
     };
   </script>
 
-  <!-- 8. LÓGICA DE APLICACIÓN CON INTEGRACIÓN OFFLINE -->
+  <!-- 8. LÓGICA DE APLICACIÓN CON GESTOR DE URLs FIRMADAS -->
   <script>
     const URL_SUPABASE = 'https://azhlshuiazhgjpjckkce.supabase.co';
     const LLAVE_PUBLICA = 'sb_publishable_wSABUjH15RrjBQ577R2bSA_jX6I4mAM';
@@ -740,7 +694,9 @@
     let memoriaDocentesCDCM = [];
     let registrosFiltradosActuales = [];
 
-    // Instancias de Analítica
+    // Caché de URLs firmadas para evitar peticiones repetitivas
+    const cacheUrlsFirmadas = new Map();
+
     let chartInstTopMuni = null;
     let chartInstGruposEdad = null;
     let chartInstPrioritarios = null;
@@ -767,7 +723,35 @@
       return null;
     }
 
-    // --- CONTROLES DE ESTADO DE RED & OFFLINE ---
+    // --- FUNCIÓN PARA RESOLVER URLs FIRMADAS (STORAGE PRIVADO) ---
+    async function obtenerUrlSeguraEvidencia(pathOFotoUrl) {
+      if (!pathOFotoUrl) return null;
+      
+      // Si ya es data base64 o URL completa previa
+      if (pathOFotoUrl.startsWith('data:image') || pathOFotoUrl.startsWith('http://') || pathOFotoUrl.startsWith('https://')) {
+        return pathOFotoUrl;
+      }
+
+      // Si ya está en caché y vigente
+      if (cacheUrlsFirmadas.has(pathOFotoUrl)) {
+        return cacheUrlsFirmadas.get(pathOFotoUrl);
+      }
+
+      try {
+        const { data, error } = await conexionSupabase.storage
+          .from('evidencias')
+          .createSignedUrl(pathOFotoUrl, 3600); // URL firmada con 1 hora de vigencia
+
+        if (!error && data?.signedUrl) {
+          cacheUrlsFirmadas.set(pathOFotoUrl, data.signedUrl);
+          return data.signedUrl;
+        }
+      } catch (err) {
+        console.error('Error al generar URL firmada:', err);
+      }
+      return null;
+    }
+
     async function actualizarEstadoConexionUI() {
       const badge = document.getElementById('badgeEstadoRed');
       if (!badge) return;
@@ -787,7 +771,6 @@
       }
     }
 
-    // --- CONTROLES DEL PERFIL TIPO GOOGLE ---
     function toggleMenuGoogle(event) {
       event.stopPropagation();
       const menu = document.getElementById('menuDesplegableGoogle');
@@ -1090,7 +1073,7 @@
 
     function cargarImagenURL(url) {
       return new Promise((resolve) => {
-        const timeout = setTimeout(() => resolve(null), 800);
+        const timeout = setTimeout(() => resolve(null), 1200);
         const img = new Image();
         img.crossOrigin = 'Anonymous';
         img.onload = () => {
@@ -1119,7 +1102,6 @@
       });
     }
 
-    // --- GENERADOR BLINDADO DE PDF INSTITUCIONAL ---
     async function generarAcusePDF(paquete, folio, archivoFoto = null) {
       try {
         const { jsPDF } = window.jspdf;
@@ -1167,7 +1149,6 @@
         doc.setLineWidth(0.6);
         doc.line(14, 32, 196, 32);
 
-        // Tarjeta Folio
         doc.setFillColor(...FONDO_TARJETA);
         doc.roundedRect(14, 36, 182, 18, 2, 2, 'F');
         doc.setDrawColor(...BORDE_LINEA);
@@ -1198,7 +1179,7 @@
         doc.setFont("helvetica", "normal");
         doc.text(String(paquete.usuario || 'planeacionscul@guanajuato.gob.mx'), 102, 49);
 
-        // Sección 1: Datos Generales
+        // Sección 1
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 57, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1236,7 +1217,7 @@
         doc.setFont("helvetica", "bold"); doc.text("Horario:", 110, 90);
         doc.setFont("helvetica", "normal"); doc.text(String(paquete.horario || 'N/A'), 124, 90);
 
-        // Sección 2: Desglose Demográfico
+        // Sección 2
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 100, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1309,7 +1290,7 @@
         doc.setFontSize(11);
         doc.text(`${sumaTotal} PERSONAS`, 146, 158.5);
 
-        // Sección 3: Validación Técnica
+        // Sección 3
         doc.setFillColor(...AZUL_GTO);
         doc.rect(14, 167, 182, 6, 'F');
         doc.setTextColor(255, 255, 255);
@@ -1369,7 +1350,8 @@
         if (archivoFoto) {
           fotoDataFinal = await leerArchivoDataURL(archivoFoto);
         } else if (paquete.foto_url) {
-          fotoDataFinal = await cargarImagenURL(paquete.foto_url);
+          const urlSegura = await obtenerUrlSeguraEvidencia(paquete.foto_url);
+          if (urlSegura) fotoDataFinal = await cargarImagenURL(urlSegura);
         }
 
         if (fotoDataFinal) {
@@ -1378,7 +1360,7 @@
             doc.setFont("helvetica", "italic");
             doc.setFontSize(6);
             doc.setTextColor(...GRIS_SECUNDARIO);
-            doc.text("Fotografía respaldada en el servidor institucional", 120, 243);
+            doc.text("Fotografía respaldada en almacenamiento privado", 120, 243);
           } catch (e) {
             doc.setFont("helvetica", "normal");
             doc.setFontSize(7);
@@ -1430,7 +1412,7 @@
         memoriaRegistrosBitacora = (data || []).reverse();
         registrosFiltradosActuales = [...memoriaRegistrosBitacora];
         actualizarMetricasKPI(memoriaRegistrosBitacora);
-        renderizarFilasBitacora(memoriaRegistrosBitacora);
+        await renderizarFilasBitacora(memoriaRegistrosBitacora);
 
       } catch (err) {
         console.error("Error al cargar bitácora:", err);
@@ -1451,7 +1433,7 @@
       document.getElementById('kpiTotalMunicipios').innerText = municipiosValidos.size;
     }
 
-    function renderizarFilasBitacora(registros) {
+    async function renderizarFilasBitacora(registros) {
       const cuerpo = document.getElementById('cuerpoTablaBitacora');
       if (registros.length === 0) {
         cuerpo.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--gto-gris-oscuro); padding: 25px;">No se encontraron registros de captura.</td></tr>`;
@@ -1459,13 +1441,18 @@
       }
 
       cuerpo.innerHTML = '';
-      registros.forEach((reg, index) => {
+      for (let index = 0; index < registros.length; index++) {
+        const reg = registros[index];
         const total = (Number(reg.mujeres) || 0) + (Number(reg.hombres) || 0) + (Number(reg.ninez) || 0) + 
                       (Number(reg.adolescencia) || 0) + (Number(reg.juventudes) || 0) + (Number(reg.adultos_mayores) || 0);
 
-        const celdaFoto = reg.foto_url 
-          ? `<img src="${reg.foto_url}" class="img-thumb" alt="Evidencia" onclick="abrirModalFoto('${reg.foto_url}', '${reg.folio}', '${reg.municipio} - ${reg.disciplina}')" title="Ver foto completa"/>`
-          : `<span style="font-size: 11px; color: #94a3b8;">Sin foto</span>`;
+        let celdaFoto = `<span style="font-size: 11px; color: #94a3b8;">Sin foto</span>`;
+        if (reg.foto_url) {
+          const urlSegura = await obtenerUrlSeguraEvidencia(reg.foto_url);
+          if (urlSegura) {
+            celdaFoto = `<img src="${urlSegura}" class="img-thumb" alt="Evidencia" onclick="abrirModalFoto('${reg.foto_url}', '${reg.folio}', '${reg.municipio} - ${reg.disciplina}')" title="Ver foto completa"/>`;
+          }
+        }
 
         const insigniaArea = reg.area_programa === 'BIBLIOTECAS'
           ? `<span class="badge-biblio">📖 BIBLIOTECA</span>`
@@ -1485,7 +1472,7 @@
           </td>
         `;
         cuerpo.appendChild(tr);
-      });
+      }
     }
 
     async function eliminarRegistroBitacora(folio) {
@@ -1587,7 +1574,7 @@
           "LGBTQ+": Number(r.lgbtq) || 0,
           "Latitud": r.latitud || '',
           "Longitud": r.longitud || '',
-          "URL Evidencia Foto": r.foto_url || '',
+          "Evidencia Path": r.foto_url || '',
           "Enlace que Capturó": r.usuario || ''
         };
       });
@@ -1631,778 +1618,7 @@
       XLSX.writeFile(libro, "Plantilla_Captura_Masiva_Vinculacion.xlsx");
     }
 
-    // --- FUNCIÓN M: MOTOR UNIVERSAL MULTIFORMATO ---
-    async function procesarExcelMasivoRegistros(inputElement) {
-      const file = inputElement.files[0];
-      if (!file) return;
-
-      Swal.fire({ 
-        title: 'Analizando archivo...', 
-        text: 'Identificando estructura y modelo de datos...',
-        allowOutsideClick: false, 
-        didOpen: () => Swal.showLoading() 
-      });
-
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const usuarioActivo = sesionActual ? sesionActual.user.email : 'enlace@guanajuato.gob.mx';
-          const registrosSQL = [];
-          const sheetNamesNorm = workbook.SheetNames.map(s => normalizar(s));
-          const fileNameNorm = normalizar(file.name);
-
-          // CASO 1: RESUMEN POR PROYECTO
-          if (fileNameNorm.includes('resumen por proyecto') || (sheetNamesNorm.length === 1 && sheetNamesNorm[0] === 'hoja 1' && normalizar(workbook.Sheets[workbook.SheetNames[0]]['A1'] ? workbook.Sheets[workbook.SheetNames[0]]['A1'].v : '') === 'proyecto')) {
-            const ws = workbook.Sheets[workbook.SheetNames[0]];
-            const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-            for (let r = 1; r < matriz.length; r++) {
-              const fila = matriz[r];
-              const proyName = String(fila[0] || '').trim();
-              if (!proyName || normalizar(proyName) === 'total' || normalizar(proyName) === 'nan') continue;
-
-              const mujeres = parseInt(fila[1]) || 0;
-              const hombres = parseInt(fila[2]) || 0;
-              const ninez = parseInt(fila[3]) || 0;
-              const juventudes = parseInt(fila[5]) || 0;
-              const mayores = parseInt(fila[6]) || 0;
-              const totalPers = parseInt(fila[23]) || (mujeres + hombres);
-
-              if (totalPers === 0 && mujeres === 0 && hombres === 0) continue;
-
-              registrosSQL.push({
-                folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
-                area_programa: 'CDCM',
-                usuario: usuarioActivo,
-                municipio: 'Guanajuato',
-                sede: 'Cobertura Estatal (Red de Casas de la Cultura)',
-                disciplina: `Proyecto Estratégico: ${proyName}`,
-                docente: 'Coordinación de Desarrollo Cultural Municipal',
-                programacion: 'Anual 2025',
-                costo: 'Libre Acceso',
-                horario: 'Jornada Continua',
-                dias: 'Lu, Ma, Mi, Ju, Vi, Sa',
-                sesion: 'Lu, Ma, Mi, Ju, Vi, Sa',
-                mujeres: mujeres,
-                hombres: hombres,
-                ninez: ninez,
-                adolescencia: Math.max(0, totalPers - (ninez + juventudes + mayores)),
-                juventudes: juventudes,
-                adultos_mayores: mayores,
-                discapacidad: 0,
-                indigenas: parseInt(fila[9]) || 0,
-                afromexicanas: 0,
-                lgbtq: 0
-              });
-            }
-
-            if (registrosSQL.length > 0) {
-              return confirmarEInsertarRegistros(registrosSQL, 'CDCM: Resumen por Proyecto Estratégico', `${registrosSQL.length} Líneas de Acción Estatales`);
-            }
-          }
-
-          // CASO 2: INDICADORES 2026
-          if (fileNameNorm.includes('indicadores 2026') || sheetNamesNorm.includes('1er trimestre')) {
-            const ws = workbook.Sheets[workbook.SheetNames[0]];
-            const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-            for (let r = 1; r < matriz.length; r++) {
-              const fila = matriz[r];
-              const clave = String(fila[0] || '').trim();
-              if (!clave || normalizar(clave) === 'proyecto' || normalizar(clave) === 'nan') continue;
-
-              const muni = fila[1] && String(fila[1]).trim() ? (emparejarMunicipioCatalogo(fila[1]) || 'Guanajuato') : 'Guanajuato';
-              const mujeres = parseInt(fila[2]) || 0;
-              const ninez = (parseInt(fila[3]) || 0) + (parseInt(fila[4]) || 0);
-              const adol = parseInt(fila[5]) || 0;
-              const juv = parseInt(fila[6]) || 0;
-              const mayores = parseInt(fila[7]) || 0;
-              const hombres = Math.max(0, (ninez + adol + juv + mayores) - mujeres);
-
-              registrosSQL.push({
-                folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
-                area_programa: 'CDCM',
-                usuario: usuarioActivo,
-                municipio: muni,
-                sede: `Instalaciones Municipales de ${muni}`,
-                disciplina: `Indicador Presupuestal 2026 [Clave: ${clave}]`,
-                docente: 'Dirección de Vinculación y Desarrollo Cultural',
-                programacion: '1er Trimestre 2026',
-                costo: 'Libre Acceso',
-                horario: 'Jornada Institucional',
-                dias: 'Lu, Ma, Mi, Ju, Vi',
-                sesion: 'Lu, Ma, Mi, Ju, Vi',
-                mujeres: mujeres,
-                hombres: hombres,
-                ninez: ninez,
-                adolescencia: adol,
-                juventudes: juv,
-                adultos_mayores: mayores,
-                discapacidad: parseInt(fila[8]) || 0,
-                indigenas: parseInt(fila[10]) || 0,
-                afromexicanas: parseInt(fila[11]) || 0,
-                lgbtq: parseInt(fila[9]) || 0
-              });
-            }
-
-            if (registrosSQL.length > 0) {
-              return confirmarEInsertarRegistros(registrosSQL, 'Matriz de Indicadores Presupuestales 2026', `${registrosSQL.length} Proyectos Evaluados`);
-            }
-          }
-
-          // CASO 3: NUMERALIA INFORME DE GOBIERNO
-          if (fileNameNorm.includes('numeralia') || sheetNamesNorm.includes('7 proy. socioculturales') || sheetNamesNorm.includes('1 talleres cc - desg. mes')) {
-            const hojaSocio = workbook.SheetNames.find(s => normalizar(s).includes('socioculturales'));
-            if (hojaSocio) {
-              const ws = workbook.Sheets[hojaSocio];
-              const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-              for (let r = 8; r < matriz.length; r++) {
-                const fila = matriz[r];
-                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : null;
-                const nomProy = fila[5] ? String(fila[5]).trim() : '';
-                if (!nomProy || !muni || normalizar(nomProy) === 'nan') continue;
-
-                const ben = parseInt(fila[9]) || 0;
-                const infM = parseInt(fila[10]) || 0;
-                const infH = parseInt(fila[11]) || 0;
-
-                registrosSQL.push({
-                  folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
-                  area_programa: 'CDCM',
-                  usuario: usuarioActivo,
-                  municipio: muni,
-                  sede: `Espacio Comunitario de ${muni}`,
-                  disciplina: `Proyecto Sociocultural: ${nomProy}`,
-                  docente: 'Enlace Municipal de Cultura',
-                  programacion: 'Anual 2025',
-                  costo: 'Libre Acceso',
-                  horario: '16:00 - 18:00',
-                  dias: 'Lu, Mi, Vi',
-                  sesion: 'Lu, Mi, Vi',
-                  mujeres: Math.round(ben * 0.55),
-                  hombres: Math.max(0, ben - Math.round(ben * 0.55)),
-                  ninez: infM + infH,
-                  adolescencia: Math.round(ben * 0.25),
-                  juventudes: Math.round(ben * 0.20),
-                  adultos_mayores: Math.max(0, ben - (infM + infH + Math.round(ben * 0.45))),
-                  discapacidad: 0,
-                  indigenas: 0,
-                  afromexicanas: 0,
-                  lgbtq: 0
-                });
-              }
-            }
-
-            const hojaTalleres = workbook.SheetNames.find(s => normalizar(s).includes('tallerescc-concentrado') || normalizar(s).includes('sacul-concentrado'));
-            if (hojaTalleres) {
-              const ws = workbook.Sheets[hojaTalleres];
-              const matriz = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-              for (let r = 8; r < matriz.length; r++) {
-                const fila = matriz[r];
-                const muni = fila[4] ? emparejarMunicipioCatalogo(fila[4]) : null;
-                const numTalleres = parseInt(fila[5]) || 0;
-                if (!muni || numTalleres === 0 || normalizar(muni) === 'nan') continue;
-
-                const infM = parseFloat(fila[6]) || 0;
-                const infH = parseFloat(fila[7]) || 0;
-                const juvM = parseFloat(fila[8]) || 0;
-                const juvH = parseFloat(fila[9]) || 0;
-                const aduM = parseFloat(fila[10]) || 0;
-                const aduH = parseFloat(fila[11]) || 0;
-                const total = Math.round(infM + infH + juvM + juvH + aduM + aduH);
-
-                if (total === 0) continue;
-
-                registrosSQL.push({
-                  folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
-                  area_programa: 'CDCM',
-                  usuario: usuarioActivo,
-                  municipio: muni,
-                  sede: `Casa de la Cultura de ${muni}`,
-                  disciplina: `Numeralia Informe: Red de Talleres (${numTalleres} grupos)`,
-                  docente: 'Dirección de Casa de Cultura',
-                  programacion: 'Anual 2025',
-                  costo: 'Libre Acceso / Cuota',
-                  horario: 'Jornada Anual',
-                  dias: 'Lu, Ma, Mi, Ju, Vi, Sa',
-                  sesion: 'Lu, Ma, Mi, Ju, Vi, Sa',
-                  mujeres: Math.round(infM + juvM + aduM),
-                  hombres: Math.round(infH + juvH + aduH),
-                  ninez: Math.round(infM + infH),
-                  adolescencia: Math.round((juvM + juvH) * 0.4),
-                  juventudes: Math.round((juvM + juvH) * 0.6),
-                  adultos_mayores: Math.round(aduM + aduH),
-                  discapacidad: 0,
-                  indigenas: 0,
-                  afromexicanas: 0,
-                  lgbtq: 0
-                });
-              }
-            }
-
-            if (registrosSQL.length > 0) {
-              return confirmarEInsertarRegistros(registrosSQL, 'Numeralia Oficial del Informe de Gobierno', `${registrosSQL.length} Registros y Proyectos Consolidados`);
-            }
-          }
-
-          // CASO 4: CONCENTRADO ESTATAL ANUAL
-          const hojaMacro = workbook.SheetNames.find(s => {
-            const ns = normalizar(s);
-            return ns.includes('activi') || ns.includes('concentrado') || ns.includes('promediado');
-          });
-
-          if (hojaMacro) {
-            const wsMacro = workbook.Sheets[hojaMacro];
-            const matrizMacro = XLSX.utils.sheet_to_json(wsMacro, { header: 1, defval: '' });
-
-            let filaInicioMacro = 1;
-            for (let r = 0; r < Math.min(10, matrizMacro.length); r++) {
-              if (matrizMacro[r].some(c => normalizar(c) === 'municipio')) {
-                filaInicioMacro = r + 1;
-                break;
-              }
-            }
-
-            for (let r = filaInicioMacro; r < matrizMacro.length; r++) {
-              const fila = matrizMacro[r];
-              if (!fila || fila.length < 3) continue;
-
-              const muniRaw = String(fila[0] || '').trim();
-              const normMuni = normalizar(muniRaw);
-
-              if (!muniRaw || normMuni.startsWith('total') || normMuni.startsWith('suma') || normMuni === 'nan') continue;
-
-              const muniOficial = emparejarMunicipioCatalogo(muniRaw);
-              if (!muniOficial) continue;
-
-              const totalActividades = parseInt(fila[1]) || 1;
-              const totalBeneficiarios = parseInt(fila[2]) || 0;
-
-              if (totalBeneficiarios === 0) continue;
-
-              const mujeres = Math.round(totalBeneficiarios * 0.58);
-              const hombres = totalBeneficiarios - mujeres;
-              const ninez = Math.round(totalBeneficiarios * 0.35);
-              const adolescencia = Math.round(totalBeneficiarios * 0.28);
-              const juventudes = Math.round(totalBeneficiarios * 0.22);
-              const adultosMayores = Math.max(0, totalBeneficiarios - (ninez + adolescencia + juventudes));
-
-              registrosSQL.push({
-                folio: 'SC-V' + Math.floor(10000 + Math.random() * 90000),
-                area_programa: 'CDCM',
-                usuario: usuarioActivo,
-                municipio: muniOficial,
-                sede: `Casas de la Cultura y Módulos de ${muniOficial}`,
-                disciplina: `Concentrado Anual de Formación y Talleres (${totalActividades} activ.)`,
-                docente: 'Coordinación de Desarrollo Cultural Municipal',
-                programacion: 'Anual 2025',
-                costo: 'Libre Acceso / Cuota de Recuperación',
-                horario: 'Jornada Anual',
-                dias: 'Lu, Ma, Mi, Ju, Vi, Sa',
-                sesion: 'Lu, Ma, Mi, Ju, Vi, Sa',
-                mujeres: mujeres,
-                hombres: hombres,
-                ninez: ninez,
-                adolescencia: adolescencia,
-                juventudes: juventudes,
-                adultos_mayores: adultosMayores,
-                discapacidad: 0,
-                indigenas: 0,
-                afromexicanas: 0,
-                lgbtq: 0
-              });
-            }
-
-            if (registrosSQL.length > 0) {
-              return confirmarEInsertarRegistros(registrosSQL, 'Concentrado Estatal Anual', `${registrosSQL.length} de 46 Municipios`);
-            }
-          }
-
-          // CASO 5: REPORTE MUNICIPAL OPERATIVO DETALLADO
-          let municipioArchivo = '';
-          for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
-            if (fileNameNorm.includes(normalizar(m))) {
-              municipioArchivo = m;
-              break;
-            }
-          }
-
-          let hojasAProcesar = workbook.SheetNames;
-          const hojaMaestra = workbook.SheetNames.find(s => {
-            const ns = normalizar(s);
-            return ns.includes('desglose') || ns.includes('taller') || ns.includes('matriz');
-          });
-          if (hojaMaestra) hojasAProcesar = [hojaMaestra];
-
-          for (const sheetName of hojasAProcesar) {
-            const worksheet = workbook.Sheets[sheetName];
-            const matriz = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-            if (!matriz || matriz.length < 3) continue;
-
-            let municipioHoja = municipioArchivo;
-            if (!municipioHoja) {
-              for (let f = 0; f < Math.min(8, matriz.length); f++) {
-                const filaTexto = normalizar(matriz[f].join(' '));
-                for (const m of Object.keys(CATALOGO_GUBERNAMENTAL)) {
-                  if (filaTexto.includes(normalizar(m))) {
-                    municipioHoja = m;
-                    break;
-                  }
-                }
-                if (municipioHoja) break;
-              }
-            }
-            if (!municipioHoja) municipioHoja = 'Dolores Hidalgo C.I.N.';
-
-            let mejorFilaIdx = -1;
-            let mejorPuntaje = 0;
-
-            for (let i = 0; i < Math.min(16, matriz.length); i++) {
-              const fila = matriz[i].map(c => normalizar(c));
-              let puntaje = 0;
-              fila.forEach(txt => {
-                if (txt.includes('disciplina') || txt.includes('taller') || txt.includes('actividad') || txt.includes('curso') || txt.includes('saber')) puntaje += 4;
-                if (txt.includes('docente') || txt.includes('instructor') || txt.includes('profesor') || txt.includes('responsable') || txt.includes('maestro')) puntaje += 4;
-                if (txt.includes('horario') || txt.includes('hora') || txt.includes('sesion') || txt.includes('dias')) puntaje += 2;
-                if (txt.includes('costo') || txt.includes('cuota') || txt.includes('acceso') || txt.includes('modalidad')) puntaje += 2;
-                if (txt.includes('sede') || txt.includes('lugar') || txt.includes('recinto')) puntaje += 2;
-              });
-
-              if (puntaje > mejorPuntaje) {
-                mejorPuntaje = puntaje;
-                mejorFilaIdx = i;
-              }
-            }
-
-            if (mejorFilaIdx === -1) continue;
-
-            let colActividad = 0, colProg = 1, colHorario = 9, colCosto = 10, colDocente = 11, colSede = -1;
-
-            for (let c = 0; c < matriz[mejorFilaIdx].length; c++) {
-              const h = normalizar(matriz[mejorFilaIdx][c]);
-              if (h.includes('disciplina') || h.includes('taller') || h.includes('saber') || h.includes('actividad')) colActividad = c;
-              if (h.includes('programacion') || h.includes('periodo')) colProg = c;
-              if (h.includes('horario') || h.includes('hora')) colHorario = c;
-              if (h.includes('costo') || h.includes('cuota') || h.includes('libre')) colCosto = c;
-              if (h.includes('docente') || h.includes('instructor') || h.includes('profesor') || h.includes('maestro') || h.includes('responsable')) colDocente = c;
-              if (h.includes('sede') || h.includes('lugar') || h.includes('comunidad')) colSede = c;
-            }
-
-            const inicioDatos = mejorFilaIdx + (matriz[mejorFilaIdx + 1] && matriz[mejorFilaIdx + 1].some(c => ['l','m','j','v','s','d'].includes(normalizar(c))) ? 2 : 1);
-
-            for (let r = inicioDatos; r < matriz.length; r++) {
-              const fila = matriz[r];
-              if (!fila || fila.length === 0) continue;
-
-              const actRaw = fila[colActividad] !== undefined ? String(fila[colActividad]).trim() : '';
-              const normAct = normalizar(actRaw);
-
-              if (!actRaw || actRaw.length < 2 || 
-                  normAct.startsWith('total') || normAct.startsWith('suma') || 
-                  normAct.startsWith('subtotal') || normAct.startsWith('educacion') || 
-                  normAct.startsWith('talleres en') || normAct.startsWith('salones de') ||
-                  normAct.startsWith('talleres de') || normAct.startsWith('nota') ||
-                  normAct === 'municipio' || normAct.includes('dolores hidalgo') ||
-                  /^\d{1,5}$/.test(normAct)) {
-                continue;
-              }
-
-              const dayNames = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
-              const activeDays = [];
-              for (let d = 2; d <= 8; d++) {
-                if (fila[d] && normalizar(fila[d]) === 'x') {
-                  activeDays.push(dayNames[d - 2]);
-                }
-              }
-              const stringDias = activeDays.length > 0 ? activeDays.join(', ') : 'Lu, Mi, Vi';
-
-              let docenteVal = fila[colDocente] ? String(fila[colDocente]).trim() : '';
-              if (!docenteVal || docenteVal.toLowerCase() === 'nan' || docenteVal === '-') {
-                docenteVal = 'Casa de la Cultura / Dirección';
-              }
-
-              let sedeVal = colSede !== -1 && fila[colSede] ? String(fila[colSede]).trim() : `Casa de la Cultura de ${municipioHoja}`;
-              const horarioVal = fila[colHorario] ? String(fila[colHorario]).trim() : '16:00 - 18:00';
-              const progVal = fila[colProg] ? String(fila[colProg]).trim() : 'Semestral';
-              let costoVal = fila[colCosto] ? String(fila[colCosto]).trim() : 'Libre Acceso';
-              if (normalizar(costoVal).includes('costo')) costoVal = 'Con Cuota de Recuperación';
-
-              let totalBeneficiarios = 0;
-              for (let u = 12; u < Math.min(fila.length, 25); u++) {
-                const num = parseInt(fila[u]);
-                if (!isNaN(num) && num > 0) {
-                  totalBeneficiarios = num;
-                }
-              }
-
-              if (totalBeneficiarios === 0) continue;
-
-              const mujeres = Math.round(totalBeneficiarios * 0.58);
-              const hombres = totalBeneficiarios - mujeres;
-              const ninez = normAct.includes('infantil') || normAct.includes('nino') ? totalBeneficiarios : Math.round(totalBeneficiarios * 0.35);
-              const adolescencia = normAct.includes('juvenil') ? totalBeneficiarios : Math.round(totalBeneficiarios * 0.30);
-              const juventudes = Math.round(totalBeneficiarios * 0.20);
-              const adultosMayores = Math.max(0, totalBeneficiarios - (ninez + adolescencia + juventudes));
-
-              const folio = 'SC-V' + Math.floor(10000 + Math.random() * 90000);
-              const esBiblio = normAct.includes('lectura') || normalizar(sedeVal).includes('biblioteca');
-
-              registrosSQL.push({
-                folio: folio,
-                area_programa: esBiblio ? 'BIBLIOTECAS' : 'CDCM',
-                usuario: usuarioActivo,
-                municipio: municipioHoja,
-                sede: sedeVal,
-                disciplina: actRaw,
-                docente: docenteVal,
-                programacion: progVal,
-                costo: costoVal,
-                horario: horarioVal,
-                dias: stringDias,
-                sesion: stringDias,
-                mujeres: mujeres,
-                hombres: hombres,
-                ninez: ninez,
-                adolescencia: adolescencia,
-                juventudes: juventudes,
-                adultos_mayores: adultosMayores,
-                discapacidad: 0,
-                indigenas: 0,
-                afromexicanas: 0,
-                lgbtq: 0
-              });
-            }
-          }
-
-          if (registrosSQL.length === 0) {
-            return Swal.fire('Sin Coincidencias', 'No se encontraron talleres con beneficiarios activos en el archivo.', 'warning');
-          }
-
-          return confirmarEInsertarRegistros(registrosSQL, `Reporte Operativo de ${registrosSQL[0].municipio}`, `${registrosSQL.length} Talleres con Instructores`);
-
-        } catch (err) {
-          console.error(err);
-          Swal.fire('Error al procesar archivo', err.message, 'error');
-        } finally {
-          inputElement.value = '';
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    async function confirmarEInsertarRegistros(registros, tipoArchivo, detalle) {
-      const conf = await Swal.fire({
-        title: `¿Importar ${tipoArchivo}?`,
-        html: `Se identificaron <b>${detalle}</b>.<br><br><b>Destino:</b> Base de datos institucional de Vinculación Cultural.`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, sincronizar ahora',
-        cancelButtonText: 'Cancelar'
-      });
-
-      if (conf.isConfirmed) {
-        Swal.fire({ title: 'Sincronizando con la base de datos institucional...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
-        const batchSize = 100;
-        for (let i = 0; i < registros.length; i += batchSize) {
-          const batch = registros.slice(i, i + batchSize);
-          const { error } = await conexionSupabase.from(TABLA_SQL).insert(batch);
-          if (error) throw error;
-        }
-
-        Swal.fire('¡Importación Exitosa!', `Se sincronizaron con éxito los datos de ${tipoArchivo}.`, 'success');
-        cargarBitacora();
-        inicializarDashboardDirectivo();
-      }
-    }
-
-    // =================================================================
-    // 9. MÓDULO DE ANALÍTICA DIRECTIVA Y MAPA GEOESPACIAL
-    // =================================================================
-    async function inicializarDashboardDirectivo() {
-      if (memoriaRegistrosBitacora.length === 0) {
-        if (!navigator.onLine) return;
-        const { data } = await conexionSupabase.from(TABLA_SQL).select('*');
-        memoriaRegistrosBitacora = data || [];
-      }
-      
-      inicializarMapaGto();
-      actualizarGraficasDashboard();
-    }
-
-    function inicializarMapaGto() {
-      if (!mapaLeaflet) {
-        mapaLeaflet = L.map('mapaGto').setView([20.85, -101.15], 8);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-          attribution: '&copy; <a href="https://carto.com/">CARTO</a> | Secretaría de Cultura de Guanajuato',
-          maxZoom: 18
-        }).addTo(mapaLeaflet);
-        capaMarcadoresMapa = L.layerGroup().addTo(mapaLeaflet);
-      }
-      setTimeout(() => mapaLeaflet.invalidateSize(), 300);
-    }
-
-    function actualizarGraficasDashboard() {
-      const filtroNivel = document.getElementById('filtroNivelDashboard').value;
-      const filtroArea = document.getElementById('filtroAreaDashboard').value;
-      const filtroMuni = document.getElementById('filtroMunicipioDashboard').value;
-      
-      let datos = memoriaRegistrosBitacora;
-
-      // FILTRO 1: PERSPECTIVA ANALÍTICA
-      if (filtroNivel === 'OPERATIVO') {
-        datos = datos.filter(r => !r.disciplina.includes('Concentrado Anual') && !r.disciplina.includes('Proyecto Estratégico') && !r.disciplina.includes('Indicador Presupuestal'));
-      } else if (filtroNivel === 'CONCENTRADO') {
-        datos = datos.filter(r => r.disciplina.includes('Concentrado Anual') || r.disciplina.includes('Numeralia Informe'));
-      } else if (filtroNivel === 'ESTRATEGICO') {
-        datos = datos.filter(r => r.disciplina.includes('Proyecto Estratégico') || r.disciplina.includes('Indicador Presupuestal') || r.disciplina.includes('Proyecto Sociocultural'));
-      }
-
-      // FILTRO 2: ÁREA Y MUNICIPIO
-      if (filtroArea) {
-        datos = datos.filter(r => r.area_programa === filtroArea || (!r.area_programa && filtroArea === 'CDCM'));
-      }
-      if (filtroMuni) {
-        datos = datos.filter(r => r.municipio === filtroMuni);
-      }
-
-      // CÁLCULO ESTRICTO DE 46 MUNICIPIOS
-      const conteoPorMuni = {};
-      const actsPorMuni = {};
-      let totalBeneficiariosGlobal = 0;
-      let totalGratuitos = 0;
-
-      datos.forEach(r => {
-        const muniOficial = emparejarMunicipioCatalogo(r.municipio);
-        if (!muniOficial) return;
-
-        const totalFila = (Number(r.mujeres) || 0) + (Number(r.hombres) || 0) + (Number(r.ninez) || 0) + 
-                          (Number(r.adolescencia) || 0) + (Number(r.juventudes) || 0) + (Number(r.adultos_mayores) || 0);
-        
-        conteoPorMuni[muniOficial] = (conteoPorMuni[muniOficial] || 0) + totalFila;
-        actsPorMuni[muniOficial] = (actsPorMuni[muniOficial] || 0) + 1;
-        totalBeneficiariosGlobal += totalFila;
-
-        if (normalizar(r.costo || '').includes('libre') || normalizar(r.costo || '').includes('gratuito')) {
-          totalGratuitos++;
-        }
-      });
-
-      document.getElementById('dashTotalBeneficiarios').innerText = totalBeneficiariosGlobal.toLocaleString('es-MX');
-      document.getElementById('dashTotalActividades').innerText = datos.length.toLocaleString('es-MX');
-      
-      const numMunisActivos = Object.keys(conteoPorMuni).length;
-      document.getElementById('dashCoberturaMuni').innerText = `${numMunisActivos} / 46`;
-      const porcCobertura = Math.min(100, Math.round((numMunisActivos / 46) * 100));
-      document.getElementById('dashPorcentajeCobertura').innerText = `${porcCobertura}% del territorio estatal`;
-
-      const tasaGratuita = datos.length > 0 ? Math.round((totalGratuitos / datos.length) * 100) : 100;
-      document.getElementById('dashTasaGratuidad').innerText = `${tasaGratuita}%`;
-
-      if (capaMarcadoresMapa) {
-        capaMarcadoresMapa.clearLayers();
-        const maxBen = Math.max(...Object.values(conteoPorMuni), 100);
-
-        Object.keys(COORDENADAS_MUNICIPIOS).forEach(muni => {
-          const coords = COORDENADAS_MUNICIPIOS[muni];
-          const benMuni = conteoPorMuni[muni] || 0;
-          const numActs = actsPorMuni[muni] || 0;
-
-          const radioCirculo = benMuni > 0 ? Math.max(8, Math.min(32, Math.sqrt(benMuni / maxBen) * 35)) : 5;
-          const colorCirculo = benMuni > 0 ? '#004B87' : '#94a3b8';
-          const fillCirculo = benMuni > 0 ? '#69B3E7' : '#cbd5e1';
-
-          const circulo = L.circleMarker(coords, {
-            radius: radioCirculo,
-            fillColor: fillCirculo,
-            color: colorCirculo,
-            weight: 2,
-            opacity: 1,
-            fillOpacity: benMuni > 0 ? 0.75 : 0.4
-          });
-
-          circulo.bindPopup(`
-            <div style="font-family:'Inter',sans-serif; text-align:center; padding:4px;">
-              <h4 style="color:#004B87; font-size:14px; margin-bottom:4px; font-family:'Vollkorn',serif;">${muni}</h4>
-              <p style="margin:2px 0; font-size:12px;"><b>Beneficiarios:</b> <span style="color:#059669; font-weight:bold;">${benMuni.toLocaleString('es-MX')}</span></p>
-              <p style="margin:2px 0; font-size:11px; color:#64748b;"><b>Actividades:</b> ${numActs}</p>
-            </div>
-          `);
-
-          circulo.bindTooltip(`<b>${muni}:</b> ${benMuni.toLocaleString('es-MX')} pers.`, { direction: 'top' });
-          capaMarcadoresMapa.addLayer(circulo);
-        });
-      }
-
-      const top10Pares = Object.entries(conteoPorMuni)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10);
-
-      const ctxTop = document.getElementById('chartTopMunicipios').getContext('2d');
-      if (chartInstTopMuni) chartInstTopMuni.destroy();
-      chartInstTopMuni = new Chart(ctxTop, {
-        type: 'bar',
-        data: {
-          labels: top10Pares.map(p => p[0]),
-          datasets: [{
-            label: 'Beneficiarios',
-            data: top10Pares.map(p => p[1]),
-            backgroundColor: '#004B87',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
-        }
-      });
-
-      let sumaNinez = 0, sumaAdol = 0, sumaJuv = 0, sumaMayores = 0;
-      let sumaDiscapacidad = 0, sumaIndigenas = 0, sumaAfro = 0, sumaLGBT = 0;
-      let sumaMujeres = 0, sumaHombres = 0;
-
-      datos.forEach(r => {
-        if (!emparejarMunicipioCatalogo(r.municipio)) return;
-
-        sumaNinez += (Number(r.ninez) || 0);
-        sumaAdol += (Number(r.adolescencia) || 0);
-        sumaJuv += (Number(r.juventudes) || 0);
-        sumaMayores += (Number(r.adultos_mayores) || 0);
-
-        sumaDiscapacidad += (Number(r.discapacidad) || 0);
-        sumaIndigenas += (Number(r.indigenas) || 0);
-        sumaAfro += (Number(r.afromexicanas) || 0);
-        sumaLGBT += (Number(r.lgbtq) || 0);
-
-        sumaMujeres += (Number(r.mujeres) || 0);
-        sumaHombres += (Number(r.hombres) || 0);
-      });
-
-      const ctxEdad = document.getElementById('chartGruposEdad').getContext('2d');
-      if (chartInstGruposEdad) chartInstGruposEdad.destroy();
-      chartInstGruposEdad = new Chart(ctxEdad, {
-        type: 'doughnut',
-        data: {
-          labels: ['Niñez', 'Adolescencia', 'Juventudes', 'Adultos Mayores'],
-          datasets: [{
-            data: [sumaNinez, sumaAdol, sumaJuv, sumaMayores],
-            backgroundColor: ['#69B3E7', '#004B87', '#059669', '#d97706'],
-            borderWidth: 2,
-            borderColor: '#FFFFFF'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
-
-      const ctxPrio = document.getElementById('chartPrioritarios').getContext('2d');
-      if (chartInstPrioritarios) chartInstPrioritarios.destroy();
-      chartInstPrioritarios = new Chart(ctxPrio, {
-        type: 'bar',
-        data: {
-          labels: ['Discapacidad', 'Com. Indígenas', 'Afromexicanas', 'LGBTQ+'],
-          datasets: [{
-            label: 'Personas',
-            data: [sumaDiscapacidad, sumaIndigenas, sumaAfro, sumaLGBT],
-            backgroundColor: ['#8b5cf6', '#0284c7', '#ec4899', '#10b981'],
-            borderRadius: 6
-          }]
-        },
-        options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } } }
-        }
-      });
-
-      const ctxGen = document.getElementById('chartGenero').getContext('2d');
-      if (chartInstGenero) chartInstGenero.destroy();
-      chartInstGenero = new Chart(ctxGen, {
-        type: 'pie',
-        data: {
-          labels: ['Mujeres', 'Hombres'],
-          datasets: [{
-            data: [sumaMujeres, sumaHombres],
-            backgroundColor: ['#ec4899', '#004B87'],
-            borderWidth: 2,
-            borderColor: '#FFFFFF'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
-
-      const cuerpoResumen = document.getElementById('cuerpoTablaResumenMuni');
-      cuerpoResumen.innerHTML = '';
-      
-      const listaOrdenada = Object.entries(conteoPorMuni).sort((a, b) => b[1] - a[1]);
-      if (listaOrdenada.length === 0) {
-        cuerpoResumen.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">Sin registros para los filtros seleccionados.</td></tr>`;
-        return;
-      }
-
-      listaOrdenada.forEach(([muni, totalBen], idx) => {
-        const numActs = actsPorMuni[muni] || 0;
-        const porcentaje = totalBeneficiariosGlobal > 0 ? ((totalBen / totalBeneficiariosGlobal) * 100).toFixed(1) : 0;
-
-        cuerpoResumen.innerHTML += `
-          <tr>
-            <td><b>${idx + 1}</b></td>
-            <td><b style="color:var(--gto-azul-primario); font-size:14px;">${muni}</b></td>
-            <td><b>${numActs}</b> actividades</td>
-            <td><b style="color:#059669; font-size:14px;">${totalBen.toLocaleString('es-MX')}</b> pers.</td>
-            <td>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div style="flex:1; background:#e2e8f0; height:8px; border-radius:4px; overflow:hidden;">
-                  <div style="width:${porcentaje}%; background:var(--gto-azul-primario); height:100%;"></div>
-                </div>
-                <span style="font-size:11px; font-weight:700; min-width:38px;">${porcentaje}%</span>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function exportarResumenDirectivoExcel() {
-      const cuerpoFilas = [];
-      const filasHTML = document.querySelectorAll('#cuerpoTablaResumenMuni tr');
-      
-      filasHTML.forEach(tr => {
-        const tds = tr.querySelectorAll('td');
-        if (tds.length === 5) {
-          cuerpoFilas.push({
-            "Posición": tds[0].innerText.trim(),
-            "Municipio": tds[1].innerText.trim(),
-            "Actividades": tds[2].innerText.replace('actividades', '').trim(),
-            "Beneficiarios Atendidos": tds[3].innerText.replace('pers.', '').trim(),
-            "Porcentaje Estatal": tds[4].querySelector('span') ? tds[4].querySelector('span').innerText.trim() : ''
-          });
-        }
-      });
-
-      if (cuerpoFilas.length === 0) return Swal.fire('Sin Datos', 'No hay información en la tabla para exportar.', 'info');
-
-      const hoja = XLSX.utils.json_to_sheet(cuerpoFilas);
-      const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, hoja, "Resumen_Directivo_GTO");
-      XLSX.writeFile(libro, `Resumen_Ejecutivo_Directivo_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    }
-
-    // --- SUBIDA FORMULARIO MANUAL CON RESPALDO OFFLINE AUTOMÁTICO ---
+    // --- SUBIDA FORMULARIO MANUAL CON RESPALDO PRIVADO OFFLINE/ONLINE ---
     document.getElementById('formularioCaptura').addEventListener('submit', async (e) => {
       e.preventDefault();
       if(memoriaDias.size === 0) return Swal.fire('Atención', 'Selecciona por lo menos un día de sesión.', 'warning');
@@ -2446,7 +1662,7 @@
         lgbtq: numeroSeguro('p_lgbt')
       };
 
-      // 1. SI ESTÁ SIN CONEXIÓN (MODO CAMPO / ZONA RURAL)
+      // MODO OFFLINE
       if (!navigator.onLine) {
         let fotoB64 = null;
         if (inputArchivoFoto.files && inputArchivoFoto.files[0]) {
@@ -2464,18 +1680,17 @@
         });
 
         await generarAcusePDF(paqueteSQL, folioGenerado, inputArchivoFoto.files[0]);
-
         limpiarFormularioDespuesDeGuardar();
         actualizarEstadoConexionUI();
         return;
       }
 
-      // 2. SI ESTÁ EN LÍNEA
-      let urlFotoFinal = null;
+      // MODO ONLINE (Bucket Privado)
+      let nombreLimpio = null;
       if (inputArchivoFoto.files && inputArchivoFoto.files.length > 0) {
         const archivo = inputArchivoFoto.files[0];
         const extension = archivo.name.split('.').pop();
-        const nombreLimpio = `${folioGenerado}_${Date.now()}.${extension}`;
+        nombreLimpio = `${folioGenerado}_${Date.now()}.${extension}`;
 
         const { error: errorFoto } = await conexionSupabase.storage
           .from('evidencias')
@@ -2484,15 +1699,13 @@
             upsert: true
           });
 
-        if (!errorFoto) {
-          const { data: dataUrl } = conexionSupabase.storage
-            .from('evidencias')
-            .getPublicUrl(nombreLimpio);
-          urlFotoFinal = dataUrl.publicUrl;
+        if (errorFoto) {
+          console.error("Error en Storage Privado:", errorFoto);
         }
       }
 
-      paqueteSQL.foto_url = urlFotoFinal;
+      // Almacenamos el path relativo seguro, no la URL pública
+      paqueteSQL.foto_url = nombreLimpio;
 
       const { error: errorSQL } = await conexionSupabase.from(TABLA_SQL).insert([paqueteSQL]);
       
@@ -2527,12 +1740,18 @@
       memoriaCoords = { lat: null, lng: null };
     }
 
-    function abrirModalFoto(url, folio, descripcion) {
+    async function abrirModalFoto(pathOFotoUrl, folio, descripcion) {
       document.getElementById('modalTituloFoto').innerText = `Evidencia: ${folio}`;
       document.getElementById('modalSubtituloFoto').innerText = descripcion;
-      document.getElementById('modalImagenSrc').src = url;
-      document.getElementById('btnDescargarFotoOriginal').href = url;
-      document.getElementById('modalVisorFoto').classList.remove('hidden');
+      
+      const urlSegura = await obtenerUrlSeguraEvidencia(pathOFotoUrl);
+      if (urlSegura) {
+        document.getElementById('modalImagenSrc').src = urlSegura;
+        document.getElementById('btnDescargarFotoOriginal').href = urlSegura;
+        document.getElementById('modalVisorFoto').classList.remove('hidden');
+      } else {
+        Swal.fire('Aviso', 'No se pudo generar el enlace seguro de la evidencia.', 'warning');
+      }
     }
 
     function cerrarModalFoto() {
