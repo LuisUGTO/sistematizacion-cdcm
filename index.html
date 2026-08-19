@@ -679,7 +679,7 @@
     };
   </script>
 
-  <!-- 8. LÓGICA DE APLICACIÓN CON GESTOR DE URLs FIRMADAS -->
+  <!-- 8. LÓGICA DE APLICACIÓN CON GESTOR ROBUSTO DE URLs FIRMADAS -->
   <script>
     const URL_SUPABASE = 'https://azhlshuiazhgjpjckkce.supabase.co';
     const LLAVE_PUBLICA = 'sb_publishable_wSABUjH15RrjBQ577R2bSA_jX6I4mAM';
@@ -694,7 +694,7 @@
     let memoriaDocentesCDCM = [];
     let registrosFiltradosActuales = [];
 
-    // Caché de URLs firmadas para evitar peticiones repetitivas
+    // Caché en memoria para URLs firmadas (evita saturar la API)
     const cacheUrlsFirmadas = new Map();
 
     let chartInstTopMuni = null;
@@ -723,28 +723,38 @@
       return null;
     }
 
-    // --- FUNCIÓN PARA RESOLVER URLs FIRMADAS (STORAGE PRIVADO) ---
+    // --- EXTRACTOR Y GENERADOR DE URLs FIRMADAS (BUCKET PRIVADO) ---
+    function limpiarPathEvidencia(urlOPath) {
+      if (!urlOPath) return null;
+      if (urlOPath.startsWith('data:image')) return urlOPath;
+      // Extrae únicamente el nombre del archivo si viene la URL completa anterior
+      if (urlOPath.includes('/evidencias/')) {
+        return urlOPath.split('/evidencias/').pop().split('?')[0];
+      }
+      return urlOPath.split('?')[0];
+    }
+
     async function obtenerUrlSeguraEvidencia(pathOFotoUrl) {
       if (!pathOFotoUrl) return null;
-      
-      // Si ya es data base64 o URL completa previa
-      if (pathOFotoUrl.startsWith('data:image') || pathOFotoUrl.startsWith('http://') || pathOFotoUrl.startsWith('https://')) {
-        return pathOFotoUrl;
-      }
+      if (pathOFotoUrl.startsWith('data:image')) return pathOFotoUrl;
 
-      // Si ya está en caché y vigente
-      if (cacheUrlsFirmadas.has(pathOFotoUrl)) {
-        return cacheUrlsFirmadas.get(pathOFotoUrl);
+      const nombreArchivo = limpiarPathEvidencia(pathOFotoUrl);
+      if (!nombreArchivo) return null;
+
+      if (cacheUrlsFirmadas.has(nombreArchivo)) {
+        return cacheUrlsFirmadas.get(nombreArchivo);
       }
 
       try {
         const { data, error } = await conexionSupabase.storage
           .from('evidencias')
-          .createSignedUrl(pathOFotoUrl, 3600); // URL firmada con 1 hora de vigencia
+          .createSignedUrl(nombreArchivo, 3600); // Enlace cifrado temporal (1 hora)
 
         if (!error && data?.signedUrl) {
-          cacheUrlsFirmadas.set(pathOFotoUrl, data.signedUrl);
+          cacheUrlsFirmadas.set(nombreArchivo, data.signedUrl);
           return data.signedUrl;
+        } else {
+          console.warn('Error al firmar imagen:', error);
         }
       } catch (err) {
         console.error('Error al generar URL firmada:', err);
