@@ -47,6 +47,13 @@
       display: none !important;
     }
 
+    /* SweetAlert debe quedar por encima del overlay de login.
+       Sin esto, el modal se abre detrás de la pantalla de acceso y el botón
+       parece quedarse indefinidamente en "Enviando...". */
+    .swal2-container {
+      z-index: 10000 !important;
+    }
+
     body {
       min-height: 100vh;
       font-family: "Inter", sans-serif;
