@@ -4,8 +4,9 @@
  *
  * Cliente único de Supabase para todo el frontend V2.
  *
- * Requiere que index.html/admin.html carguen antes:
- *   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ * IMPORTANTE:
+ * - No agregar headers HTTP personalizados globales aquí.
+ * - La seguridad real depende de Auth + RLS.
  */
 
 import { APP_CONFIG, assertAppConfig } from "./config.js";
@@ -18,49 +19,56 @@ if (!window.supabase?.createClient) {
   );
 }
 
-const { url, publishableKey, schema, evidenceBucket } = APP_CONFIG.supabase;
+const {
+  url,
+  publishableKey,
+  schema,
+  evidenceBucket,
+} = APP_CONFIG.supabase;
 
+
+/**
+ * Cliente principal Supabase.
+ *
+ * Las consultas de base de datos trabajan por defecto
+ * contra el schema v2.
+ */
 export const supabase = window.supabase.createClient(
   url,
   publishableKey,
   {
     db: {
-      // Previene que el frontend V2 opere accidentalmente contra public/V1.
       schema,
     },
+
     auth: {
       persistSession: APP_CONFIG.auth.persistSession,
       autoRefreshToken: APP_CONFIG.auth.autoRefreshToken,
       detectSessionInUrl: APP_CONFIG.auth.detectSessionInUrl,
       storageKey: "vinculacion-cultural-v2-auth",
     },
-    global: {
-      headers: {
-        "x-application-name": `${APP_CONFIG.app.shortName}/${APP_CONFIG.app.version}`,
-      },
-    },
   }
 );
 
+
 /**
- * Devuelve el mismo cliente con el schema v2 explicitado.
- * Es útil para hacer evidente la intención en módulos sensibles.
+ * Acceso explícito al schema V2.
  */
 export function dbV2() {
   return supabase.schema(schema);
 }
 
+
 /**
- * Referencia al bucket privado de evidencias.
- * No genera Signed URLs por sí misma.
+ * Bucket privado de evidencias V2.
  */
 export function evidenceStorage() {
   return supabase.storage.from(evidenceBucket);
 }
 
+
 /**
  * Health check mínimo del Data API.
- * La consulta sigue protegida por RLS; una sesión sin acceso puede obtener error.
  */
 export async function checkDataApi() {
   const startedAt = performance.now();
@@ -73,7 +81,9 @@ export async function checkDataApi() {
 
   return {
     ok: !error,
-    elapsedMs: Math.round(performance.now() - startedAt),
+    elapsedMs: Math.round(
+      performance.now() - startedAt
+    ),
     data: data ?? [],
     error: error ?? null,
   };
