@@ -1,0 +1,18 @@
+{
+  "name": "Sistematización Cultural Guanajuato",
+  "short_name": "CulturaGTO",
+  "description": "Sistema Integral de Sistematización y Vinculación Cultural del Estado de Guanajuato",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#004B87",
+  "theme_color": "#004B87",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
