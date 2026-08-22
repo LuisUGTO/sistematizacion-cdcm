@@ -12,6 +12,11 @@ import {
   loadMunicipalities,
 } from "./catalogs.js";
 
+import {
+  PERMISSIONS,
+  can,
+} from "./permissions.js";
+
 const PAGE_SIZE = 25;
 
 let context = null;
@@ -211,18 +216,68 @@ function renderRows(rows) {
     );
 
     const actionTd = document.createElement("td");
-    const button = document.createElement("button");
+    actionTd.className = "bitacora-actions";
 
-    button.type = "button";
-    button.className = "bitacora-view-button";
-    button.textContent = "Ver";
+    const viewButton =
+      document.createElement("button");
 
-    button.addEventListener(
+    viewButton.type = "button";
+    viewButton.className =
+      "bitacora-view-button";
+
+    viewButton.textContent = "Ver";
+
+    viewButton.addEventListener(
       "click",
       () => showDetail(row)
     );
 
-    actionTd.appendChild(button);
+    actionTd.appendChild(
+      viewButton
+    );
+
+    const editableManual =
+      row.origen === "MANUAL" &&
+      ["BORRADOR", "OBSERVADO", "CORREGIDO"]
+        .includes(row.estatus) &&
+      can(
+        context,
+        PERMISSIONS.CAPTURE_EDIT_OWN
+      );
+
+    if (editableManual) {
+      const editButton =
+        document.createElement("button");
+
+      editButton.type = "button";
+      editButton.className =
+        "bitacora-edit-button";
+
+      editButton.textContent =
+        row.estatus === "BORRADOR"
+          ? "Completar"
+          : "Corregir";
+
+      editButton.addEventListener(
+        "click",
+        () => {
+          window.dispatchEvent(
+            new CustomEvent(
+              "v2:edit-record",
+              {
+                detail: {
+                  id: row.id,
+                },
+              }
+            )
+          );
+        }
+      );
+
+      actionTd.appendChild(
+        editButton
+      );
+    }
 
     tr.append(
       folioTd,
@@ -659,6 +714,13 @@ export async function initBitacoraV2(
         }
 
         state.page += 1;
+        refresh();
+      }
+    );
+
+    window.addEventListener(
+      "v2:record-updated",
+      () => {
         refresh();
       }
     );

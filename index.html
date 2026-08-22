@@ -1296,6 +1296,356 @@
       }
     }
 
+
+    /* ================================================================
+       EDITOR DE BORRADOR V2 — FASE 4
+       ================================================================ */
+
+    .bitacora-actions {
+      min-width: 145px;
+      white-space: nowrap;
+    }
+
+    .bitacora-edit-button {
+      margin-left: 6px;
+      padding: 7px 10px;
+      border: 1px solid #A7F3D0;
+      border-radius: 8px;
+      background: #ECFDF5;
+      color: #065F46;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .draft-editor-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      overflow-y: auto;
+      padding: 26px;
+      background: rgba(15, 23, 42, .68);
+      backdrop-filter: blur(4px);
+    }
+
+    .draft-editor {
+      width: min(1180px, 100%);
+      margin: 0 auto 40px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 28px 80px rgba(0,0,0,.34);
+      overflow: hidden;
+    }
+
+    .draft-editor-header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px 24px;
+      background: white;
+      border-bottom: 3px solid var(--gto-celeste);
+    }
+
+    .draft-editor-header h2 {
+      margin-bottom: 4px;
+      font-size: 23px;
+    }
+
+    .draft-editor-header p {
+      color: #64748B;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .draft-editor-close {
+      width: 38px;
+      height: 38px;
+      border: 1px solid #CBD5E1;
+      border-radius: 50%;
+      background: #F8FAFC;
+      cursor: pointer;
+      color: #475569;
+      font-size: 20px;
+    }
+
+    .draft-editor-body {
+      padding: 22px 24px 28px;
+    }
+
+    .draft-editor-summary {
+      display: grid;
+      grid-template-columns: 180px 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .draft-summary-box {
+      padding: 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--gto-borde);
+      border-radius: 10px;
+    }
+
+    .draft-summary-box span {
+      display: block;
+      margin-bottom: 4px;
+      color: #64748B;
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .draft-summary-box strong {
+      color: #1E293B;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .draft-editor-section {
+      margin-top: 14px;
+      padding: 18px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 14px;
+      background: white;
+    }
+
+    .draft-editor-section h3 {
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+
+    .draft-editor-section > p {
+      margin-bottom: 14px;
+      color: #64748B;
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .draft-editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .draft-editor-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .draft-field label,
+    .draft-demo-input label {
+      display: block;
+      margin-bottom: 5px;
+      color: #475569;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    .draft-field input,
+    .draft-field select,
+    .draft-field textarea,
+    .draft-demo-input input {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 11px;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      background: #FAFAFA;
+      color: #1E293B;
+      font: inherit;
+      font-size: 11px;
+    }
+
+    .draft-span-2 {
+      grid-column: span 2;
+    }
+
+    .draft-required-badge {
+      display: inline-flex;
+      margin-left: 6px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      color: #9A3412;
+      font-size: 8px;
+      font-weight: 900;
+      vertical-align: middle;
+    }
+
+    .draft-demo-universe {
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid #E2E8F0;
+      border-radius: 11px;
+      background: #F8FAFC;
+    }
+
+    .draft-demo-universe h4 {
+      color: var(--gto-azul);
+      font-size: 14px;
+    }
+
+    .draft-demo-universe section {
+      margin-top: 12px;
+    }
+
+    .draft-demo-universe h5 {
+      margin-bottom: 7px;
+      color: #475569;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .draft-demo-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .draft-demo-input {
+      padding: 8px;
+      background: white;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+    }
+
+    .draft-demo-input label {
+      min-height: 24px;
+      font-size: 7px;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .draft-evidence-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .draft-evidence-toolbar input {
+      flex: 1 1 300px;
+    }
+
+    .draft-evidence-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .draft-evidence-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 9px;
+    }
+
+    .draft-evidence-item strong,
+    .draft-evidence-item small {
+      display: block;
+    }
+
+    .draft-evidence-item strong {
+      color: #334155;
+      font-size: 10px;
+    }
+
+    .draft-evidence-item small {
+      margin-top: 3px;
+      color: #64748B;
+      font-size: 8px;
+    }
+
+    .draft-evidence-empty {
+      padding: 16px;
+      border: 1px dashed #CBD5E1;
+      border-radius: 9px;
+      color: #64748B;
+      text-align: center;
+      font-size: 10px;
+    }
+
+    .draft-editor-notice {
+      margin-top: 14px;
+      padding: 11px 13px;
+      border-radius: 9px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: #1E40AF;
+      font-size: 10px;
+    }
+
+    .draft-editor-notice[data-type="success"] {
+      background: #ECFDF5;
+      border-color: #A7F3D0;
+      color: #065F46;
+    }
+
+    .draft-editor-notice[data-type="error"] {
+      background: #FEF2F2;
+      border-color: #FECACA;
+      color: #991B1B;
+    }
+
+    .draft-editor-actions {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      padding: 15px 24px;
+      background: rgba(255,255,255,.97);
+      border-top: 1px solid var(--gto-borde);
+      backdrop-filter: blur(8px);
+    }
+
+    .draft-submit {
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 9px;
+      background: var(--gto-verde);
+      color: white;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    @media (max-width: 800px) {
+      .draft-editor-overlay {
+        padding: 10px;
+      }
+
+      .draft-editor-summary,
+      .draft-editor-grid,
+      .draft-editor-grid.three,
+      .draft-demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .draft-span-2 {
+        grid-column: auto;
+      }
+
+      .draft-editor-actions {
+        flex-direction: column;
+      }
+
+      .draft-editor-actions button {
+        width: 100%;
+      }
+    }
+
   </style>
 </head>
 
@@ -2023,6 +2373,295 @@
   </div>
 
 
+
+  <!-- ==============================================================
+       EDITOR DE BORRADOR — FASE 4
+       ============================================================== -->
+
+  <div id="draftEditorOverlay" class="draft-editor-overlay" hidden>
+    <section class="draft-editor" role="dialog" aria-modal="true">
+      <header class="draft-editor-header">
+        <div>
+          <div class="hero-kicker capture-kicker">Flujo operativo V2</div>
+          <h2 id="draftEditorTitle">Completar borrador V2</h2>
+          <p>
+            Completa los campos institucionales, agrega evidencia privada y
+            envía el registro a revisión cuando no existan faltantes.
+          </p>
+        </div>
+
+        <button
+          id="draftEditorClose"
+          class="draft-editor-close"
+          type="button"
+          aria-label="Cerrar editor"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="draft-editor-body">
+        <div class="draft-editor-summary">
+          <div class="draft-summary-box">
+            <span>Folio</span>
+            <strong id="draftEditorFolio">—</strong>
+          </div>
+
+          <div class="draft-summary-box">
+            <span>Clasificación</span>
+            <strong id="draftEditorClassification">—</strong>
+          </div>
+
+          <div class="draft-summary-box">
+            <span>Configuración</span>
+            <strong id="draftEditorConfig">—</strong>
+          </div>
+        </div>
+
+
+        <section class="draft-editor-section">
+          <h3>1. Datos de la actividad</h3>
+
+          <div class="draft-editor-grid">
+            <div class="draft-field draft-span-2">
+              <label for="draftEditorName">Nombre de la actividad</label>
+              <input id="draftEditorName" type="text" maxlength="220" />
+            </div>
+
+            <div class="draft-field draft-span-2">
+              <label for="draftEditorDescription">Descripción</label>
+              <textarea id="draftEditorDescription" rows="3"></textarea>
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorStartDate">Fecha de inicio</label>
+              <input id="draftEditorStartDate" type="date" />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorEndDate">Fecha de término</label>
+              <input id="draftEditorEndDate" type="date" />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorMunicipality">Municipio</label>
+              <select id="draftEditorMunicipality"></select>
+            </div>
+
+            <div id="draftEditorSpaceWrap" class="draft-field">
+              <label for="draftEditorSpace">Espacio catalogado</label>
+              <select id="draftEditorSpace"></select>
+            </div>
+          </div>
+        </section>
+
+
+        <section
+          id="draftEditorResponsibleSection"
+          class="draft-editor-section"
+        >
+          <h3>
+            2. Persona responsable
+            <span class="draft-required-badge">Requerido 2026</span>
+          </h3>
+
+          <p>
+            Si la persona no existe todavía en el catálogo, el servidor la
+            registra de forma controlada al guardar el borrador.
+          </p>
+
+          <div class="draft-editor-grid three">
+            <div class="draft-field">
+              <label for="draftEditorResponsibleName">Nombre</label>
+              <input id="draftEditorResponsibleName" type="text" />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorResponsibleEmail">Correo</label>
+              <input id="draftEditorResponsibleEmail" type="email" />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorResponsiblePhone">Teléfono</label>
+              <input id="draftEditorResponsiblePhone" type="tel" />
+            </div>
+          </div>
+        </section>
+
+
+        <section class="draft-editor-section">
+          <h3>3. Personas atendidas</h3>
+
+          <div class="draft-editor-grid three">
+            <div class="draft-field">
+              <label for="draftEditorTotalBeneficiaries">Beneficiarios</label>
+              <input
+                id="draftEditorTotalBeneficiaries"
+                type="number"
+                min="0"
+                step="1"
+              />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorTotalParticipants">Participantes</label>
+              <input
+                id="draftEditorTotalParticipants"
+                type="number"
+                min="0"
+                step="1"
+              />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorTotalAccess">Accesos</label>
+              <input
+                id="draftEditorTotalAccess"
+                type="number"
+                min="0"
+                step="1"
+              />
+            </div>
+          </div>
+        </section>
+
+
+        <section
+          id="draftEditorTrainingSection"
+          class="draft-editor-section"
+          hidden
+        >
+          <h3>4. Taller / capacitación</h3>
+
+          <div class="draft-editor-grid">
+            <div class="draft-field">
+              <label for="draftEditorDiscipline">Disciplina</label>
+              <input id="draftEditorDiscipline" type="text" />
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorProgramming">Programación</label>
+              <select id="draftEditorProgramming">
+                <option value="">No especificado</option>
+                <option value="ANUAL">Anual</option>
+                <option value="SEMESTRAL">Semestral</option>
+                <option value="TEMPORAL">Temporal</option>
+                <option value="UNICA">Actividad única</option>
+              </select>
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorFeeMode">Modalidad de cuota</label>
+              <select id="draftEditorFeeMode">
+                <option value="">No especificado</option>
+                <option value="GRATUITO">Gratuito</option>
+                <option value="CUOTA">Con cuota</option>
+                <option value="NO_DETERMINADO">Por determinar</option>
+              </select>
+            </div>
+
+            <div class="draft-field">
+              <label for="draftEditorCost">Costo MXN</label>
+              <input
+                id="draftEditorCost"
+                type="number"
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div class="draft-field draft-span-2">
+              <label for="draftEditorTrainingNotes">Observaciones</label>
+              <textarea id="draftEditorTrainingNotes" rows="3"></textarea>
+            </div>
+          </div>
+        </section>
+
+
+        <section
+          id="draftEditorDemoSection"
+          class="draft-editor-section"
+          hidden
+        >
+          <h3>5. Desagregación demográfica</h3>
+          <p>
+            Participación y Acceso se mantienen como universos independientes.
+            No se calculan distribuciones automáticas.
+          </p>
+
+          <div id="draftEditorDemoContainer"></div>
+        </section>
+
+
+        <section class="draft-editor-section">
+          <h3>
+            6. Evidencia privada
+            <span
+              id="draftEditorEvidenceRequired"
+              class="draft-required-badge"
+            >
+              Requerida
+            </span>
+          </h3>
+
+          <p>
+            JPG, PNG, WEBP o PDF; máximo 10 MB. El objeto se almacena en el
+            bucket privado <strong>evidencias-v2</strong>.
+          </p>
+
+          <div class="draft-evidence-toolbar">
+            <input
+              id="draftEditorEvidenceFile"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+            />
+
+            <button
+              id="draftEditorUploadEvidence"
+              class="btn-secondary"
+              type="button"
+            >
+              Agregar evidencia
+            </button>
+
+            <span id="draftEditorEvidenceCount">0 archivo(s)</span>
+          </div>
+
+          <div
+            id="draftEditorEvidenceList"
+            class="draft-evidence-list"
+          ></div>
+        </section>
+
+
+        <div
+          id="draftEditorNotice"
+          class="draft-editor-notice"
+          hidden
+        ></div>
+      </div>
+
+      <footer class="draft-editor-actions">
+        <button
+          id="draftEditorSave"
+          class="btn-secondary"
+          type="button"
+        >
+          Guardar cambios
+        </button>
+
+        <button
+          id="draftEditorSubmit"
+          class="draft-submit"
+          type="button"
+        >
+          Enviar a revisión
+        </button>
+      </footer>
+    </section>
+  </div>
+
+
   <!-- ==============================================================
        BOOTSTRAP V2
        ============================================================== -->
@@ -2053,6 +2692,10 @@
     import {
       initBitacoraV2,
     } from "./js/bitacora.js";
+
+    import {
+      initDraftEditor,
+    } from "./js/draft-editor.js";
 
 
     const ui = {
@@ -2307,6 +2950,19 @@
         } catch (error) {
           console.error(
             "Inicialización Bitácora V2:",
+            error
+          );
+        }
+      }
+
+      if (
+        can(context, PERMISSIONS.CAPTURE_EDIT_OWN)
+      ) {
+        try {
+          await initDraftEditor(context);
+        } catch (error) {
+          console.error(
+            "Inicialización Editor de Borradores V2:",
             error
           );
         }
