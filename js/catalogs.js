@@ -2,7 +2,9 @@
  * VINCULACIÓN CULTURAL 2.0
  * catalogs.js
  *
- * Lectura de catálogos V2 gobernada por RLS.
+ * Catálogos V2 gobernados por RLS.
+ * Fase 2.1:
+ * - Las acciones se filtran por configuración vigente para la fecha elegida.
  */
 
 import { dbV2 } from "./supabase-client.js";
@@ -16,11 +18,26 @@ function throwIfError(result, label) {
     error.cause = result.error;
     throw error;
   }
+
   return result.data ?? [];
 }
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function isConfigurationValid(row, referenceDate) {
+  const ref = referenceDate || todayISO();
+
+  const fromOk =
+    !row.vigente_desde ||
+    row.vigente_desde <= ref;
+
+  const toOk =
+    !row.vigente_hasta ||
+    row.vigente_hasta >= ref;
+
+  return row.activo === true && fromOk && toOk;
 }
 
 export async function loadOperationalUnits(context) {
@@ -31,11 +48,19 @@ export async function loadOperationalUnits(context) {
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
 
-  let rows = throwIfError(result, "cat_unidades_operativas");
+  let rows = throwIfError(
+    result,
+    "cat_unidades_operativas"
+  );
 
   if (!isAdmin(context)) {
-    const allowed = new Set(context?.scopes?.unitIds ?? []);
-    rows = rows.filter((row) => allowed.has(row.id));
+    const allowed = new Set(
+      context?.scopes?.unitIds ?? []
+    );
+
+    rows = rows.filter((row) =>
+      allowed.has(row.id)
+    );
   }
 
   return rows;
@@ -46,19 +71,34 @@ export async function loadPrograms(unitId) {
 
   const result = await dbV2()
     .from("cat_programas")
-    .select("id,unidad_operativa_id,clave,nombre,descripcion,orden")
+    .select(
+      "id,unidad_operativa_id,clave,nombre,descripcion,orden"
+    )
     .eq("unidad_operativa_id", unitId)
     .eq("activo", true)
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
 
-  return throwIfError(result, "cat_programas");
+  return throwIfError(
+    result,
+    "cat_programas"
+  );
 }
 
-export async function loadActions(unitId, programId = null) {
-  if (!unitId) return [];
+/**
+ * Devuelve SOLO acciones que tienen configuración activa y vigente
+ * para la fecha seleccionada.
+ */
+export async function loadActions(
+  unitId,
+  programId = null,
+  referenceDate = todayISO()
+) {
+  if (!unitId || !referenceDate) {
+    return [];
+  }
 
-  let query = dbV2()
+  let actionQuery = dbV2()
     .from("cat_acciones")
     .select(
       "id,unidad_operativa_id,programa_id,clave,nombre,descripcion,orden"
@@ -67,46 +107,122 @@ export async function loadActions(unitId, programId = null) {
     .eq("activo", true);
 
   if (programId) {
-    query = query.eq("programa_id", programId);
+    actionQuery = actionQuery.eq(
+      "programa_id",
+      programId
+    );
   }
 
-  const result = await query
-    .order("orden", { ascending: true })
-    .order("nombre", { ascending: true });
+  const [actionsResult, configsResult] =
+    await Promise.all([
+      actionQuery
+        .order("orden", { ascending: true })
+        .order("nombre", { ascending: true }),
 
-  return throwIfError(result, "cat_acciones");
+      dbV2()
+        .from("configuracion_acciones")
+        .select(
+          "id,accion_id,vigente_desde,vigente_hasta,activo,tipo_formulario,configuracion_extra"
+        )
+        .eq("activo", true),
+    ]);
+
+  const actions = throwIfError(
+    actionsResult,
+    "cat_acciones"
+  );
+
+  const configs = throwIfError(
+    configsResult,
+    "configuracion_acciones"
+  );
+
+  const validConfigByAction = new Map();
+
+  for (const config of configs) {
+    if (
+      isConfigurationValid(
+        config,
+        referenceDate
+      )
+    ) {
+      const existing =
+        validConfigByAction.get(
+          config.accion_id
+        );
+
+      if (
+        !existing ||
+        String(config.vigente_desde) >
+          String(existing.vigente_desde)
+      ) {
+        validConfigByAction.set(
+          config.accion_id,
+          config
+        );
+      }
+    }
+  }
+
+  return actions
+    .filter((action) =>
+      validConfigByAction.has(action.id)
+    )
+    .map((action) => ({
+      ...action,
+      _vigente_config:
+        validConfigByAction.get(action.id),
+    }));
 }
 
 export async function loadMunicipalities(context) {
   const result = await dbV2()
     .from("cat_municipios")
-    .select("id,clave_inegi,nombre_oficial,region_id,orden")
+    .select(
+      "id,clave_inegi,nombre_oficial,region_id,orden"
+    )
     .eq("activo", true)
-    .order("nombre_oficial", { ascending: true });
+    .order("nombre_oficial", {
+      ascending: true,
+    });
 
-  let rows = throwIfError(result, "cat_municipios");
+  let rows = throwIfError(
+    result,
+    "cat_municipios"
+  );
 
   if (!isAdmin(context)) {
-    const allowed = new Set(context?.scopes?.municipalityIds ?? []);
-    rows = rows.filter((row) => allowed.has(row.id));
+    const allowed = new Set(
+      context?.scopes?.municipalityIds ?? []
+    );
+
+    rows = rows.filter((row) =>
+      allowed.has(row.id)
+    );
   }
 
   return rows;
 }
 
-export async function loadSpaces(municipalityId, unitId = null) {
+export async function loadSpaces(
+  municipalityId,
+  unitId = null
+) {
   if (!municipalityId) return [];
 
-  let query = dbV2()
+  const result = await dbV2()
     .from("cat_espacios")
     .select(
       "id,nombre,direccion,municipio_id,unidad_operativa_id,comunidad_id"
     )
     .eq("municipio_id", municipalityId)
-    .eq("activo", true);
+    .eq("activo", true)
+    .order("nombre", { ascending: true });
 
-  const result = await query.order("nombre", { ascending: true });
-  let rows = throwIfError(result, "cat_espacios");
+  let rows = throwIfError(
+    result,
+    "cat_espacios"
+  );
 
   if (unitId) {
     rows = rows.filter(
@@ -148,29 +264,40 @@ export async function loadActionConfiguration(
         "vigente_hasta",
         "configuracion_extra",
         "esquema_demografico_id",
+        "activo",
       ].join(",")
     )
     .eq("accion_id", actionId)
     .eq("activo", true)
-    .order("vigente_desde", { ascending: false });
+    .order("vigente_desde", {
+      ascending: false,
+    });
 
-  const rows = throwIfError(result, "configuracion_acciones");
-
-  const ref = referenceDate || todayISO();
+  const rows = throwIfError(
+    result,
+    "configuracion_acciones"
+  );
 
   return (
-    rows.find((row) => {
-      const fromOk = !row.vigente_desde || row.vigente_desde <= ref;
-      const toOk = !row.vigente_hasta || row.vigente_hasta >= ref;
-      return fromOk && toOk;
-    }) ?? null
+    rows.find((row) =>
+      isConfigurationValid(
+        row,
+        referenceDate
+      )
+    ) ?? null
   );
 }
 
-export async function loadDemographicDefinition(schemaId) {
+export async function loadDemographicDefinition(
+  schemaId
+) {
   if (!schemaId) return [];
 
-  const [linksResult, optionsResult, dimensionsResult] = await Promise.all([
+  const [
+    linksResult,
+    optionsResult,
+    dimensionsResult,
+  ] = await Promise.all([
     dbV2()
       .from("esquema_opciones_poblacion")
       .select(
@@ -198,10 +325,12 @@ export async function loadDemographicDefinition(schemaId) {
     linksResult,
     "esquema_opciones_poblacion"
   );
+
   const options = throwIfError(
     optionsResult,
     "cat_opciones_poblacion"
   );
+
   const dimensions = throwIfError(
     dimensionsResult,
     "cat_dimensiones_poblacion"
@@ -218,10 +347,17 @@ export async function loadDemographicDefinition(schemaId) {
   const groups = new Map();
 
   for (const link of links) {
-    const option = optionById.get(link.opcion_poblacion_id);
+    const option = optionById.get(
+      link.opcion_poblacion_id
+    );
+
     if (!option) continue;
 
-    const dimension = dimensionById.get(option.dimension_id);
+    const dimension =
+      dimensionById.get(
+        option.dimension_id
+      );
+
     if (!dimension) continue;
 
     if (!groups.has(dimension.id)) {
@@ -240,7 +376,10 @@ export async function loadDemographicDefinition(schemaId) {
       nombre:
         link.etiqueta_override ||
         option.nombre,
-      orden: link.orden ?? option.orden ?? 0,
+      orden:
+        link.orden ??
+        option.orden ??
+        0,
     });
   }
 

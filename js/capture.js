@@ -2,7 +2,7 @@
  * VINCULACIÓN CULTURAL 2.0
  * capture.js
  *
- * Captura Operativa V2 — Fase 2.
+ * Captura Operativa V2 — Fase 2.1.
  *
  * Guarda registros nuevos como BORRADOR.
  * No valida ni alimenta indicadores hasta completar el flujo posterior.
@@ -283,10 +283,17 @@ async function refreshActions() {
 
   if (!unitId || !programId) return;
 
-  const actions = await loadActions(unitId, programId);
+  const actions = await loadActions(
+    unitId,
+    programId,
+    ui.startDate.value
+  );
 
   fillSelect(ui.action, actions, {
-    placeholder: "Seleccione acción / proceso...",
+    placeholder:
+      actions.length > 0
+        ? "Seleccione acción / proceso..."
+        : "No hay acciones vigentes para esta fecha",
   });
 }
 
@@ -500,7 +507,7 @@ async function saveDraft(event) {
 
     const metadata = {
       frontend: {
-        version: "2.1-phase2",
+        version: "2.1-phase2.1",
         capture_module: "core",
       },
       location_text: {
@@ -760,9 +767,12 @@ export async function initCaptureV2(authContext) {
       "change",
       async () => {
         if (!ui.endDate.value) {
-          ui.endDate.value = ui.startDate.value;
+          ui.endDate.value =
+            ui.startDate.value;
         }
-        await refreshActionConfig();
+
+        // La fecha determina qué acciones/configuraciones son válidas.
+        await refreshActions();
       }
     );
 
