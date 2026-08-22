@@ -2,7 +2,7 @@
  * VINCULACIÓN CULTURAL 2.0
  * capture.js
  *
- * Captura Operativa V2 — Fase 2.1.
+ * Captura Operativa V2 — Fase 2.2.1.
  *
  * Guarda registros nuevos como BORRADOR.
  * No valida ni alimenta indicadores hasta completar el flujo posterior.
@@ -23,6 +23,16 @@ let context = null;
 let currentConfig = null;
 let currentDemography = [];
 let initialized = false;
+
+// -------------------------------------------------------------------
+// BORRADOR LOCAL AUTOMÁTICO
+// -------------------------------------------------------------------
+
+const LOCAL_DRAFT_PREFIX =
+  "vinculacion-v2:capture-draft:";
+
+let restoringLocalDraft = false;
+let autosaveTimer = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -158,6 +168,9 @@ function createDemographicInput(
   input.step = "1";
   input.inputMode = "numeric";
   input.placeholder = "0";
+
+  input.id =
+    `captureDemo_${universe}_${option.id}`;
 
   input.dataset.universe = universe;
   input.dataset.optionId = option.id;
@@ -356,6 +369,335 @@ async function refreshSpaces() {
   });
 }
 
+function localDraftKey() {
+  const userId = context?.user?.id;
+
+  return userId
+    ? `${LOCAL_DRAFT_PREFIX}${userId}`
+    : null;
+}
+
+
+function captureFormSnapshot() {
+  const values = {};
+
+  ui.form
+    .querySelectorAll(
+      "input[id], select[id], textarea[id]"
+    )
+    .forEach((element) => {
+      if (element.type === "file") {
+        return;
+      }
+
+      if (
+        element.type === "checkbox" ||
+        element.type === "radio"
+      ) {
+        values[element.id] = element.checked;
+        return;
+      }
+
+      values[element.id] = element.value;
+    });
+
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    values,
+  };
+}
+
+
+function updateLocalDraftIndicator(snapshot = null) {
+  let indicator =
+    document.getElementById(
+      "captureLocalDraftIndicator"
+    );
+
+  if (!indicator) {
+    indicator = document.createElement("div");
+    indicator.id =
+      "captureLocalDraftIndicator";
+
+    indicator.style.marginTop = "10px";
+    indicator.style.fontSize = "11px";
+    indicator.style.color = "#64748B";
+
+    ui.saveDraftButton
+      .parentElement
+      ?.appendChild(indicator);
+  }
+
+  if (!indicator) return;
+
+  if (!snapshot?.savedAt) {
+    indicator.textContent =
+      "Autoguardado local listo.";
+    return;
+  }
+
+  const date = new Date(snapshot.savedAt);
+
+  indicator.textContent =
+    `Autoguardado local: ${
+      Number.isNaN(date.getTime())
+        ? "guardado"
+        : date.toLocaleTimeString(
+            "es-MX",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
+            }
+          )
+    }`;
+}
+
+
+function saveLocalDraftNow() {
+  if (
+    restoringLocalDraft ||
+    !ui.form ||
+    !context?.user?.id
+  ) {
+    return;
+  }
+
+  const key = localDraftKey();
+  if (!key) return;
+
+  try {
+    const snapshot =
+      captureFormSnapshot();
+
+    localStorage.setItem(
+      key,
+      JSON.stringify(snapshot)
+    );
+
+    updateLocalDraftIndicator(snapshot);
+  } catch (error) {
+    console.warn(
+      "No se pudo guardar borrador local:",
+      error
+    );
+  }
+}
+
+
+function scheduleLocalDraftSave() {
+  if (restoringLocalDraft) {
+    return;
+  }
+
+  window.clearTimeout(autosaveTimer);
+
+  autosaveTimer = window.setTimeout(
+    saveLocalDraftNow,
+    350
+  );
+}
+
+
+function clearLocalDraft() {
+  const key = localDraftKey();
+
+  if (key) {
+    localStorage.removeItem(key);
+  }
+
+  updateLocalDraftIndicator(null);
+}
+
+
+function readLocalDraft() {
+  const key = localDraftKey();
+
+  if (!key) return null;
+
+  try {
+    const raw = localStorage.getItem(key);
+
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      typeof parsed.values !== "object"
+    ) {
+      return null;
+    }
+
+    return parsed;
+  } catch (error) {
+    console.warn(
+      "Borrador local inválido:",
+      error
+    );
+
+    return null;
+  }
+}
+
+
+function restoreSimpleValues(values) {
+  for (
+    const [id, value]
+    of Object.entries(values)
+  ) {
+    const element =
+      document.getElementById(id);
+
+    if (!element) continue;
+
+    if (
+      element.type === "checkbox" ||
+      element.type === "radio"
+    ) {
+      element.checked = Boolean(value);
+    } else {
+      element.value =
+        value ?? "";
+    }
+  }
+}
+
+
+async function restoreLocalDraft() {
+  const snapshot = readLocalDraft();
+
+  if (!snapshot) {
+    updateLocalDraftIndicator(null);
+    return false;
+  }
+
+  const values = snapshot.values ?? {};
+
+  restoringLocalDraft = true;
+
+  try {
+    // 1. La fecha determina vigencias.
+    if (values.captureStartDate) {
+      ui.startDate.value =
+        values.captureStartDate;
+    }
+
+    if (values.captureEndDate) {
+      ui.endDate.value =
+        values.captureEndDate;
+    }
+
+    // 2. Unidad -> programas.
+    if (
+      values.captureUnit &&
+      [...ui.unit.options].some(
+        (option) =>
+          option.value ===
+          values.captureUnit
+      )
+    ) {
+      ui.unit.value =
+        values.captureUnit;
+
+      await refreshPrograms();
+    }
+
+    // 3. Programa -> acciones vigentes.
+    if (
+      values.captureProgram &&
+      [...ui.program.options].some(
+        (option) =>
+          option.value ===
+          values.captureProgram
+      )
+    ) {
+      ui.program.value =
+        values.captureProgram;
+
+      await refreshActions();
+    }
+
+    // 4. Acción -> configuración + demografía.
+    if (
+      values.captureAction &&
+      [...ui.action.options].some(
+        (option) =>
+          option.value ===
+          values.captureAction
+      )
+    ) {
+      ui.action.value =
+        values.captureAction;
+
+      await refreshActionConfig();
+    }
+
+    // 5. Municipio -> espacios.
+    if (
+      values.captureMunicipality &&
+      [...ui.municipality.options].some(
+        (option) =>
+          option.value ===
+          values.captureMunicipality
+      )
+    ) {
+      ui.municipality.value =
+        values.captureMunicipality;
+
+      await refreshSpaces();
+    }
+
+    // 6. Restaurar todos los valores restantes.
+    restoreSimpleValues(values);
+
+    // La modalidad controla si costo está habilitado.
+    ui.cost.disabled =
+      ui.feeMode.value !== "CUOTA";
+
+    updateLocalDraftIndicator(snapshot);
+
+    showNotice(
+      "Se restauró automáticamente la captura que tenías pendiente en este dispositivo.",
+      "success"
+    );
+
+    return true;
+
+  } finally {
+    restoringLocalDraft = false;
+  }
+}
+
+
+function installLocalDraftAutosave() {
+  ui.form.addEventListener(
+    "input",
+    scheduleLocalDraftSave
+  );
+
+  ui.form.addEventListener(
+    "change",
+    scheduleLocalDraftSave
+  );
+
+  window.addEventListener(
+    "pagehide",
+    saveLocalDraftNow
+  );
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (document.visibilityState === "hidden") {
+        saveLocalDraftNow();
+      }
+    }
+  );
+}
+
+
 function collectDemography() {
   return [...ui.demographyContainer.querySelectorAll(
     "input[data-option-id][data-universe]"
@@ -507,7 +849,7 @@ async function saveDraft(event) {
 
     const metadata = {
       frontend: {
-        version: "2.1-phase2.1",
+        version: "2.1-phase2.2",
         capture_module: "core",
       },
       location_text: {
@@ -611,6 +953,10 @@ async function saveDraft(event) {
         `${created.folio} quedó registrado como BORRADOR. ` +
         "Todavía no alimenta indicadores.",
     });
+
+    // Ya existe un BORRADOR oficial en PostgreSQL:
+    // eliminar la copia temporal local.
+    clearLocalDraft();
 
     ui.form.reset();
     setDefaultDates();
@@ -800,10 +1146,14 @@ export async function initCaptureV2(authContext) {
       saveDraft
     );
 
+    installLocalDraftAutosave();
+
     initialized = true;
   }
 
   setDefaultDates();
   toggleSpecializedFields(null);
+
   await populateInitialCatalogs();
+  await restoreLocalDraft();
 }
