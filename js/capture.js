@@ -2,7 +2,7 @@
  * VINCULACIÓN CULTURAL 2.0
  * capture.js
  *
- * Captura Operativa V2 — Fase 2.2.1.
+ * Captura Operativa V2 — Fase 2.3.3.1.
  *
  * Guarda registros nuevos como BORRADOR.
  * No valida ni alimenta indicadores hasta completar el flujo posterior.
@@ -849,7 +849,7 @@ async function saveDraft(event) {
 
     const metadata = {
       frontend: {
-        version: "2.1-phase2.2",
+        version: "2.1-phase2.3",
         capture_module: "core",
       },
       location_text: {
@@ -869,8 +869,6 @@ async function saveDraft(event) {
       unidad_operativa_id: ui.unit.value,
       programa_id: ui.program.value,
       accion_id: ui.action.value,
-      tipo_registro_id:
-        currentConfig.tipo_registro_id,
       configuracion_accion_id:
         currentConfig.id,
 
@@ -887,62 +885,58 @@ async function saveDraft(event) {
       fecha_fin:
         ui.endDate.value || ui.startDate.value,
 
-      periodo_anio: date.getFullYear(),
-      periodo_mes: date.getMonth() + 1,
-
       total_beneficiarios: beneficiaries,
       total_participantes: participants,
       total_accesos: access,
 
-      esquema_demografico_id:
-        currentConfig.esquema_demografico_id ||
-        null,
-
-      estatus: "BORRADOR",
-      origen: "MANUAL",
-
       metadata,
+
+      taller: (
+        ["TALLER", "CAPACITACION"].includes(
+          String(
+            currentConfig.tipo_formulario ?? ""
+          ).toUpperCase()
+        )
+      )
+        ? {
+            disciplina:
+              ui.discipline.value.trim() || null,
+            programacion:
+              ui.programming.value || null,
+            modalidad_cuota:
+              ui.feeMode.value || null,
+            costo:
+              ui.feeMode.value === "CUOTA"
+                ? moneyOrNull(ui.cost.value)
+                : null,
+            observaciones:
+              ui.trainingNotes.value.trim() || null,
+          }
+        : null,
+
+      demografia:
+        currentConfig.requiere_demografia
+          ? collectDemography()
+          : [],
     };
 
+    // Escritura canónica V2:
+    // una sola transacción del lado servidor.
     const { data, error } = await dbV2()
-      .from("registros")
-      .insert(recordPayload)
-      .select("id,folio,estatus")
+      .rpc(
+        "rpc_create_borrador",
+        {
+          p_payload: recordPayload,
+        }
+      )
       .single();
 
     if (error) throw error;
 
     created = data;
 
-    try {
-      await insertWorkshopDetail(created.id);
-      await insertDemography(created.id);
-    } catch (detailError) {
-      console.error(
-        "Detalle V2 después de crear núcleo:",
-        detailError
-      );
-
-      showNotice(
-        `Se creó el borrador ${created.folio}, pero un detalle secundario ` +
-        `no pudo guardarse. El registro permanece en BORRADOR para revisión. ` +
-        `Detalle: ${detailError.message}`,
-        "warning"
-      );
-
-      await Swal.fire({
-        icon: "warning",
-        title: "Borrador creado con detalle pendiente",
-        text:
-          `${created.folio} quedó guardado. ` +
-          "No lo valides hasta corregir el detalle indicado.",
-      });
-
-      return;
-    }
-
     showNotice(
-      `Borrador ${created.folio} guardado correctamente en V2.`,
+      `Borrador ${created.folio} guardado correctamente en una transacción V2.`,
       "success"
     );
 
