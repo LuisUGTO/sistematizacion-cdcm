@@ -2,11 +2,9 @@
  * VINCULACIÓN CULTURAL 2.0
  * permissions.js
  *
- * Autorización de interfaz.
+ * Autorización de interfaz alineada con 06_rls.sql.
  *
- * IMPORTANTE:
- * Este archivo solo decide qué mostrar/habilitar en la UI.
- * La seguridad real siempre la aplican RLS y PostgreSQL.
+ * La UI NO sustituye RLS.
  */
 
 export const ROLES = Object.freeze({
@@ -43,11 +41,10 @@ const ALL = Object.freeze(Object.values(PERMISSIONS));
 const ROLE_PERMISSIONS = Object.freeze({
   [ROLES.ADMIN]: ALL,
 
+  // 06_rls.sql permite al SUPERVISOR revisar/actualizar dentro de alcance,
+  // pero NO crear registros nuevos.
   [ROLES.SUPERVISOR]: Object.freeze([
     PERMISSIONS.ACCESS_APP,
-    PERMISSIONS.CAPTURE_CREATE,
-    PERMISSIONS.CAPTURE_EDIT_OWN,
-    PERMISSIONS.BITACORA_VIEW_OWN,
     PERMISSIONS.BITACORA_VIEW_SCOPE,
     PERMISSIONS.DASHBOARD_VIEW_SCOPE,
     PERMISSIONS.VALIDATION_REVIEW,
@@ -77,17 +74,17 @@ export function normalizeRole(role) {
 }
 
 export function getRolePermissions(role) {
-  const normalizedRole = normalizeRole(role);
-  return ROLE_PERMISSIONS[normalizedRole] ?? [];
+  return ROLE_PERMISSIONS[normalizeRole(role)] ?? [];
 }
 
 export function can(profileOrContext, permission) {
   const profile = profileOrContext?.profile ?? profileOrContext;
 
-  if (!profile || profile.activo !== true) return false;
+  if (!profile || profile.activo !== true) {
+    return false;
+  }
 
-  const permissions = getRolePermissions(profile.rol);
-  return permissions.includes(permission);
+  return getRolePermissions(profile.rol).includes(permission);
 }
 
 export function canAny(profileOrContext, permissions = []) {
@@ -122,10 +119,6 @@ export function isCapturista(profileOrContext) {
   return normalizeRole(profile?.rol) === ROLES.CAPTURISTA;
 }
 
-/**
- * El ADMIN tiene alcance global.
- * Cualquier otro rol necesita scope explícito.
- */
 export function isWithinUnitScope(context, unitId) {
   if (!context?.profile || !unitId) return false;
   if (isAdmin(context)) return true;
@@ -144,12 +137,6 @@ export function isWithinMunicipalityScope(context, municipalityId) {
   );
 }
 
-/**
- * Aplica visibilidad de UI mediante:
- *   data-permission="CATALOG_MANAGE"
- *
- * No reemplaza RLS.
- */
 export function applyPermissionVisibility(root, context) {
   const scope = root ?? document;
 
