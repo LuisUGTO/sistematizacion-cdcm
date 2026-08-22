@@ -1053,6 +1053,249 @@
       }
     }
 
+
+    /* ================================================================
+       BITÁCORA V2 — FASE 3
+       ================================================================ */
+
+    .bitacora-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .bitacora-kpis {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .bitacora-kpi {
+      padding: 15px;
+      background: #F8FAFC;
+      border: 1px solid var(--gto-borde);
+      border-radius: 12px;
+    }
+
+    .bitacora-kpi span {
+      display: block;
+      color: #64748B;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .bitacora-kpi strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--gto-azul);
+      font-family: "Vollkorn", serif;
+      font-size: 25px;
+    }
+
+    .bitacora-filters {
+      display: grid;
+      grid-template-columns: 2fr repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .bitacora-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--gto-borde);
+      border-radius: 12px;
+    }
+
+    .bitacora-table {
+      width: 100%;
+      min-width: 1050px;
+      border-collapse: collapse;
+      background: white;
+      font-size: 11px;
+    }
+
+    .bitacora-table th {
+      padding: 11px 12px;
+      background: #F8FAFC;
+      border-bottom: 1px solid var(--gto-borde);
+      color: #475569;
+      font-size: 9px;
+      letter-spacing: .4px;
+      text-align: left;
+      text-transform: uppercase;
+    }
+
+    .bitacora-table td {
+      padding: 12px;
+      border-bottom: 1px solid #EEF2F7;
+      vertical-align: top;
+      color: #334155;
+    }
+
+    .bitacora-table tbody tr:hover {
+      background: #FAFCFF;
+    }
+
+    .bitacora-table td strong,
+    .bitacora-table td small {
+      display: block;
+    }
+
+    .bitacora-table td small {
+      margin-top: 4px;
+      color: #64748B;
+      line-height: 1.4;
+    }
+
+    .bitacora-folio {
+      color: var(--gto-azul);
+      font-family: "Vollkorn", serif;
+      font-size: 13px;
+    }
+
+    .bitacora-number {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bitacora-status {
+      display: inline-flex;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .35px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .bitacora-status-borrador {
+      background: #F1F5F9;
+      color: #475569;
+    }
+
+    .bitacora-status-capturado,
+    .bitacora-status-corregido {
+      background: #DBEAFE;
+      color: #1D4ED8;
+    }
+
+    .bitacora-status-en_revision {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .bitacora-status-observado {
+      background: #FFEDD5;
+      color: #9A3412;
+    }
+
+    .bitacora-status-validado {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .bitacora-status-anulado {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .bitacora-view-button {
+      padding: 7px 10px;
+      border: 1px solid var(--gto-azul-claro);
+      border-radius: 8px;
+      background: #EFF6FF;
+      color: var(--gto-azul);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .bitacora-empty {
+      padding: 28px !important;
+      color: #64748B !important;
+      text-align: center;
+    }
+
+    .bitacora-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .bitacora-pagination span {
+      color: #64748B;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .bitacora-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .bitacora-detail-item {
+      padding: 10px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 9px;
+    }
+
+    .bitacora-detail-item strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #64748B;
+      font-size: 8px;
+      letter-spacing: .35px;
+      text-transform: uppercase;
+    }
+
+    .bitacora-detail-item span {
+      color: #1E293B;
+      font-size: 11px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 980px) {
+      .bitacora-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bitacora-search {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .bitacora-heading {
+        flex-direction: column;
+      }
+
+      .bitacora-kpis,
+      .bitacora-filters,
+      .bitacora-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bitacora-search {
+        grid-column: auto;
+      }
+
+      .bitacora-pagination {
+        justify-content: space-between;
+      }
+    }
+
   </style>
 </head>
 
@@ -1627,17 +1870,126 @@
            ============================================================ -->
 
       <section id="panel-bitacora" class="panel">
-        <article class="card placeholder">
-          <div class="placeholder-inner">
-            <div class="placeholder-icon">📚</div>
+        <article class="card section-card">
+          <div class="bitacora-heading">
+            <div>
+              <div class="hero-kicker capture-kicker">Bitácora Operativa V2</div>
+              <h2>Registros de Vinculación Cultural</h2>
+              <p>
+                Consulta paginada desde la vista institucional V2.
+                Los resultados respetan RLS y el alcance del usuario.
+              </p>
+            </div>
 
-            <h2>Bitácora V2</h2>
+            <button
+              id="bitacoraRefresh"
+              class="btn-secondary"
+              type="button"
+            >
+              Actualizar
+            </button>
+          </div>
 
-            <p>
-              Se conectará a las vistas security_invoker y usará paginación
-              de servidor, filtros por alcance y columnas explícitas.
-              No volveremos a descargar la tabla completa con select('*').
-            </p>
+          <div class="bitacora-kpis">
+            <div class="bitacora-kpi">
+              <span>Registros con filtros</span>
+              <strong id="bitacoraKpiTotal">0</strong>
+            </div>
+
+            <div class="bitacora-kpi">
+              <span>Borradores en página</span>
+              <strong id="bitacoraKpiDrafts">0</strong>
+            </div>
+
+            <div class="bitacora-kpi">
+              <span>Municipios en página</span>
+              <strong id="bitacoraKpiMunicipalities">0</strong>
+            </div>
+          </div>
+
+          <div class="bitacora-filters">
+            <div class="capture-field bitacora-search">
+              <label for="bitacoraSearch">Buscar</label>
+              <input
+                id="bitacoraSearch"
+                type="search"
+                placeholder="Folio, actividad, acción o municipio..."
+              />
+            </div>
+
+            <div class="capture-field">
+              <label for="bitacoraStatus">Estado</label>
+              <select id="bitacoraStatus">
+                <option value="">Todos</option>
+                <option value="BORRADOR">Borrador</option>
+                <option value="CAPTURADO">Capturado</option>
+                <option value="EN_REVISION">En revisión</option>
+                <option value="OBSERVADO">Observado</option>
+                <option value="CORREGIDO">Corregido</option>
+                <option value="VALIDADO">Validado</option>
+                <option value="ANULADO">Anulado</option>
+              </select>
+            </div>
+
+            <div class="capture-field">
+              <label for="bitacoraUnit">Unidad</label>
+              <select id="bitacoraUnit"></select>
+            </div>
+
+            <div class="capture-field">
+              <label for="bitacoraMunicipality">Municipio</label>
+              <select id="bitacoraMunicipality"></select>
+            </div>
+
+            <div class="capture-field">
+              <label for="bitacoraYear">Año</label>
+              <select id="bitacoraYear"></select>
+            </div>
+          </div>
+
+          <div class="bitacora-table-wrap">
+            <table class="bitacora-table">
+              <thead>
+                <tr>
+                  <th>Folio</th>
+                  <th>Fecha</th>
+                  <th>Municipio / sede</th>
+                  <th>Actividad / acción</th>
+                  <th>Unidad / programa</th>
+                  <th>Beneficiarios</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody id="bitacoraBody">
+                <tr>
+                  <td colspan="8" class="bitacora-empty">
+                    Cargando registros V2...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bitacora-pagination">
+            <button
+              id="bitacoraPrev"
+              class="btn-secondary"
+              type="button"
+            >
+              ← Anterior
+            </button>
+
+            <span id="bitacoraRange">0-0 de 0</span>
+
+            <button
+              id="bitacoraNext"
+              class="btn-secondary"
+              type="button"
+            >
+              Siguiente →
+            </button>
           </div>
         </article>
       </section>
@@ -1697,6 +2049,10 @@
     import {
       initCaptureV2,
     } from "./js/capture.js";
+
+    import {
+      initBitacoraV2,
+    } from "./js/bitacora.js";
 
 
     const ui = {
@@ -1939,6 +2295,20 @@
               "No se pudieron cargar los catálogos de Captura V2: " +
               (error?.message ?? "error desconocido");
           }
+        }
+      }
+
+      if (
+        can(context, PERMISSIONS.BITACORA_VIEW_OWN) ||
+        can(context, PERMISSIONS.BITACORA_VIEW_SCOPE)
+      ) {
+        try {
+          await initBitacoraV2(context);
+        } catch (error) {
+          console.error(
+            "Inicialización Bitácora V2:",
+            error
+          );
         }
       }
     }
