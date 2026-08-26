@@ -2097,7 +2097,616 @@
       line-height: 1.55;
     }
 
+    /* ================================================================
+       DASHBOARD DIRECTIVO — ETAPA 6
+       ================================================================ */
+
+    .dashboard-shell {
+      display: grid;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .dashboard-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .dashboard-heading h2 {
+      margin-bottom: 5px;
+      font-size: 25px;
+    }
+
+    .dashboard-heading p {
+      max-width: 760px;
+      color: var(--gto-gris);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .dashboard-refresh {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+    }
+
+    .dashboard-filter-card {
+      padding: 18px;
+    }
+
+    .dashboard-filters {
+      display: grid;
+      grid-template-columns:
+        minmax(100px, .6fr)
+        repeat(3, minmax(170px, 1fr))
+        auto;
+      gap: 11px;
+      align-items: end;
+      min-width: 0;
+    }
+
+    .dashboard-field {
+      min-width: 0;
+    }
+
+    .dashboard-field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #64748B;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-field select {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      min-height: 40px;
+      padding: 9px 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      background: white;
+      color: #1E293B;
+      font-size: 11px;
+    }
+
+    .dashboard-filter-actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .dashboard-filter-actions button {
+      min-height: 40px;
+      white-space: nowrap;
+    }
+
+    .dashboard-status {
+      margin-top: 11px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .dashboard-status[data-type="loading"] {
+      background: #F8FAFC;
+      color: #64748B;
+    }
+
+    .dashboard-status[data-type="error"] {
+      background: #FEF2F2;
+      color: #B91C1C;
+    }
+
+    .dashboard-updated {
+      display: block;
+      margin-top: 6px;
+      color: #94A3B8;
+      font-size: 9px;
+    }
+
+    .dashboard-rule-notice {
+      padding: 13px 15px;
+      border: 1px solid #BAE6FD;
+      border-left: 5px solid var(--gto-celeste);
+      border-radius: 10px;
+      background: #F0F9FF;
+      color: #075985;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .dashboard-rule-notice strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 11px;
+    }
+
+    .dashboard-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .dashboard-kpi {
+      position: relative;
+      overflow: hidden;
+      min-height: 126px;
+      padding: 17px;
+      border-top: 4px solid var(--kpi-color, var(--gto-azul));
+    }
+
+    .dashboard-kpi::after {
+      content: "";
+      position: absolute;
+      top: -34px;
+      right: -32px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--kpi-color, var(--gto-azul));
+      opacity: .08;
+    }
+
+    .dashboard-kpi-label {
+      display: block;
+      color: #64748B;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .45px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-kpi-value {
+      display: block;
+      margin-top: 9px;
+      color: #0F172A;
+      font-family: "Vollkorn", serif;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .dashboard-kpi small {
+      display: block;
+      margin-top: 9px;
+      color: #64748B;
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    .dashboard-executive-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      overflow: hidden;
+      border: 1px solid #DCE6F2;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #003662, #004B87);
+      box-shadow: var(--shadow);
+    }
+
+    .dashboard-executive-item {
+      padding: 15px 17px;
+      color: white;
+      border-right: 1px solid rgba(255,255,255,.18);
+    }
+
+    .dashboard-executive-item:last-child {
+      border-right: 0;
+    }
+
+    .dashboard-executive-item span,
+    .dashboard-executive-item strong {
+      display: block;
+    }
+
+    .dashboard-executive-item span {
+      color: #BFDBFE;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .45px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-executive-item strong {
+      margin-top: 5px;
+      font-size: 20px;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+      gap: 14px;
+    }
+
+    .dashboard-card {
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .dashboard-card-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .dashboard-card-heading h3 {
+      font-size: 17px;
+    }
+
+    .dashboard-card-heading p {
+      margin-top: 3px;
+      color: #64748B;
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+    .dashboard-status-visual {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      align-items: center;
+      gap: 22px;
+      min-height: 210px;
+    }
+
+    .dashboard-donut {
+      position: relative;
+      width: 164px;
+      height: 164px;
+      margin: auto;
+      border-radius: 50%;
+      background: #E2E8F0;
+    }
+
+    .dashboard-donut::after {
+      content: "";
+      position: absolute;
+      inset: 24px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: inset 0 0 0 1px #E2E8F0;
+    }
+
+    .dashboard-donut-center {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: grid;
+      place-content: center;
+      text-align: center;
+    }
+
+    .dashboard-donut-center strong {
+      color: #0F172A;
+      font-family: "Vollkorn", serif;
+      font-size: 28px;
+    }
+
+    .dashboard-donut-center small {
+      color: #64748B;
+      font-size: 8px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-status-list {
+      display: grid;
+      gap: 7px;
+    }
+
+    .dashboard-status-row {
+      display: grid;
+      grid-template-columns: 9px minmax(0, 1fr) auto 46px;
+      align-items: center;
+      gap: 8px;
+      font-size: 9px;
+    }
+
+    .dashboard-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dashboard-status-label {
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .dashboard-status-row strong {
+      color: #0F172A;
+    }
+
+    .dashboard-status-row small {
+      color: #94A3B8;
+      text-align: right;
+    }
+
+    .dashboard-month-chart {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(24px, 1fr));
+      align-items: end;
+      gap: 6px;
+      min-height: 210px;
+      padding: 10px 4px 0;
+      border-bottom: 1px solid #CBD5E1;
+    }
+
+    .dashboard-month {
+      display: grid;
+      grid-template-rows: 18px 148px 20px;
+      gap: 5px;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .dashboard-month > strong {
+      color: #64748B;
+      font-size: 8px;
+    }
+
+    .dashboard-month-bars {
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 2px;
+      height: 148px;
+    }
+
+    .dashboard-month-bars span {
+      width: min(12px, 42%);
+      min-height: 0;
+      border-radius: 4px 4px 0 0;
+      transition: height .25s ease;
+    }
+
+    .dashboard-month-total {
+      background: var(--gto-celeste);
+    }
+
+    .dashboard-month-validated {
+      background: var(--gto-verde);
+    }
+
+    .dashboard-month > small {
+      color: #64748B;
+      font-size: 8px;
+    }
+
+    .dashboard-table-wrap {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+    }
+
+    .dashboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 850px;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+      padding: 11px 10px;
+      border-bottom: 1px solid #E2E8F0;
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    .dashboard-table th {
+      background: #F8FAFC;
+      color: #64748B;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .35px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-table td {
+      color: #334155;
+      font-size: 9px;
+    }
+
+    .dashboard-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .dashboard-table td strong,
+    .dashboard-table td span,
+    .dashboard-table td small {
+      display: block;
+    }
+
+    .dashboard-table td small {
+      margin-top: 3px;
+      color: #64748B;
+      font-size: 8px;
+      line-height: 1.4;
+    }
+
+    .dashboard-indicator-key {
+      color: var(--gto-azul);
+      font-size: 10px;
+    }
+
+    .dashboard-indicator-name {
+      max-width: 400px;
+      margin-top: 4px;
+      color: #1E293B;
+      line-height: 1.45;
+    }
+
+    .dashboard-progress {
+      width: 115px;
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #E2E8F0;
+    }
+
+    .dashboard-progress-bar {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: #64748B;
+    }
+
+    .dashboard-progress-cumplida,
+    .dashboard-progress-en_ruta {
+      background: var(--gto-verde);
+    }
+
+    .dashboard-progress-rezago {
+      background: var(--gto-amarillo);
+    }
+
+    .dashboard-progress-sin_avance,
+    .dashboard-progress-pendiente_alineacion {
+      background: #CBD5E1;
+    }
+
+    .dashboard-semaphore {
+      display: inline-block !important;
+      width: fit-content;
+      padding: 5px 7px;
+      border-radius: 999px;
+      font-size: 7px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .dashboard-semaphore-cumplida,
+    .dashboard-semaphore-en_ruta {
+      background: #ECFDF5;
+      color: #047857;
+    }
+
+    .dashboard-semaphore-rezago {
+      background: #FFF7ED;
+      color: #C2410C;
+    }
+
+    .dashboard-semaphore-sin_avance {
+      background: #F1F5F9;
+      color: #475569;
+    }
+
+    .dashboard-semaphore-pendiente_alineacion {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .dashboard-alignment-note {
+      max-width: 180px;
+      color: #92400E !important;
+    }
+
+    .dashboard-strong {
+      color: #1E293B !important;
+      font-weight: 800;
+    }
+
+    .dashboard-ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .dashboard-ranking-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .dashboard-ranking-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 9px;
+    }
+
+    .dashboard-ranking-header strong {
+      overflow: hidden;
+      color: #334155;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dashboard-ranking-header span {
+      flex: 0 0 auto;
+      color: #64748B;
+      font-size: 8px;
+    }
+
+    .dashboard-ranking-track {
+      height: 7px;
+      margin-top: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #E2E8F0;
+    }
+
+    .dashboard-ranking-track span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--gto-azul), var(--gto-celeste));
+    }
+
+    .dashboard-ranking-item > small {
+      display: block;
+      margin-top: 4px;
+      color: #94A3B8;
+      font-size: 8px;
+    }
+
+    .dashboard-empty {
+      padding: 20px !important;
+      color: #64748B !important;
+      text-align: center !important;
+      font-size: 10px !important;
+    }
+
     @media (max-width: 900px) {
+      .dashboard-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dashboard-filter-actions {
+        grid-column: span 2;
+      }
+
+      .dashboard-kpis,
+      .dashboard-executive-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dashboard-executive-item:nth-child(2) {
+        border-right: 0;
+      }
+
+      .dashboard-executive-item:nth-child(-n+2) {
+        border-bottom: 1px solid rgba(255,255,255,.18);
+      }
+
+      .dashboard-layout,
+      .dashboard-ranking-grid {
+        grid-template-columns: 1fr;
+      }
+
       .validation-filters {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -2112,6 +2721,45 @@
     }
 
     @media (max-width: 650px) {
+      .dashboard-heading {
+        flex-direction: column;
+      }
+
+      .dashboard-refresh {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .dashboard-filters,
+      .dashboard-kpis,
+      .dashboard-executive-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-filter-actions {
+        grid-column: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dashboard-executive-item,
+      .dashboard-executive-item:nth-child(2) {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.18);
+      }
+
+      .dashboard-executive-item:last-child {
+        border-bottom: 0;
+      }
+
+      .dashboard-status-visual {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-month-chart {
+        gap: 3px;
+      }
+
       .validation-heading,
       .validation-detail-actions {
         flex-direction: column;
@@ -2274,9 +2922,9 @@
         <h1>Plataforma institucional de sistematización</h1>
 
         <p>
-          El núcleo de datos, seguridad, auditoría, indicadores y migración
-          histórica ya opera sobre el schema V2. Esta pantalla es el nuevo
-          shell del frontend; los formularios se incorporarán por módulos.
+          Operación institucional integrada sobre el schema V2: captura,
+          bitácora, validación, trazabilidad y seguimiento directivo de metas
+          e indicadores con seguridad por alcance.
         </p>
 
         <div class="hero-badges">
@@ -2975,19 +3623,313 @@
            ============================================================ -->
 
       <section id="panel-dashboard" class="panel">
-        <article class="card placeholder">
-          <div class="placeholder-inner">
-            <div class="placeholder-icon">📊</div>
+        <div class="dashboard-shell">
+          <article class="card dashboard-card">
+            <div class="dashboard-heading">
+              <div>
+                <h2>Dashboard Directivo V2</h2>
+                <p>
+                  Seguimiento operativo, validación, cobertura territorial y
+                  cumplimiento de las metas institucionales visibles dentro
+                  del alcance autorizado por RLS.
+                </p>
+              </div>
 
-            <h2>Dashboard Directivo V2</h2>
+              <button
+                id="dashboardRefreshButton"
+                class="btn-secondary dashboard-refresh"
+                type="button"
+              >
+                ↻ Actualizar datos
+              </button>
+            </div>
+          </article>
 
-            <p>
-              Se alimentará de las vistas y RPC ya validadas en PostgreSQL:
-              metas, avance, brecha, validaciones, cobertura territorial e
-              indicadores, sin recalcular todo el universo en JavaScript.
-            </p>
+
+          <article class="card dashboard-filter-card">
+            <form id="dashboardFilters" class="dashboard-filters">
+              <div class="dashboard-field">
+                <label for="dashboardYear">Ejercicio</label>
+                <select id="dashboardYear"></select>
+              </div>
+
+              <div class="dashboard-field">
+                <label for="dashboardUnit">Unidad operativa</label>
+                <select id="dashboardUnit"></select>
+              </div>
+
+              <div class="dashboard-field">
+                <label for="dashboardProgram">Programa</label>
+                <select id="dashboardProgram"></select>
+              </div>
+
+              <div class="dashboard-field">
+                <label for="dashboardMunicipality">Municipio</label>
+                <select id="dashboardMunicipality"></select>
+              </div>
+
+              <div class="dashboard-filter-actions">
+                <button
+                  id="dashboardResetButton"
+                  class="btn-secondary"
+                  type="button"
+                >
+                  Limpiar
+                </button>
+
+                <button
+                  id="dashboardApplyButton"
+                  class="btn-secondary"
+                  type="submit"
+                >
+                  Aplicar
+                </button>
+              </div>
+            </form>
+
+            <div
+              id="dashboardStatus"
+              class="dashboard-status"
+              data-type="loading"
+              aria-live="polite"
+            >
+              Preparando Dashboard Directivo...
+            </div>
+
+            <small id="dashboardUpdated" class="dashboard-updated">
+              Aún no se ha realizado la primera consulta.
+            </small>
+          </article>
+
+
+          <div class="dashboard-rule-notice">
+            <strong>Regla institucional de avance</strong>
+            Los indicadores automáticos cuentan únicamente expedientes
+            <b>VALIDADO</b>. Los borradores históricos de
+            <b>MIGRACION_V1</b> permanecen visibles en la operación, pero no
+            aportan a las metas. QC4102.2601 conserva su meta oficial sin
+            inferir una relación automática que no ha sido aprobada.
           </div>
-        </article>
+
+
+          <div class="dashboard-kpis">
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#004B87"
+            >
+              <span class="dashboard-kpi-label">Registros visibles</span>
+              <strong id="dashboardKpiRecords" class="dashboard-kpi-value">—</strong>
+              <small>Todos los estatus dentro de los filtros y el alcance RLS.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#059669"
+            >
+              <span class="dashboard-kpi-label">Validados</span>
+              <strong id="dashboardKpiValidated" class="dashboard-kpi-value">—</strong>
+              <small>Expedientes que pueden alimentar reglas automáticas.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#D97706"
+            >
+              <span class="dashboard-kpi-label">Pendientes de revisión</span>
+              <strong id="dashboardKpiPending" class="dashboard-kpi-value">—</strong>
+              <small>Capturados, en revisión o corregidos por decidir.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#F97316"
+            >
+              <span class="dashboard-kpi-label">Observados</span>
+              <strong id="dashboardKpiObserved" class="dashboard-kpi-value">—</strong>
+              <small>Expedientes devueltos para corrección.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#2563EB"
+            >
+              <span class="dashboard-kpi-label">Beneficiarios capturados</span>
+              <strong id="dashboardKpiBeneficiaries" class="dashboard-kpi-value">—</strong>
+              <small>Total no anulado; no equivale por sí mismo a un indicador.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#7C3AED"
+            >
+              <span class="dashboard-kpi-label">Participantes</span>
+              <strong id="dashboardKpiParticipants" class="dashboard-kpi-value">—</strong>
+              <small>Variable 2026 independiente de beneficiarios y accesos.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#0891B2"
+            >
+              <span class="dashboard-kpi-label">Accesos</span>
+              <strong id="dashboardKpiAccesses" class="dashboard-kpi-value">—</strong>
+              <small>Variable 2026 independiente de participación.</small>
+            </article>
+
+            <article
+              class="card dashboard-kpi"
+              style="--kpi-color:#0F766E"
+            >
+              <span class="dashboard-kpi-label">Municipios con actividad</span>
+              <strong id="dashboardKpiMunicipalities" class="dashboard-kpi-value">—</strong>
+              <small>Cobertura principal de registros no anulados.</small>
+            </article>
+          </div>
+
+
+          <div class="dashboard-executive-strip">
+            <div class="dashboard-executive-item">
+              <span>Validación del universo</span>
+              <strong id="dashboardValidationRate">—</strong>
+            </div>
+
+            <div class="dashboard-executive-item">
+              <span>Expedientes con incidencias</span>
+              <strong id="dashboardQualityCount">—</strong>
+            </div>
+
+            <div class="dashboard-executive-item">
+              <span>Registros con aporte real</span>
+              <strong id="dashboardContributionCount">—</strong>
+            </div>
+
+            <div class="dashboard-executive-item">
+              <span>Históricos MIGRACION_V1</span>
+              <strong id="dashboardHistoricalCount">—</strong>
+            </div>
+          </div>
+
+
+          <div class="dashboard-layout">
+            <article class="card dashboard-card">
+              <div class="dashboard-card-heading">
+                <div>
+                  <h3>Estado de expedientes</h3>
+                  <p>Distribución del universo visible en el flujo institucional.</p>
+                </div>
+              </div>
+
+              <div class="dashboard-status-visual">
+                <div id="dashboardStatusDonut" class="dashboard-donut">
+                  <div class="dashboard-donut-center">
+                    <strong id="dashboardStatusDonutValue">0</strong>
+                    <small>registros</small>
+                  </div>
+                </div>
+
+                <div id="dashboardStatusList" class="dashboard-status-list"></div>
+              </div>
+            </article>
+
+
+            <article class="card dashboard-card">
+              <div class="dashboard-card-heading">
+                <div>
+                  <h3>Comportamiento mensual</h3>
+                  <p>
+                    Azul: registros capturados. Verde: expedientes validados.
+                  </p>
+                </div>
+              </div>
+
+              <div id="dashboardMonthChart" class="dashboard-month-chart"></div>
+            </article>
+          </div>
+
+
+          <article class="card dashboard-card">
+            <div class="dashboard-card-heading">
+              <div>
+                <h3>Metas e indicadores institucionales</h3>
+                <p>
+                  Avance dentro del alcance visible contra la meta registrada.
+                  Las cifras provienen de las reglas de aporte de PostgreSQL.
+                </p>
+              </div>
+            </div>
+
+            <div class="dashboard-table-wrap">
+              <table class="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Indicador</th>
+                    <th>Alcance de meta</th>
+                    <th>Unidad de medida</th>
+                    <th>Avance / meta</th>
+                    <th>Cumplimiento</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardIndicatorBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+
+          <article class="card dashboard-card">
+            <div class="dashboard-card-heading">
+              <div>
+                <h3>Cobertura territorial</h3>
+                <p>
+                  Municipios con mayor actividad dentro de los filtros
+                  seleccionados. Los totales de población son datos capturados.
+                </p>
+              </div>
+            </div>
+
+            <div class="dashboard-table-wrap">
+              <table class="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Municipio</th>
+                    <th>Región</th>
+                    <th>Registros</th>
+                    <th>Validados</th>
+                    <th>Pendientes</th>
+                    <th>Beneficiarios</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardCoverageBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+
+          <div class="dashboard-ranking-grid">
+            <article class="card dashboard-card">
+              <div class="dashboard-card-heading">
+                <div>
+                  <h3>Actividad por unidad</h3>
+                  <p>Comparativo del volumen operativo visible.</p>
+                </div>
+              </div>
+
+              <div id="dashboardUnitRanking" class="dashboard-ranking-list"></div>
+            </article>
+
+
+            <article class="card dashboard-card">
+              <div class="dashboard-card-heading">
+                <div>
+                  <h3>Actividad por programa</h3>
+                  <p>Programas con registros dentro del ejercicio y alcance.</p>
+                </div>
+              </div>
+
+              <div id="dashboardProgramRanking" class="dashboard-ranking-list"></div>
+            </article>
+          </div>
+        </div>
       </section>
 
 
@@ -3483,6 +4425,10 @@
       initValidationV2,
     } from "./js/validation.js";
 
+    import {
+      initDashboardV2,
+    } from "./js/dashboard.js";
+
 
     const ui = {
       loginView: document.getElementById("loginView"),
@@ -3774,6 +4720,29 @@
             "Inicialización Validación V2:",
             error
           );
+        }
+      }
+
+      if (
+        can(context, PERMISSIONS.DASHBOARD_VIEW_SCOPE)
+      ) {
+        try {
+          await initDashboardV2(context);
+        } catch (error) {
+          console.error(
+            "Inicialización Dashboard Directivo V2:",
+            error
+          );
+
+          const dashboardStatus =
+            document.getElementById("dashboardStatus");
+
+          if (dashboardStatus) {
+            dashboardStatus.dataset.type = "error";
+            dashboardStatus.textContent =
+              "No se pudo inicializar el Dashboard Directivo: " +
+              (error?.message ?? "error desconocido");
+          }
         }
       }
     }
