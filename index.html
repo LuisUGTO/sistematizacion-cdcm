@@ -3609,7 +3609,7 @@
                   hidden
                 >
                   <span class="profile-menu-action-icon" aria-hidden="true">⌘</span>
-                  <span>Administración V2</span>
+                  <span>Panel de mantenimiento</span>
                 </button>
 
                 <button id="profileHelpButton" class="profile-menu-action" type="button">
@@ -5944,7 +5944,7 @@
       "click",
       () => {
         closeProfileMenu();
-        ui.adminTabButton.click();
+        window.location.href = "admin.html";
       }
     );
 
