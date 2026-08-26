@@ -483,12 +483,90 @@ async function refreshSpaces(
   }
 }
 
+async function loadLatestObservation(
+  recordId
+) {
+  const {
+    data,
+    error,
+  } = await dbV2()
+    .from("registro_validaciones")
+    .select(
+      "observacion,created_at,estatus_anterior,estatus_nuevo"
+    )
+    .eq(
+      "registro_id",
+      recordId
+    )
+    .eq(
+      "estatus_nuevo",
+      "OBSERVADO"
+    )
+    .not(
+      "observacion",
+      "is",
+      null
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false,
+      }
+    )
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.warn(
+      "No se pudo leer la última observación:",
+      error
+    );
+
+    return null;
+  }
+
+  return data ?? null;
+}
+
+
+async function renderObservation(
+  data
+) {
+  const observed =
+    data.record?.estatus ===
+    "OBSERVADO";
+
+  ui.observationSection.hidden =
+    !observed;
+
+  if (!observed) {
+    ui.observationText.textContent =
+      "";
+
+    return;
+  }
+
+  const latest =
+    await loadLatestObservation(
+      data.record.id
+    );
+
+  ui.observationText.textContent =
+    latest?.observacion ??
+    "El registro fue observado. Revisa y corrige los datos solicitados.";
+}
+
+
 async function renderEditor(data) {
   state.data = data;
   state.recordId =
     data.record.id;
   state.rowVersion =
     data.record.row_version;
+
+  await renderObservation(
+    data
+  );
 
   setText(
     ui.folio,
@@ -862,8 +940,44 @@ async function saveChanges() {
     state.rowVersion =
       data.row_version;
 
+    let finalStatus =
+      state.data?.record
+        ?.estatus ?? data.estatus;
+
+    if (
+      finalStatus === "OBSERVADO"
+    ) {
+      const correction =
+        await dbV2()
+          .rpc(
+            "rpc_mark_corregido",
+            {
+              p_registro_id:
+                state.recordId,
+
+              p_expected_row_version:
+                state.rowVersion,
+            }
+          )
+          .single();
+
+      if (correction.error) {
+        throw correction.error;
+      }
+
+      state.rowVersion =
+        correction.data
+          .row_version;
+
+      finalStatus =
+        correction.data
+          .estatus;
+    }
+
     showMessage(
-      `${data.folio} actualizado correctamente.`,
+      finalStatus === "CORREGIDO"
+        ? `${data.folio} guardó las correcciones y ahora está CORREGIDO. Ya puede reenviarse a revisión.`
+        : `${data.folio} actualizado correctamente.`,
       "success"
     );
 
@@ -1224,6 +1338,12 @@ export async function initDraftEditor(
       $("draftEditorEvidenceList"),
     evidenceCount:
       $("draftEditorEvidenceCount"),
+
+    observationSection:
+      $("draftEditorObservationSection"),
+
+    observationText:
+      $("draftEditorObservationText"),
 
     notice:
       $("draftEditorNotice"),
