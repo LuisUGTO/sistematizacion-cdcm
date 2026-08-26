@@ -8,10 +8,16 @@
 
   <meta name="theme-color" content="#004B87" />
   <meta name="description" content="Sistema Integral de Sistematización de Vinculación Cultural — V2" />
+  <link
+    rel="icon"
+    type="image/png"
+    href="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001%20(1).png"
+  />
 
   <!-- Dependencias -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="assets/vendor/d3.v7.9.0.min.js"></script>
 
   <link
     href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
@@ -32,6 +38,10 @@
       --gto-verde: #059669;
       --gto-amarillo: #D97706;
       --gto-rojo: #DC2626;
+
+      --pulso-azul: #081F34;
+      --pulso-turquesa: #14C3BA;
+      --pulso-ambar: #FFB33C;
 
       --shadow:
         0 12px 32px -12px rgba(0, 75, 135, 0.18);
@@ -67,12 +77,15 @@
     }
 
     button,
-    input {
+    input,
+    select {
       font: inherit;
     }
 
     button:focus-visible,
-    input:focus-visible {
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
       outline: 3px solid rgba(105, 179, 231, 0.45);
       outline-offset: 2px;
     }
@@ -170,6 +183,194 @@
     .login-help {
       margin-top: 12px;
       font-size: 11px !important;
+    }
+
+    .login-support-link {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-top: 18px;
+      padding-top: 15px;
+      border: 0;
+      border-top: 1px solid #E2E8F0;
+      background: transparent;
+      color: #475569;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .login-support-link img {
+      width: 27px;
+      height: 27px;
+      object-fit: contain;
+    }
+
+    .support-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 7000;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(8, 31, 52, .68);
+      backdrop-filter: blur(6px);
+    }
+
+    .support-dialog {
+      width: min(540px, 100%);
+      max-height: min(760px, calc(100vh - 36px));
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 24px;
+      background: white;
+      box-shadow: 0 35px 90px -35px rgba(0,0,0,.72);
+    }
+
+    .support-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 19px 21px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .support-dialog-header h2 {
+      color: #0F172A;
+      font-family: "Inter", sans-serif;
+      font-size: 18px;
+    }
+
+    .support-dialog-close {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 0;
+      border-radius: 50%;
+      background: #F1F5F9;
+      color: #334155;
+      cursor: pointer;
+      font-size: 19px;
+    }
+
+    .support-dialog-body {
+      padding: 22px;
+    }
+
+    .support-brand {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      align-items: center;
+      gap: 17px;
+      padding: 17px;
+      border-radius: 17px;
+      background: var(--pulso-azul);
+      color: white;
+    }
+
+    .support-brand img {
+      width: 78px;
+      height: 78px;
+      object-fit: contain;
+    }
+
+    .support-brand strong,
+    .support-brand span,
+    .support-brand small {
+      display: block;
+    }
+
+    .support-brand strong {
+      color: white;
+      font-size: 18px;
+      letter-spacing: .6px;
+    }
+
+    .support-brand span {
+      margin-top: 4px;
+      color: var(--pulso-turquesa);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .support-brand small {
+      margin-top: 7px;
+      color: #C9D8E6;
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    .support-intro {
+      margin: 18px 1px 13px;
+      color: #475569;
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    .support-contact-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .support-contact {
+      display: grid;
+      grid-template-columns: 39px minmax(0, 1fr);
+      align-items: center;
+      gap: 11px;
+      padding: 13px;
+      border: 1px solid #DCE6F2;
+      border-radius: 13px;
+      background: #F8FAFC;
+      color: #0F172A;
+      text-decoration: none;
+    }
+
+    .support-contact:hover {
+      border-color: var(--gto-celeste);
+      background: #F0F9FF;
+    }
+
+    .support-contact-icon {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: #E0F2FE;
+      color: var(--gto-azul);
+      font-size: 17px;
+    }
+
+    .support-contact strong,
+    .support-contact small {
+      display: block;
+    }
+
+    .support-contact strong {
+      font-size: 11px;
+    }
+
+    .support-contact small {
+      margin-top: 3px;
+      overflow-wrap: anywhere;
+      color: #64748B;
+      font-size: 10px;
+    }
+
+    .support-note {
+      margin-top: 14px;
+      padding: 11px 13px;
+      border-left: 4px solid var(--pulso-ambar);
+      border-radius: 8px;
+      background: #FFFBEB;
+      color: #713F12;
+      font-size: 9px;
+      line-height: 1.55;
     }
 
     /* ================================================================
@@ -389,23 +590,55 @@
       top: calc(100% + 10px);
       right: 0;
 
-      width: 320px;
-      padding: 18px;
+      width: min(370px, calc(100vw - 24px));
+      padding: 9px;
 
-      background: white;
+      background: #EDF2F7;
       border: 1px solid var(--gto-borde);
-      border-radius: 16px;
+      border-radius: 22px;
 
-      box-shadow: var(--shadow);
+      box-shadow: 0 24px 70px -24px rgba(15, 23, 42, .42);
+    }
+
+    .profile-account-card {
+      padding: 21px 18px 17px;
+      background: white;
+      border-radius: 16px;
+      text-align: center;
+    }
+
+    .profile-avatar-large {
+      width: 66px;
+      height: 66px;
+      margin: 0 auto 10px;
+      display: grid;
+      place-items: center;
+      border: 4px solid #E0F2FE;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gto-azul), #0E7490);
+      color: white;
+      font-size: 19px;
+      font-weight: 900;
+      box-shadow: 0 9px 20px -12px rgba(0, 75, 135, .8);
+    }
+
+    .profile-greeting {
+      margin-bottom: 4px;
+      color: #64748B;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      text-transform: uppercase;
     }
 
     .profile-menu h3 {
-      font-size: 17px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
+      color: #0F172A;
+      font-family: "Inter", sans-serif;
+      font-size: 18px;
     }
 
     .profile-email {
-      margin-bottom: 14px;
       overflow-wrap: anywhere;
 
       color: var(--gto-gris);
@@ -413,15 +646,110 @@
     }
 
     .profile-info {
-      margin-bottom: 14px;
+      display: grid;
+      gap: 5px;
+      margin-top: 14px;
       padding: 11px;
 
       background: #F8FAFC;
+      border: 1px solid #E2E8F0;
       border-radius: 10px;
 
       color: #475569;
+      text-align: left;
       font-size: 11px;
       line-height: 1.55;
+    }
+
+    .profile-menu-actions {
+      display: grid;
+      gap: 1px;
+      margin-top: 8px;
+      overflow: hidden;
+      border-radius: 15px;
+      background: white;
+    }
+
+    .profile-menu-action {
+      width: 100%;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 14px;
+      border: 0;
+      border-bottom: 1px solid #EEF2F7;
+      background: white;
+      color: #243244;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+      text-align: left;
+    }
+
+    .profile-menu-action:hover {
+      background: #F8FAFC;
+    }
+
+    .profile-menu-action:last-child {
+      border-bottom: 0;
+    }
+
+    .profile-menu-action-icon {
+      width: 29px;
+      height: 29px;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      background: #E0F2FE;
+      color: var(--gto-azul);
+      font-size: 15px;
+    }
+
+    .profile-menu-action-danger {
+      color: #B91C1C;
+    }
+
+    .profile-menu-action-danger .profile-menu-action-icon {
+      background: #FEE2E2;
+      color: #B91C1C;
+    }
+
+    .profile-pulso-card {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      align-items: center;
+      gap: 11px;
+      margin-top: 8px;
+      padding: 11px 13px;
+      border-radius: 15px;
+      background: var(--pulso-azul);
+      color: white;
+    }
+
+    .profile-pulso-card img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+    }
+
+    .profile-pulso-card strong,
+    .profile-pulso-card small {
+      display: block;
+    }
+
+    .profile-pulso-card strong {
+      color: white;
+      font-size: 12px;
+      letter-spacing: .4px;
+    }
+
+    .profile-pulso-card small {
+      margin-top: 3px;
+      color: #A7EDE8;
+      font-size: 9px;
+      line-height: 1.4;
     }
 
     /* ================================================================
@@ -2680,6 +3008,266 @@
       font-size: 10px !important;
     }
 
+    .dashboard-map-card {
+      overflow: hidden;
+    }
+
+    .dashboard-map-heading {
+      align-items: end;
+    }
+
+    .dashboard-map-control {
+      width: min(240px, 100%);
+      flex: 0 0 auto;
+    }
+
+    .dashboard-map-control label {
+      display: block;
+      margin-bottom: 6px;
+      color: #64748B;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-map-control select {
+      width: 100%;
+      min-height: 40px;
+      padding: 9px 11px;
+      border: 1px solid #CBD5E1;
+      border-radius: 9px;
+      background: white;
+      color: #1E293B;
+      font-size: 10px;
+    }
+
+    .dashboard-map-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 260px;
+      gap: 15px;
+      align-items: stretch;
+    }
+
+    .dashboard-map-stage {
+      position: relative;
+      min-height: 520px;
+      overflow: hidden;
+      border: 1px solid #D8E4EE;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 52% 43%, rgba(20,195,186,.11), transparent 40%),
+        linear-gradient(145deg, #F8FBFD, #EDF4F8);
+    }
+
+    .dashboard-map-loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      color: #64748B;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dashboard-map-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 520px;
+    }
+
+    .dashboard-map-municipality {
+      cursor: pointer;
+      stroke: white;
+      stroke-width: 1.15;
+      vector-effect: non-scaling-stroke;
+      transition: fill .18s ease, opacity .18s ease, stroke .18s ease;
+    }
+
+    .dashboard-map-municipality:hover {
+      stroke: var(--pulso-azul);
+      stroke-width: 2;
+    }
+
+    .dashboard-map-municipality.is-selected {
+      stroke: var(--pulso-ambar);
+      stroke-width: 3;
+    }
+
+    .dashboard-map-municipality.is-out-of-scope {
+      cursor: default;
+      opacity: .32;
+      stroke: #CBD5E1;
+      stroke-dasharray: 3 2;
+    }
+
+    .dashboard-map-side {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 16px;
+      background: var(--pulso-azul);
+      color: white;
+    }
+
+    .dashboard-map-side-kicker {
+      color: #8EE5DF;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .55px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-map-side h4 {
+      margin-top: 4px;
+      color: white;
+      font-family: "Inter", sans-serif;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .dashboard-map-region {
+      margin-top: 4px;
+      color: #AFC3D4;
+      font-size: 9px;
+    }
+
+    .dashboard-map-value {
+      padding: 13px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 12px;
+      background: rgba(255,255,255,.07);
+    }
+
+    .dashboard-map-value span,
+    .dashboard-map-value strong,
+    .dashboard-map-value small {
+      display: block;
+    }
+
+    .dashboard-map-value span {
+      color: #AFC3D4;
+      font-size: 8px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .dashboard-map-value strong {
+      margin-top: 4px;
+      color: white;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .dashboard-map-value small {
+      margin-top: 6px;
+      color: #8EE5DF;
+      font-size: 8px;
+    }
+
+    .dashboard-map-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .dashboard-map-stat {
+      min-width: 0;
+      padding: 9px;
+      border-radius: 9px;
+      background: rgba(255,255,255,.07);
+    }
+
+    .dashboard-map-stat span,
+    .dashboard-map-stat strong {
+      display: block;
+    }
+
+    .dashboard-map-stat span {
+      overflow: hidden;
+      color: #AFC3D4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 7px;
+      text-transform: uppercase;
+    }
+
+    .dashboard-map-stat strong {
+      margin-top: 3px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .dashboard-map-filter {
+      width: 100%;
+      margin: 0;
+      padding: 10px;
+      background: var(--pulso-turquesa);
+      color: var(--pulso-azul);
+    }
+
+    .dashboard-map-filter:hover:not(:disabled) {
+      background: #4ED9D0;
+    }
+
+    .dashboard-map-legend {
+      margin-top: auto;
+      padding-top: 11px;
+      border-top: 1px solid rgba(255,255,255,.14);
+    }
+
+    .dashboard-map-legend-title {
+      display: block;
+      margin-bottom: 8px;
+      color: #AFC3D4;
+      font-size: 8px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .dashboard-map-legend-items {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 3px;
+    }
+
+    .dashboard-map-legend-item {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .dashboard-map-legend-item i {
+      display: block;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .dashboard-map-legend-item small {
+      display: block;
+      margin-top: 4px;
+      overflow: hidden;
+      color: #AFC3D4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 7px;
+    }
+
+    .dashboard-map-source {
+      color: #8EE5DF;
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    .dashboard-map-source a {
+      color: white;
+      font-weight: 800;
+    }
+
     @media (max-width: 900px) {
       .dashboard-filters {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2703,8 +3291,19 @@
       }
 
       .dashboard-layout,
-      .dashboard-ranking-grid {
+      .dashboard-ranking-grid,
+      .dashboard-map-layout {
         grid-template-columns: 1fr;
+      }
+
+      .dashboard-map-side {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .dashboard-map-legend,
+      .dashboard-map-source {
+        grid-column: 1 / -1;
       }
 
       .validation-filters {
@@ -2721,8 +3320,10 @@
     }
 
     @media (max-width: 650px) {
-      .dashboard-heading {
+      .dashboard-heading,
+      .dashboard-map-heading {
         flex-direction: column;
+        align-items: stretch;
       }
 
       .dashboard-refresh {
@@ -2754,6 +3355,15 @@
 
       .dashboard-status-visual {
         grid-template-columns: 1fr;
+      }
+
+      .dashboard-map-stage,
+      .dashboard-map-svg {
+        min-height: 390px;
+      }
+
+      .dashboard-map-side {
+        display: flex;
       }
 
       .dashboard-month-chart {
@@ -2831,6 +3441,15 @@
         El acceso y el rol se validan contra <strong>v2.profiles</strong>
         y las políticas RLS del servidor.
       </p>
+
+      <button id="loginHelpButton" class="login-support-link" type="button">
+        <img
+          src="assets/brand/pulso-q-logo.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <span>Ayuda y soporte · PULSO Q</span>
+      </button>
     </div>
   </section>
 
@@ -2883,29 +3502,63 @@
             </button>
 
             <div id="profileMenu" class="profile-menu" hidden>
-              <h3 id="profileMenuName">Usuario</h3>
-              <div id="profileMenuEmail" class="profile-email"></div>
-
-              <div class="profile-info">
-                <div>
-                  <strong>Rol:</strong>
-                  <span id="profileMenuRole">—</span>
+              <div class="profile-account-card">
+                <div id="profileMenuAvatarLarge" class="profile-avatar-large">
+                  U
                 </div>
-
-                <div>
-                  <strong>Unidad(es):</strong>
-                  <span id="profileMenuUnits">—</span>
+                <div id="profileGreeting" class="profile-greeting">
+                  Sesión institucional
                 </div>
+                <h3 id="profileMenuName">Usuario</h3>
+                <div id="profileMenuEmail" class="profile-email"></div>
 
-                <div>
-                  <strong>Municipio(s):</strong>
-                  <span id="profileMenuMunicipalities">—</span>
+                <div class="profile-info">
+                  <div>
+                    <strong>Rol:</strong>
+                    <span id="profileMenuRole">—</span>
+                  </div>
+
+                  <div>
+                    <strong>Unidad(es):</strong>
+                    <span id="profileMenuUnits">—</span>
+                  </div>
+
+                  <div>
+                    <strong>Municipio(s):</strong>
+                    <span id="profileMenuMunicipalities">—</span>
+                  </div>
                 </div>
               </div>
 
-              <button id="logoutButton" class="btn-danger" type="button">
-                Cerrar sesión institucional
-              </button>
+              <div class="profile-menu-actions">
+                <button id="profileHelpButton" class="profile-menu-action" type="button">
+                  <span class="profile-menu-action-icon" aria-hidden="true">?</span>
+                  <span>Ayuda y soporte</span>
+                </button>
+
+                <button
+                  id="logoutButton"
+                  class="profile-menu-action profile-menu-action-danger"
+                  type="button"
+                >
+                  <span class="profile-menu-action-icon" aria-hidden="true">↪</span>
+                  <span>Cerrar sesión institucional</span>
+                </button>
+              </div>
+
+              <div class="profile-pulso-card">
+                <img
+                  src="assets/brand/pulso-q-logo.png"
+                  alt="Logotipo de PULSO Q"
+                />
+                <div>
+                  <strong>PULSO Q</strong>
+                  <small>
+                    Procesos claros. Datos que deciden.<br />
+                    Soporte de experiencia y mejora digital.
+                  </small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -3810,6 +4463,116 @@
           </div>
 
 
+          <article class="card dashboard-card dashboard-map-card">
+            <div class="dashboard-card-heading dashboard-map-heading">
+              <div>
+                <h3 id="dashboardMapTitle">Mapa de intensidad territorial</h3>
+                <p id="dashboardMapDescription">
+                  Los 46 municipios se colorean con datos reales del alcance
+                  autorizado. Selecciona un municipio para consultar su detalle.
+                </p>
+              </div>
+
+              <div class="dashboard-map-control">
+                <label for="dashboardMapMetric">Variable del mapa</label>
+                <select id="dashboardMapMetric">
+                  <option value="total_registros">Registros</option>
+                  <option value="validados">Validados</option>
+                  <option value="pendientes">Pendientes</option>
+                  <option value="beneficiarios">Beneficiarios</option>
+                  <option value="participantes">Participantes</option>
+                  <option value="accesos">Accesos</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="dashboard-map-layout">
+              <div class="dashboard-map-stage">
+                <div id="dashboardMapLoading" class="dashboard-map-loading">
+                  Preparando cartografía municipal...
+                </div>
+
+                <svg
+                  id="dashboardMapSvg"
+                  class="dashboard-map-svg"
+                  viewBox="0 0 760 520"
+                  role="img"
+                  aria-labelledby="dashboardMapTitle dashboardMapDescription"
+                  preserveAspectRatio="xMidYMid meet"
+                  hidden
+                ></svg>
+              </div>
+
+              <aside class="dashboard-map-side" aria-live="polite">
+                <div>
+                  <div class="dashboard-map-side-kicker">Municipio seleccionado</div>
+                  <h4 id="dashboardMapMunicipality">Sin selección</h4>
+                  <div id="dashboardMapRegion" class="dashboard-map-region">
+                    Elige un polígono o usa el filtro de municipio.
+                  </div>
+                </div>
+
+                <div class="dashboard-map-value">
+                  <span id="dashboardMapMetricLabel">Registros</span>
+                  <strong id="dashboardMapMetricValue">—</strong>
+                  <small id="dashboardMapMetricHint">Intensidad dentro de los filtros actuales</small>
+                </div>
+
+                <div class="dashboard-map-stats">
+                  <div class="dashboard-map-stat">
+                    <span>Validados</span>
+                    <strong id="dashboardMapValidated">—</strong>
+                  </div>
+                  <div class="dashboard-map-stat">
+                    <span>Pendientes</span>
+                    <strong id="dashboardMapPending">—</strong>
+                  </div>
+                  <div class="dashboard-map-stat">
+                    <span>Beneficiarios</span>
+                    <strong id="dashboardMapBeneficiaries">—</strong>
+                  </div>
+                  <div class="dashboard-map-stat">
+                    <span>Participantes</span>
+                    <strong id="dashboardMapParticipants">—</strong>
+                  </div>
+                  <div class="dashboard-map-stat">
+                    <span>Accesos</span>
+                    <strong id="dashboardMapAccesses">—</strong>
+                  </div>
+                  <div class="dashboard-map-stat">
+                    <span>CVEGEO</span>
+                    <strong id="dashboardMapCode">—</strong>
+                  </div>
+                </div>
+
+                <button
+                  id="dashboardMapFilterButton"
+                  class="btn-primary dashboard-map-filter"
+                  type="button"
+                  disabled
+                >
+                  Ver solo este municipio
+                </button>
+
+                <div class="dashboard-map-legend">
+                  <span class="dashboard-map-legend-title">Escala de intensidad</span>
+                  <div id="dashboardMapLegend" class="dashboard-map-legend-items"></div>
+                </div>
+
+                <p class="dashboard-map-source">
+                  Geometría: Marco Geoestadístico 2025 del
+                  <a
+                    href="https://www.inegi.org.mx/programas/mg/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >INEGI</a>.
+                  La cartografía representa áreas geoestadísticas municipales.
+                </p>
+              </aside>
+            </div>
+          </article>
+
+
           <div class="dashboard-layout">
             <article class="card dashboard-card">
               <div class="dashboard-card-heading">
@@ -3934,9 +4697,90 @@
 
 
       <footer class="footer">
-        Secretaría de Cultura de Guanajuato · Vinculación Cultural V2.1
+        Secretaría de Cultura de Guanajuato · Vinculación Cultural V2.1 ·
+        Experiencia y soporte digital con PULSO Q
       </footer>
     </main>
+  </div>
+
+
+  <!-- ==============================================================
+       AYUDA Y SOPORTE
+       ============================================================== -->
+
+  <div id="supportOverlay" class="support-overlay" hidden>
+    <section
+      class="support-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="supportTitle"
+      aria-describedby="supportDescription"
+    >
+      <header class="support-dialog-header">
+        <h2 id="supportTitle">Ayuda y soporte</h2>
+        <button
+          id="supportCloseButton"
+          class="support-dialog-close"
+          type="button"
+          aria-label="Cerrar Ayuda y soporte"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="support-dialog-body">
+        <div class="support-brand">
+          <img
+            src="assets/brand/pulso-q-logo.png"
+            alt="Logotipo de PULSO Q"
+          />
+          <div>
+            <strong>PULSO Q</strong>
+            <span>Procesos claros. Datos que deciden.</span>
+            <small>
+              Consultoría en transformación digital y calidad aplicada a la
+              operación real.
+            </small>
+          </div>
+        </div>
+
+        <p id="supportDescription" class="support-intro">
+          Para dudas de acceso, permisos, captura, validación o lectura del
+          Dashboard Directivo, escribe a cualquiera de estos contactos e
+          incluye una descripción breve del problema.
+        </p>
+
+        <div class="support-contact-list">
+          <a
+            class="support-contact"
+            href="mailto:planeacionscul@guanajuato.gob.mx?subject=Soporte%20Vinculaci%C3%B3n%20Cultural%20V2"
+          >
+            <span class="support-contact-icon" aria-hidden="true">✉</span>
+            <span>
+              <strong>Coordinación de Planeación y Evaluación Cultural</strong>
+              <small>planeacionscul@guanajuato.gob.mx</small>
+            </span>
+          </a>
+
+          <a
+            class="support-contact"
+            href="mailto:la.duranalvarez@ugto.mx?subject=Soporte%20Vinculaci%C3%B3n%20Cultural%20V2%20%7C%20PULSO%20Q"
+          >
+            <span class="support-contact-icon" aria-hidden="true">Q</span>
+            <span>
+              <strong>Soporte de experiencia digital · PULSO Q</strong>
+              <small>la.duranalvarez@ugto.mx</small>
+            </span>
+          </a>
+        </div>
+
+        <div class="support-note">
+          No envíes contraseñas, enlaces mágicos de acceso ni información
+          personal sensible por correo. Para agilizar la atención, indica el
+          módulo, la acción realizada y el mensaje visible en pantalla.
+        </div>
+      </div>
+    </section>
   </div>
 
 
@@ -4446,6 +5290,9 @@
       profileMenu: document.getElementById("profileMenu"),
       profileAvatar: document.getElementById("profileAvatar"),
       profileName: document.getElementById("profileName"),
+      profileMenuAvatarLarge:
+        document.getElementById("profileMenuAvatarLarge"),
+      profileGreeting: document.getElementById("profileGreeting"),
 
       profileMenuName: document.getElementById("profileMenuName"),
       profileMenuEmail: document.getElementById("profileMenuEmail"),
@@ -4455,6 +5302,11 @@
         document.getElementById("profileMenuMunicipalities"),
 
       logoutButton: document.getElementById("logoutButton"),
+      profileHelpButton: document.getElementById("profileHelpButton"),
+      loginHelpButton: document.getElementById("loginHelpButton"),
+      supportOverlay: document.getElementById("supportOverlay"),
+      supportCloseButton:
+        document.getElementById("supportCloseButton"),
 
       metricRole: document.getElementById("metricRole"),
       metricUnits: document.getElementById("metricUnits"),
@@ -4483,6 +5335,7 @@
 
     let currentContext = null;
     let authSubscription = null;
+    let supportLastFocus = null;
 
 
     function sleep(ms) {
@@ -4534,6 +5387,32 @@
         "aria-expanded",
         nextHidden ? "false" : "true"
       );
+    }
+
+
+    function openSupport() {
+      supportLastFocus = document.activeElement;
+      closeProfileMenu();
+      ui.supportOverlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      ui.supportCloseButton.focus();
+    }
+
+
+    function closeSupport() {
+      if (ui.supportOverlay.hidden) return;
+
+      ui.supportOverlay.hidden = true;
+      document.body.style.overflow = "";
+
+      if (
+        supportLastFocus &&
+        typeof supportLastFocus.focus === "function"
+      ) {
+        supportLastFocus.focus();
+      }
+
+      supportLastFocus = null;
     }
 
 
@@ -4593,6 +5472,11 @@
 
       setText(ui.profileAvatar, identity.initials);
       setText(ui.profileName, identity.name);
+      setText(ui.profileMenuAvatarLarge, identity.initials);
+      setText(
+        ui.profileGreeting,
+        isGlobalAdmin ? "Cuenta institucional · alcance global" : "Cuenta institucional"
+      );
 
       setText(ui.profileMenuName, identity.name);
       setText(ui.profileMenuEmail, identity.email);
@@ -4894,6 +5778,42 @@
         event.stopPropagation();
       }
     );
+
+
+    ui.profileHelpButton.addEventListener(
+      "click",
+      openSupport
+    );
+
+
+    ui.loginHelpButton.addEventListener(
+      "click",
+      openSupport
+    );
+
+
+    ui.supportCloseButton.addEventListener(
+      "click",
+      closeSupport
+    );
+
+
+    ui.supportOverlay.addEventListener(
+      "click",
+      (event) => {
+        if (event.target === ui.supportOverlay) {
+          closeSupport();
+        }
+      }
+    );
+
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeProfileMenu();
+        closeSupport();
+      }
+    });
 
 
     ui.logoutButton.addEventListener(

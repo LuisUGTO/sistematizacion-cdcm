@@ -23,6 +23,11 @@ let catalogState = {
   municipalities: [],
 };
 let loadSequence = 0;
+let mapRenderSequence = 0;
+let mapGeometryPromise = null;
+let lastPayload = null;
+let selectedMapCode = null;
+let mapFeaturesByCode = new Map();
 
 const ui = {};
 const $ = (id) => document.getElementById(id);
@@ -35,6 +40,36 @@ const STATUS_COLORS = Object.freeze({
   CORREGIDO: "#8B5CF6",
   VALIDADO: "#059669",
   ANULADO: "#DC2626",
+});
+
+const MAP_DATA_URL =
+  "./assets/geo/guanajuato-municipios.geojson";
+
+const MAP_METRICS = Object.freeze({
+  total_registros: {
+    label: "Registros",
+    hint: "Expedientes visibles en los filtros actuales",
+  },
+  validados: {
+    label: "Validados",
+    hint: "Expedientes validados dentro del alcance RLS",
+  },
+  pendientes: {
+    label: "Pendientes",
+    hint: "Expedientes que aún requieren resolución",
+  },
+  beneficiarios: {
+    label: "Beneficiarios",
+    hint: "Beneficiarios capturados en registros no anulados",
+  },
+  participantes: {
+    label: "Participantes",
+    hint: "Participantes capturados en registros no anulados",
+  },
+  accesos: {
+    label: "Accesos",
+    hint: "Accesos capturados en registros no anulados",
+  },
 });
 
 const MONTHS = Object.freeze([
@@ -625,7 +660,298 @@ function renderMonths(payload) {
   }
 }
 
+function normalizeMapCode(value) {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits ? digits.padStart(5, "0").slice(-5) : "";
+}
+
+function mapMetricConfig() {
+  const key = ui.mapMetric?.value || "total_registros";
+  return {
+    key,
+    ...(MAP_METRICS[key] ?? MAP_METRICS.total_registros),
+  };
+}
+
+function mapRowsByCode(payload) {
+  return new Map(
+    (payload.municipios ?? []).map((row) => [
+      normalizeMapCode(row.clave_inegi),
+      row,
+    ])
+  );
+}
+
+function visibleMunicipalityCodes() {
+  return new Set(
+    catalogState.municipalities.map((row) =>
+      normalizeMapCode(row.clave_inegi)
+    )
+  );
+}
+
+function municipalityCatalogByCode(code) {
+  return catalogState.municipalities.find(
+    (row) => normalizeMapCode(row.clave_inegi) === code
+  ) ?? null;
+}
+
+async function loadMapGeometry() {
+  if (!mapGeometryPromise) {
+    mapGeometryPromise = fetch(MAP_DATA_URL, {
+      cache: "force-cache",
+    }).then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`MAP_GEOMETRY_HTTP_${response.status}`);
+      }
+
+      const geometry = await response.json();
+      const features = geometry?.features ?? [];
+
+      if (
+        geometry?.type !== "FeatureCollection" ||
+        features.length !== 46
+      ) {
+        throw new Error("MAP_GEOMETRY_INVALID");
+      }
+
+      return geometry;
+    });
+  }
+
+  return mapGeometryPromise;
+}
+
+function renderMapLegend(scale, maximum) {
+  ui.mapLegend.replaceChildren();
+
+  const levels = [0, 0.25, 0.5, 0.75, 1].map(
+    (share) => Math.round(maximum * share)
+  );
+
+  for (const [index, value] of levels.entries()) {
+    const item = document.createElement("span");
+    item.className = "dashboard-map-legend-item";
+
+    const swatch = document.createElement("i");
+    swatch.style.backgroundColor =
+      index === 0 ? "#E2E8F0" : scale(value);
+
+    const label = document.createElement("small");
+    label.textContent = formatNumber(value);
+
+    item.append(swatch, label);
+    ui.mapLegend.appendChild(item);
+  }
+}
+
+function updateMapDetail(code, payload) {
+  const metric = mapMetricConfig();
+  const rows = mapRowsByCode(payload);
+  const row = rows.get(code) ?? null;
+  const feature = mapFeaturesByCode.get(code) ?? null;
+  const properties = feature?.properties ?? {};
+  const catalog = municipalityCatalogByCode(code);
+
+  if (!feature || !code) {
+    setText(ui.mapMunicipality, "Sin selección");
+    setText(
+      ui.mapRegion,
+      "Elige un polígono o usa el filtro de municipio."
+    );
+    setText(ui.mapMetricValue, "—");
+    setText(ui.mapValidated, "—");
+    setText(ui.mapPending, "—");
+    setText(ui.mapBeneficiaries, "—");
+    setText(ui.mapParticipants, "—");
+    setText(ui.mapAccesses, "—");
+    setText(ui.mapCode, "—");
+    ui.mapFilter.disabled = true;
+    return;
+  }
+
+  setText(
+    ui.mapMunicipality,
+    row?.municipio_nombre ||
+      properties.nombre ||
+      catalog?.nombre_oficial ||
+      "Municipio"
+  );
+  setText(
+    ui.mapRegion,
+    row?.region_nombre ||
+      (row ? "Región no registrada" : "Sin actividad en los filtros actuales")
+  );
+  setText(ui.mapMetricLabel, metric.label);
+  setText(ui.mapMetricHint, metric.hint);
+  setText(ui.mapMetricValue, formatNumber(row?.[metric.key]));
+  setText(ui.mapValidated, formatNumber(row?.validados));
+  setText(ui.mapPending, formatNumber(row?.pendientes));
+  setText(ui.mapBeneficiaries, formatNumber(row?.beneficiarios));
+  setText(ui.mapParticipants, formatNumber(row?.participantes));
+  setText(ui.mapAccesses, formatNumber(row?.accesos));
+  setText(ui.mapCode, code);
+
+  ui.mapFilter.disabled = !catalog;
+}
+
+function selectMapMunicipality(code, payload) {
+  selectedMapCode = normalizeMapCode(code);
+
+  window.d3
+    .select(ui.mapSvg)
+    .selectAll(".dashboard-map-municipality")
+    .classed(
+      "is-selected",
+      function markSelected() {
+        return this.dataset.code === selectedMapCode;
+      }
+    );
+
+  updateMapDetail(selectedMapCode, payload);
+}
+
+function defaultMapSelection(payload, visibleCodes) {
+  const selectedCatalog = catalogState.municipalities.find(
+    (row) => row.id === ui.municipality.value
+  );
+  const selectedFilterCode = normalizeMapCode(
+    selectedCatalog?.clave_inegi
+  );
+
+  if (selectedFilterCode && visibleCodes.has(selectedFilterCode)) {
+    return selectedFilterCode;
+  }
+
+  if (selectedMapCode && visibleCodes.has(selectedMapCode)) {
+    return selectedMapCode;
+  }
+
+  const firstDataCode = (payload.municipios ?? [])
+    .map((row) => normalizeMapCode(row.clave_inegi))
+    .find((code) => visibleCodes.has(code));
+
+  if (firstDataCode) return firstDataCode;
+
+  return normalizeMapCode(
+    catalogState.municipalities[0]?.clave_inegi
+  );
+}
+
+function showMapError(error) {
+  console.error("Mapa territorial V2:", error);
+  ui.mapSvg.setAttribute("hidden", "");
+  ui.mapLoading.hidden = false;
+  ui.mapLoading.textContent =
+    "No se pudo cargar la cartografía municipal. El resto del dashboard continúa disponible.";
+  ui.mapFilter.disabled = true;
+}
+
+async function renderMap(payload) {
+  const sequence = ++mapRenderSequence;
+  ui.mapLoading.hidden = false;
+  ui.mapLoading.textContent = "Preparando cartografía municipal...";
+
+  if (!window.d3) {
+    throw new Error("D3_NOT_AVAILABLE");
+  }
+
+  const geometry = await loadMapGeometry();
+  if (sequence !== mapRenderSequence) return;
+
+  const d3 = window.d3;
+  const rows = mapRowsByCode(payload);
+  const visibleCodes = visibleMunicipalityCodes();
+  const metric = mapMetricConfig();
+
+  mapFeaturesByCode = new Map(
+    geometry.features.map((feature) => [
+      normalizeMapCode(feature.properties?.cvegeo),
+      feature,
+    ])
+  );
+
+  const values = geometry.features
+    .map((feature) => {
+      const code = normalizeMapCode(feature.properties?.cvegeo);
+      return visibleCodes.has(code)
+        ? numeric(rows.get(code)?.[metric.key])
+        : 0;
+    });
+  const maximum = Math.max(1, ...values);
+
+  const scale = d3
+    .scaleSequentialSqrt(
+      d3.interpolateRgbBasis([
+        "#DDF7F4",
+        "#74DBD4",
+        "#14C3BA",
+        "#087C91",
+        "#081F34",
+      ])
+    )
+    .domain([0, maximum]);
+
+  const projection = d3
+    .geoMercator()
+    .fitExtent([[24, 22], [736, 498]], geometry);
+  const path = d3.geoPath(projection);
+  const svg = d3.select(ui.mapSvg);
+
+  svg.selectAll("*").remove();
+
+  const municipalities = svg
+    .append("g")
+    .attr("aria-hidden", "true")
+    .selectAll("path")
+    .data(geometry.features)
+    .join("path")
+    .attr("class", "dashboard-map-municipality")
+    .attr("data-code", (feature) =>
+      normalizeMapCode(feature.properties?.cvegeo)
+    )
+    .attr("d", path)
+    .classed("is-out-of-scope", (feature) => {
+      const code = normalizeMapCode(feature.properties?.cvegeo);
+      return !visibleCodes.has(code);
+    })
+    .attr("fill", (feature) => {
+      const code = normalizeMapCode(feature.properties?.cvegeo);
+      if (!visibleCodes.has(code)) return "#F8FAFC";
+
+      const value = numeric(rows.get(code)?.[metric.key]);
+      return value > 0 ? scale(value) : "#E2E8F0";
+    })
+    .on("click", function selectMunicipality(event, feature) {
+      const code = normalizeMapCode(feature.properties?.cvegeo);
+      if (!visibleCodes.has(code)) return;
+      selectMapMunicipality(code, payload);
+    });
+
+  municipalities
+    .append("title")
+    .text((feature) => {
+      const code = normalizeMapCode(feature.properties?.cvegeo);
+      const name = feature.properties?.nombre || code;
+
+      if (!visibleCodes.has(code)) {
+        return `${name}: fuera del alcance visible`;
+      }
+
+      return `${name}: ${formatNumber(rows.get(code)?.[metric.key])} ${metric.label.toLowerCase()}`;
+    });
+
+  renderMapLegend(scale, maximum);
+
+  selectedMapCode = defaultMapSelection(payload, visibleCodes);
+  selectMapMunicipality(selectedMapCode, payload);
+
+  ui.mapLoading.hidden = true;
+  ui.mapSvg.removeAttribute("hidden");
+}
+
 function renderDashboard(payload) {
+  lastPayload = payload;
   renderKpis(payload);
   renderStatus(payload);
   renderIndicators(payload);
@@ -639,6 +965,7 @@ function renderDashboard(payload) {
     name: (row) => row.programa_nombre || row.programa_clave,
   });
   renderMonths(payload);
+  renderMap(payload).catch(showMapError);
 
   ui.status.dataset.type = "ok";
   ui.status.textContent =
@@ -723,6 +1050,22 @@ function bindUi() {
     statusDonut: $("dashboardStatusDonut"),
     statusDonutValue: $("dashboardStatusDonutValue"),
     statusList: $("dashboardStatusList"),
+    mapMetric: $("dashboardMapMetric"),
+    mapSvg: $("dashboardMapSvg"),
+    mapLoading: $("dashboardMapLoading"),
+    mapMunicipality: $("dashboardMapMunicipality"),
+    mapRegion: $("dashboardMapRegion"),
+    mapMetricLabel: $("dashboardMapMetricLabel"),
+    mapMetricValue: $("dashboardMapMetricValue"),
+    mapMetricHint: $("dashboardMapMetricHint"),
+    mapValidated: $("dashboardMapValidated"),
+    mapPending: $("dashboardMapPending"),
+    mapBeneficiaries: $("dashboardMapBeneficiaries"),
+    mapParticipants: $("dashboardMapParticipants"),
+    mapAccesses: $("dashboardMapAccesses"),
+    mapCode: $("dashboardMapCode"),
+    mapFilter: $("dashboardMapFilterButton"),
+    mapLegend: $("dashboardMapLegend"),
     indicatorBody: $("dashboardIndicatorBody"),
     coverageBody: $("dashboardCoverageBody"),
     unitRanking: $("dashboardUnitRanking"),
@@ -744,6 +1087,7 @@ function bindEvents() {
   ui.reset.addEventListener("click", () => {
     ui.unit.value = "";
     ui.municipality.value = "";
+    selectedMapCode = null;
     renderPrograms();
     ui.program.value = "";
     ui.year.value = "2026";
@@ -751,6 +1095,22 @@ function bindEvents() {
   });
 
   ui.refresh.addEventListener("click", () => {
+    loadDashboard();
+  });
+
+  ui.mapMetric.addEventListener("change", () => {
+    if (!lastPayload) return;
+    renderMap(lastPayload).catch(showMapError);
+  });
+
+  ui.mapFilter.addEventListener("click", () => {
+    const municipality = municipalityCatalogByCode(
+      selectedMapCode
+    );
+
+    if (!municipality) return;
+
+    ui.municipality.value = municipality.id;
     loadDashboard();
   });
 }
