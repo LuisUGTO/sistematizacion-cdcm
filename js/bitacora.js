@@ -279,6 +279,28 @@ function renderRows(rows) {
       );
     }
 
+    const removableTestRecord =
+      row.origen === "MANUAL" &&
+      can(context, PERMISSIONS.RECORD_RETIRE);
+
+    if (removableTestRecord) {
+      const retireButton =
+        document.createElement("button");
+
+      retireButton.type = "button";
+      retireButton.className =
+        "bitacora-retire-button";
+
+      retireButton.textContent = "Retirar prueba";
+
+      retireButton.addEventListener(
+        "click",
+        () => retireTestRecord(row)
+      );
+
+      actionTd.appendChild(retireButton);
+    }
+
     tr.append(
       folioTd,
       dateTd,
@@ -522,6 +544,70 @@ function debounce(fn, wait = 350) {
 function filtersChanged() {
   state.page = 0;
   refresh();
+}
+
+async function retireTestRecord(row) {
+  const folio = text(row.folio, "");
+
+  const confirmation = await Swal.fire({
+    icon: "warning",
+    title: "Retirar registro de prueba",
+    html:
+      "Esta acción solo está disponible para ADMIN. " +
+      "El registro manual dejará de aparecer en la operación, " +
+      "pero conservará su historial y auditoría.",
+    input: "text",
+    inputLabel: `Escribe ${folio} para confirmar`,
+    inputPlaceholder: folio,
+    inputValidator: (value) =>
+      String(value ?? "").trim() === folio
+        ? undefined
+        : "Escribe exactamente el folio mostrado.",
+    showCancelButton: true,
+    confirmButtonText: "Retirar de pruebas",
+    confirmButtonColor: "#B91C1C",
+    cancelButtonText: "Cancelar",
+    reverseButtons: true,
+  });
+
+  if (!confirmation.isConfirmed) return;
+
+  try {
+    const { data, error } = await dbV2().rpc(
+      "rpc_retirar_registro_prueba",
+      {
+        p_registro_id: row.id,
+        p_folio_confirmacion: String(
+          confirmation.value ?? ""
+        ).trim(),
+      }
+    );
+
+    if (error) throw error;
+
+    const retired = Array.isArray(data) ? data[0] : data;
+
+    await Swal.fire({
+      icon: "success",
+      title: "Registro retirado",
+      text:
+        `${retired?.folio ?? folio} fue anulado y retirado de las vistas operativas.`,
+    });
+
+    window.dispatchEvent(
+      new CustomEvent("v2:record-updated")
+    );
+  } catch (error) {
+    console.error("Retiro de registro de prueba V2:", error);
+
+    await Swal.fire({
+      icon: "error",
+      title: "No se pudo retirar el registro",
+      text:
+        error?.message ??
+        "Ocurrió un error al procesar el retiro administrativo.",
+    });
+  }
 }
 
 function showDetail(row) {

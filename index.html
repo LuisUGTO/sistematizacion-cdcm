@@ -685,6 +685,7 @@
       font-size: 12px;
       font-weight: 750;
       text-align: left;
+      text-decoration: none;
     }
 
     .profile-menu-action:hover {
@@ -714,6 +715,11 @@
     .profile-menu-action-danger .profile-menu-action-icon {
       background: #FEE2E2;
       color: #B91C1C;
+    }
+
+    .profile-menu-action-admin .profile-menu-action-icon {
+      background: #EDE9FE;
+      color: #6D28D9;
     }
 
     .profile-pulso-card {
@@ -862,6 +868,54 @@
 
     .panel.active {
       display: block;
+    }
+
+    .admin-v2-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .admin-v2-action {
+      min-height: 180px;
+      padding: 20px;
+      border: 1px solid #DCE8F5;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #F8FBFF, #FFFFFF);
+    }
+
+    .admin-v2-action h3 {
+      margin-bottom: 8px;
+      font-size: 19px;
+    }
+
+    .admin-v2-action p {
+      min-height: 58px;
+      color: #64748B;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .admin-v2-action .btn-secondary {
+      margin-top: 14px;
+    }
+
+    .admin-v2-note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-left: 4px solid #8B5CF6;
+      border-radius: 10px;
+      background: #F5F3FF;
+      color: #4C1D95;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 650px) {
+      .admin-v2-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .grid {
@@ -1644,6 +1698,23 @@
       cursor: pointer;
       font-size: 10px;
       font-weight: 800;
+    }
+
+    .bitacora-retire-button {
+      margin-left: 6px;
+      padding: 7px 10px;
+      border: 1px solid #FECACA;
+      border-radius: 8px;
+      background: #FFF1F2;
+      color: #B91C1C;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .bitacora-retire-button:hover {
+      background: #FFE4E6;
+      border-color: #FDA4AF;
     }
 
     .draft-editor-overlay {
@@ -3531,6 +3602,16 @@
               </div>
 
               <div class="profile-menu-actions">
+                <button
+                  id="profileAdminButton"
+                  class="profile-menu-action profile-menu-action-admin"
+                  type="button"
+                  hidden
+                >
+                  <span class="profile-menu-action-icon" aria-hidden="true">⌘</span>
+                  <span>Administración V2</span>
+                </button>
+
                 <button id="profileHelpButton" class="profile-menu-action" type="button">
                   <span class="profile-menu-action-icon" aria-hidden="true">?</span>
                   <span>Ayuda y soporte</span>
@@ -3635,6 +3716,16 @@
           data-tab-target="dashboard"
         >
           Dashboard
+        </button>
+
+        <button
+          id="adminTabButton"
+          class="tab-button"
+          type="button"
+          data-tab-target="administracion"
+          hidden
+        >
+          Administración
         </button>
       </nav>
 
@@ -4696,6 +4787,59 @@
       </section>
 
 
+      <!-- ============================================================
+           ADMINISTRACIÓN V2
+           ============================================================ -->
+
+      <section id="panel-administracion" class="panel">
+        <article class="card section-card">
+          <div class="bitacora-heading">
+            <div>
+              <div class="hero-kicker capture-kicker">Administración V2</div>
+              <h2>Controles institucionales</h2>
+              <p>
+                Herramientas administrativas disponibles únicamente para el
+                rol ADMIN. Las decisiones sensibles continúan protegidas en
+                PostgreSQL mediante Auth, RLS y auditoría.
+              </p>
+            </div>
+          </div>
+
+          <div class="admin-v2-grid">
+            <section class="admin-v2-action">
+              <h3>Limpieza de pruebas</h3>
+              <p>
+                Revisa los registros manuales desde Bitácora y retira los que
+                ya no se necesiten. El retiro es lógico: conserva trazabilidad
+                y no toca los históricos MIGRACION_V1.
+              </p>
+              <button id="adminManageRecords" class="btn-secondary" type="button">
+                Gestionar registros de prueba
+              </button>
+            </section>
+
+            <section class="admin-v2-action">
+              <h3>Administración de catálogos</h3>
+              <p>
+                La próxima mejora concentrará aquí los catálogos, usuarios y
+                alcances propios de V2, evitando mezclar la administración
+                heredada con los datos institucionales nuevos.
+              </p>
+              <button class="btn-secondary" type="button" disabled>
+                Próximamente
+              </button>
+            </section>
+          </div>
+
+          <div class="admin-v2-note">
+            Para proteger la operación, este módulo no realiza borrado físico.
+            Solo ADMIN puede retirar registros MANUAL de prueba y debe confirmar
+            el folio antes de ejecutar la acción.
+          </div>
+        </article>
+      </section>
+
+
       <footer class="footer">
         Secretaría de Cultura de Guanajuato · Vinculación Cultural V2.1 ·
         Experiencia y soporte digital con PULSO Q
@@ -5303,6 +5447,7 @@
 
       logoutButton: document.getElementById("logoutButton"),
       profileHelpButton: document.getElementById("profileHelpButton"),
+      profileAdminButton: document.getElementById("profileAdminButton"),
       loginHelpButton: document.getElementById("loginHelpButton"),
       supportOverlay: document.getElementById("supportOverlay"),
       supportCloseButton:
@@ -5330,6 +5475,10 @@
 
       dashboardTabButton:
         document.getElementById("dashboardTabButton"),
+      adminTabButton:
+        document.getElementById("adminTabButton"),
+      adminManageRecords:
+        document.getElementById("adminManageRecords"),
     };
 
 
@@ -5448,6 +5597,8 @@
       const canValidate =
         can(context, PERMISSIONS.VALIDATION_REVIEW);
 
+      const canAdminister = isAdmin(context);
+
       ui.captureTabButton.disabled = !canCapture;
       ui.logTabButton.disabled = !(canReadOwn || canReadScope);
 
@@ -5455,6 +5606,8 @@
       ui.validationTabButton.disabled = !canValidate;
 
       ui.dashboardTabButton.disabled = !canDashboard;
+      ui.adminTabButton.hidden = !canAdminister;
+      ui.adminTabButton.disabled = !canAdminister;
     }
 
 
@@ -5481,6 +5634,7 @@
       setText(ui.profileMenuName, identity.name);
       setText(ui.profileMenuEmail, identity.email);
       setText(ui.profileMenuRole, role);
+      ui.profileAdminButton.hidden = !isGlobalAdmin;
 
       setText(
         ui.profileMenuUnits,
@@ -5783,6 +5937,21 @@
     ui.profileHelpButton.addEventListener(
       "click",
       openSupport
+    );
+
+
+    ui.profileAdminButton.addEventListener(
+      "click",
+      () => {
+        closeProfileMenu();
+        ui.adminTabButton.click();
+      }
+    );
+
+
+    ui.adminManageRecords.addEventListener(
+      "click",
+      () => ui.logTabButton.click()
     );
 
 

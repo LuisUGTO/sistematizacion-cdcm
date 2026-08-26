@@ -42,8 +42,12 @@ const STATUS_COLORS = Object.freeze({
   ANULADO: "#DC2626",
 });
 
+// La versión evita que una caché anterior del navegador conserve una descarga
+// interrumpida de la cartografía publicada en GitHub Pages.
 const MAP_DATA_URL =
-  "./assets/geo/guanajuato-municipios.geojson";
+  "./assets/geo/guanajuato-municipios.geojson?v=6.2.0";
+
+const MAP_LOAD_TIMEOUT_MS = 12000;
 
 const MAP_METRICS = Object.freeze({
   total_registros: {
@@ -698,25 +702,43 @@ function municipalityCatalogByCode(code) {
 
 async function loadMapGeometry() {
   if (!mapGeometryPromise) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(
+      () => controller.abort(),
+      MAP_LOAD_TIMEOUT_MS
+    );
+
     mapGeometryPromise = fetch(MAP_DATA_URL, {
-      cache: "force-cache",
-    }).then(async (response) => {
-      if (!response.ok) {
-        throw new Error(`MAP_GEOMETRY_HTTP_${response.status}`);
-      }
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`MAP_GEOMETRY_HTTP_${response.status}`);
+        }
 
-      const geometry = await response.json();
-      const features = geometry?.features ?? [];
+        const geometry = await response.json();
+        const features = geometry?.features ?? [];
 
-      if (
-        geometry?.type !== "FeatureCollection" ||
-        features.length !== 46
-      ) {
-        throw new Error("MAP_GEOMETRY_INVALID");
-      }
+        if (
+          geometry?.type !== "FeatureCollection" ||
+          features.length !== 46
+        ) {
+          throw new Error("MAP_GEOMETRY_INVALID");
+        }
 
-      return geometry;
-    });
+        return geometry;
+      })
+      .catch((error) => {
+        mapGeometryPromise = null;
+
+        if (error?.name === "AbortError") {
+          throw new Error("MAP_GEOMETRY_TIMEOUT");
+        }
+
+        throw error;
+      })
+      .finally(() => window.clearTimeout(timeout));
   }
 
   return mapGeometryPromise;

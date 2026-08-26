@@ -34,6 +34,7 @@ export const PERMISSIONS = Object.freeze({
   USER_MANAGE: "USER_MANAGE",
   IMPORT_MANAGE: "IMPORT_MANAGE",
   AUDIT_VIEW: "AUDIT_VIEW",
+  RECORD_RETIRE: "RECORD_RETIRE",
 });
 
 const ALL = Object.freeze(Object.values(PERMISSIONS));
