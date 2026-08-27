@@ -1,14 +1,16 @@
 /**
  * VINCULACIÓN CULTURAL 2.0
- * admin.js — Etapa 6.3
- * Administración V2 de usuarios, roles y alcances.
+ * admin.js — Etapa 6.4
+ * Administración V2 de usuarios, roles, alcances e importaciones.
  */
 
 import { supabase, dbV2 } from "./supabase-client.js";
 import { loadAuthContext } from "./auth.js";
 import { isAdmin } from "./permissions.js";
+import { initializeImporter } from "./importer.js";
 
 const publicDb = supabase.schema("public");
+const ADMIN_SAVE_TIMEOUT_MS = 20000;
 
 const state = {
   context: null,
@@ -324,13 +326,28 @@ async function saveAccess(event) {
   ui.saveAccess.textContent = "Guardando…";
 
   try {
-    const { error } = await dbV2().rpc("rpc_admin_guardar_acceso", {
-      p_user_id: state.selectedUser.user_id,
-      p_rol: role,
-      p_activo: active,
-      p_unidad_ids: unitIds,
-      p_municipio_ids: municipalityIds,
-    });
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      ADMIN_SAVE_TIMEOUT_MS
+    );
+
+    let result;
+    try {
+      result = await dbV2()
+        .rpc("rpc_admin_guardar_acceso", {
+          p_user_id: state.selectedUser.user_id,
+          p_rol: role,
+          p_activo: active,
+          p_unidad_ids: unitIds,
+          p_municipio_ids: municipalityIds,
+        })
+        .abortSignal(controller.signal);
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+
+    const { error } = result;
     if (error) throw error;
 
     ui.dialog.close();
@@ -343,7 +360,24 @@ async function saveAccess(event) {
       showConfirmButton: false,
     });
   } catch (error) {
-    await showError("No se pudo guardar el acceso", error);
+    // Un <dialog> abierto vive en la capa superior del navegador. Se cierra
+    // temporalmente para que SweetAlert sea visible de inmediato y no parezca
+    // que el botón quedó atrapado en "Guardando…".
+    if (ui.dialog.open) ui.dialog.close();
+
+    if (error?.name === "AbortError") {
+      await Swal.fire({
+        icon: "warning",
+        title: "La operación tardó demasiado",
+        text: "No se confirmó el guardado. Revisa tu conexión y pulsa Actualizar antes de intentarlo nuevamente.",
+      });
+    } else {
+      await showError("No se pudo guardar el acceso", error);
+    }
+
+    // El formulario conserva las selecciones para que el ADMIN pueda revisar
+    // o reintentar sin configurarlo nuevamente.
+    if (state.selectedUser) ui.dialog.showModal();
   } finally {
     ui.saveAccess.disabled = false;
     ui.saveAccess.textContent = "Guardar acceso";
@@ -517,6 +551,20 @@ async function initialize() {
     await loadCatalogs();
     installLegacyEvents();
     await Promise.all([loadUsers(), loadTeachers(), loadLibraries()]);
+    try {
+      await initializeImporter({
+        context: state.context,
+        units: state.units,
+        municipalities: state.municipalities,
+      });
+    } catch (importError) {
+      console.error("Importador V2 no disponible", importError);
+      const status = $("importStatus");
+      status.hidden = false;
+      status.className = "import-status error";
+      status.textContent =
+        "El importador todavía no está habilitado en la base de datos. Ejecuta 12j_bulk_excel_import.sql y actualiza esta página.";
+    }
     ui.loading.hidden = true;
   } catch (error) {
     ui.loading.hidden = true;
