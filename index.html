@@ -18,6 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="assets/vendor/d3.v7.9.0.min.js"></script>
+  <script src="assets/vendor/xlsx.full.min.js"></script>
 
   <link
     href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap"
@@ -1448,6 +1449,291 @@
       margin-bottom: 18px;
     }
 
+    .bitacora-heading-actions,
+    .bitacora-selection-bar,
+    .bitacora-import-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .bitacora-selection-bar {
+      justify-content: space-between;
+      margin: 0 0 12px;
+      padding: 11px 13px;
+      border: 1px solid #BFDBFE;
+      border-radius: 11px;
+      background: #EFF6FF;
+      color: #1E3A5F;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .bitacora-selection-bar label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .bitacora-selection-bar .btn-danger {
+      width: auto;
+    }
+
+    .bitacora-selection-cell {
+      width: 34px;
+      text-align: center;
+    }
+
+    .bitacora-row-select,
+    #bitacoraSelectPage {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--gto-azul);
+    }
+
+    .bitacora-import-workspace {
+      margin: 0 0 22px;
+      padding: 22px;
+      border: 1px solid #BFDBFE;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #F8FCFF, #FFFFFF);
+      scroll-margin-top: 130px;
+    }
+
+    .bitacora-import-heading,
+    .bitacora-import-lead {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .bitacora-import-heading h3,
+    .bitacora-import-section h3 {
+      margin: 0 0 5px;
+      color: var(--gto-azul);
+      font-family: "Vollkorn", serif;
+    }
+
+    .bitacora-import-heading p,
+    .bitacora-import-lead p,
+    .bitacora-import-section > p {
+      margin: 0;
+      color: #64748B;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .bitacora-import-lead {
+      align-items: center;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 13px;
+      background: #EAF5FC;
+    }
+
+    .bitacora-import-lead h4 {
+      margin: 0 0 4px;
+      color: #1E3A5F;
+    }
+
+    .bitacora-import-file {
+      display: grid;
+      gap: 5px;
+      margin-top: 15px;
+      padding: 18px;
+      border: 2px dashed #93C5FD;
+      border-radius: 13px;
+      background: white;
+      color: var(--gto-azul);
+      cursor: pointer;
+    }
+
+    .bitacora-import-file span {
+      color: #64748B;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .bitacora-import-file input {
+      margin-top: 8px;
+    }
+
+    .bitacora-import-section {
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--gto-borde);
+    }
+
+    .import-config-grid,
+    .mapping-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .mapping-grid {
+      max-height: 430px;
+      overflow-y: auto;
+      padding: 13px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 12px;
+      background: #F8FAFC;
+    }
+
+    .mapping-field {
+      min-width: 0;
+    }
+
+    .import-config-grid label,
+    .mapping-field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #334155;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .35px;
+      text-transform: uppercase;
+    }
+
+    .mapping-field label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .control {
+      width: 100%;
+      padding: 10px 11px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 9px;
+      background: white;
+      color: var(--gto-texto);
+      font: inherit;
+    }
+
+    .profile-box,
+    .import-status {
+      padding: 12px 14px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 10px;
+    }
+
+    .profile-box.safe,
+    .import-status.success {
+      border-color: #A7F3D0;
+      background: #ECFDF5;
+      color: #065F46;
+    }
+
+    .profile-box.warning,
+    .import-status.warning {
+      border-color: #F5D99B;
+      background: #FFFBEB;
+      color: #7C4A03;
+    }
+
+    .profile-box strong,
+    .profile-box p {
+      display: block;
+      margin: 0;
+    }
+
+    .profile-box p,
+    .action-note,
+    .preview-note {
+      margin-top: 5px;
+      color: #64748B;
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .import-status {
+      margin-top: 14px;
+      background: #EEF5FA;
+      color: #31516D;
+      font-size: 11px;
+    }
+
+    .import-status.error {
+      border-color: #FECACA;
+      background: #FFF1F0;
+      color: #9F2922;
+    }
+
+    .import-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .button {
+      padding: 9px 13px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .button-primary {
+      background: var(--gto-azul);
+      color: white;
+    }
+
+    .button-secondary {
+      border-color: var(--gto-azul-claro);
+      background: #EFF6FF;
+      color: var(--gto-azul);
+    }
+
+    .import-table-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 12px;
+    }
+
+    .import-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .import-table th,
+    .import-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #E8EEF4;
+      text-align: left;
+    }
+
+    .import-table th {
+      background: #F2F6FA;
+      color: var(--gto-azul);
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .preview-error {
+      background: #FFF8F7;
+    }
+
+    .preview-error td:last-child {
+      color: var(--gto-rojo);
+      min-width: 240px;
+    }
+
+    .preview-valid td:last-child {
+      color: var(--gto-verde);
+      font-weight: 800;
+    }
+
     .bitacora-kpis {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1656,10 +1942,26 @@
       .bitacora-search {
         grid-column: span 2;
       }
+
+      .import-config-grid,
+      .mapping-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 650px) {
       .bitacora-heading {
+        flex-direction: column;
+      }
+
+      .bitacora-heading-actions,
+      .bitacora-import-heading,
+      .bitacora-import-lead {
+        width: 100%;
+      }
+
+      .bitacora-import-heading,
+      .bitacora-import-lead {
         flex-direction: column;
       }
 
@@ -1675,6 +1977,27 @@
 
       .bitacora-pagination {
         justify-content: space-between;
+      }
+
+      .import-config-grid,
+      .mapping-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bitacora-import-workspace {
+        padding: 16px;
+      }
+
+      .bitacora-import-actions,
+      .import-actions {
+        display: grid;
+        width: 100%;
+      }
+
+      .bitacora-import-actions .button,
+      .import-actions .button {
+        width: 100%;
+        text-align: center;
       }
     }
 
@@ -4123,14 +4446,205 @@
               </p>
             </div>
 
-            <button
-              id="bitacoraRefresh"
-              class="btn-secondary"
-              type="button"
-            >
-              Actualizar
-            </button>
+            <div class="bitacora-heading-actions">
+              <button
+                id="bitacoraImportToggle"
+                class="btn-secondary"
+                type="button"
+                aria-expanded="false"
+                hidden
+              >
+                Importar Excel
+              </button>
+
+              <button
+                id="bitacoraRefresh"
+                class="btn-secondary"
+                type="button"
+              >
+                Actualizar
+              </button>
+            </div>
           </div>
+
+          <section
+            id="bitacoraImportWorkspace"
+            class="bitacora-import-workspace"
+            aria-labelledby="bitacoraImportTitle"
+            hidden
+          >
+            <div class="bitacora-import-heading">
+              <div>
+                <h3 id="bitacoraImportTitle">Importación masiva de actividades</h3>
+                <p>
+                  Sube una hoja propia o usa la plantilla oficial. Nada se
+                  guarda hasta revisar la vista previa y confirmar.
+                </p>
+              </div>
+
+              <button
+                id="bitacoraImportClose"
+                class="btn-secondary"
+                type="button"
+                aria-label="Cerrar importación"
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div class="bitacora-import-lead">
+              <div>
+                <h4>Dos maneras de trabajar</h4>
+                <p>
+                  La plantilla oficial se reconoce automáticamente. En otros
+                  archivos, el asistente permite relacionar sus columnas sin
+                  modificar el Excel original.
+                </p>
+              </div>
+
+              <div class="bitacora-import-actions">
+                <a
+                  id="downloadImportTemplate"
+                  class="button button-secondary"
+                  href="plantillas/Plantilla_Importacion_Actividades_V2.xlsx"
+                  download
+                  style="text-decoration: none"
+                >
+                  Descargar plantilla
+                </a>
+              </div>
+            </div>
+
+            <label class="bitacora-import-file" for="importFile">
+              <strong>Seleccionar archivo Excel</strong>
+              <span>
+                .xlsx, .xls o .csv · máximo 20 MB · se analiza primero en este dispositivo
+              </span>
+              <input id="importFile" type="file" accept=".xlsx,.xls,.csv" />
+            </label>
+
+            <div id="importStatus" class="import-status" hidden></div>
+
+            <div id="importConfiguration" hidden>
+              <section class="bitacora-import-section">
+                <h3>1. Formato y hoja</h3>
+                <p>
+                  Revisa la detección automática. Si el encabezado no coincide,
+                  indica la fila correcta.
+                </p>
+
+                <div class="import-config-grid">
+                  <div>
+                    <label for="importSheet">Hoja</label>
+                    <select id="importSheet" class="control"></select>
+                  </div>
+                  <div>
+                    <label for="importHeaderRow">Fila de encabezados</label>
+                    <input id="importHeaderRow" class="control" type="number" min="1" value="1" />
+                  </div>
+                  <div id="importProfileBox" class="profile-box safe">
+                    <strong id="importProfile">Analizando…</strong>
+                    <p id="importProfileNote"></p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="bitacora-import-section">
+                <h3>2. Destino institucional</h3>
+                <p>
+                  Selecciona la acción V2. La fecha y el municipio
+                  predeterminados solo se usan cuando la hoja no los contiene.
+                </p>
+
+                <div class="import-config-grid">
+                  <div>
+                    <label for="importUnit">Unidad operativa</label>
+                    <select id="importUnit" class="control"></select>
+                  </div>
+                  <div>
+                    <label for="importProgram">Programa</label>
+                    <select id="importProgram" class="control">
+                      <option value="">Seleccione primero una unidad…</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="importAction">Acción / proceso</label>
+                    <select id="importAction" class="control">
+                      <option value="">Seleccione primero un programa…</option>
+                    </select>
+                    <div id="importActionNote" class="action-note"></div>
+                  </div>
+                  <div>
+                    <label for="importDefaultMunicipality">Municipio predeterminado</label>
+                    <select id="importDefaultMunicipality" class="control"></select>
+                  </div>
+                  <div>
+                    <label for="importDefaultDate">Fecha predeterminada</label>
+                    <input id="importDefaultDate" class="control" type="date" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="bitacora-import-section">
+                <h3>3. Relación de columnas</h3>
+                <p>
+                  El sistema propone coincidencias. “Nombre de actividad” es
+                  obligatorio; municipio y fecha pueden usar los predeterminados.
+                </p>
+                <div id="importMappingGrid" class="mapping-grid"></div>
+              </section>
+
+              <div class="import-actions">
+                <button id="prepareImportPreview" class="button button-secondary" type="button">
+                  Preparar vista previa
+                </button>
+                <button id="confirmImport" class="button button-primary" type="button" disabled>
+                  Importar filas válidas
+                </button>
+              </div>
+
+              <section class="bitacora-import-section">
+                <h3>4. Vista previa</h3>
+                <p id="importPreviewSummary">
+                  Prepara una vista previa para revisar los datos antes de guardarlos.
+                </p>
+                <div class="import-table-wrap">
+                  <table class="import-table">
+                    <thead>
+                      <tr>
+                        <th>Origen</th><th>Actividad</th><th>Municipio</th>
+                        <th>Fecha</th><th>Total</th><th>Resultado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="importPreviewBody"></tbody>
+                  </table>
+                </div>
+                <p id="importPreviewLimit" class="preview-note" hidden>
+                  La tabla muestra las primeras 100 filas; todas fueron validadas.
+                </p>
+              </section>
+            </div>
+
+            <section class="bitacora-import-section">
+              <h3>Historial de importaciones</h3>
+              <p>
+                Cada carga conserva archivo, resultado, duplicados y trazabilidad.
+              </p>
+              <div class="import-table-wrap">
+                <table class="import-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th><th>Archivo</th><th>Estatus</th>
+                      <th>Filas</th><th>Importadas</th><th>Errores / duplicados</th>
+                    </tr>
+                  </thead>
+                  <tbody id="importHistoryBody">
+                    <tr><td colspan="6">Cargando…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </section>
 
           <div class="bitacora-kpis">
             <div class="bitacora-kpi">
@@ -4189,10 +4703,22 @@
             </div>
           </div>
 
+          <div id="bitacoraSelectionBar" class="bitacora-selection-bar" hidden>
+            <label for="bitacoraSelectPage">
+              <input id="bitacoraSelectPage" type="checkbox" />
+              Seleccionar esta página
+            </label>
+            <span id="bitacoraSelectionCount">0 seleccionados</span>
+            <button id="bitacoraRetireSelected" class="btn-danger" type="button" disabled>
+              Retirar seleccionados
+            </button>
+          </div>
+
           <div class="bitacora-table-wrap">
             <table class="bitacora-table">
               <thead>
                 <tr>
+                  <th id="bitacoraSelectionHeader" hidden aria-label="Selección"></th>
                   <th>Folio</th>
                   <th>Fecha</th>
                   <th>Municipio / sede</th>
@@ -4206,7 +4732,7 @@
 
               <tbody id="bitacoraBody">
                 <tr>
-                  <td colspan="8" class="bitacora-empty">
+                  <td colspan="9" class="bitacora-empty">
                     Cargando registros V2...
                   </td>
                 </tr>
@@ -4807,34 +5333,33 @@
 
           <div class="admin-v2-grid">
             <section class="admin-v2-action">
-              <h3>Limpieza de pruebas</h3>
+              <h3>Depuración de registros</h3>
               <p>
-                Revisa los registros manuales desde Bitácora y retira los que
-                ya no se necesiten. El retiro es lógico: conserva trazabilidad
-                y no toca los históricos MIGRACION_V1.
+                Revisa registros manuales o importados desde Bitácora y retira
+                los que ya no se necesiten. El retiro conserva trazabilidad y
+                protege los históricos MIGRACION_V1.
               </p>
               <button id="adminManageRecords" class="btn-secondary" type="button">
-                Gestionar registros de prueba
+                Abrir Bitácora
               </button>
             </section>
 
             <section class="admin-v2-action">
-              <h3>Administración de catálogos</h3>
+              <h3>Usuarios, alcances y catálogos</h3>
               <p>
-                La próxima mejora concentrará aquí los catálogos, usuarios y
-                alcances propios de V2, evitando mezclar la administración
-                heredada con los datos institucionales nuevos.
+                Gestiona roles, unidades y municipios de cada persona, además
+                de los catálogos operativos disponibles para mantenimiento.
               </p>
-              <button class="btn-secondary" type="button" disabled>
-                Próximamente
+              <button id="adminOpenMaintenance" class="btn-secondary" type="button">
+                Abrir panel de mantenimiento
               </button>
             </section>
           </div>
 
           <div class="admin-v2-note">
             Para proteger la operación, este módulo no realiza borrado físico.
-            Solo ADMIN puede retirar registros MANUAL de prueba y debe confirmar
-            el folio antes de ejecutar la acción.
+            Solo ADMIN puede retirar registros y debe indicar un motivo y una
+            confirmación explícita antes de ejecutar la acción.
           </div>
         </article>
       </section>
@@ -5479,6 +6004,8 @@
         document.getElementById("adminTabButton"),
       adminManageRecords:
         document.getElementById("adminManageRecords"),
+      adminOpenMaintenance:
+        document.getElementById("adminOpenMaintenance"),
     };
 
 
@@ -5952,6 +6479,14 @@
     ui.adminManageRecords.addEventListener(
       "click",
       () => ui.logTabButton.click()
+    );
+
+
+    ui.adminOpenMaintenance.addEventListener(
+      "click",
+      () => {
+        window.location.href = "admin.html";
+      }
     );
 
 

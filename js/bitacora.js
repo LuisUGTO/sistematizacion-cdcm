@@ -15,17 +15,24 @@ import {
 import {
   PERMISSIONS,
   can,
+  isAdmin,
 } from "./permissions.js";
+
+import {
+  initializeImporter,
+} from "./importer.js";
 
 const PAGE_SIZE = 25;
 
 let context = null;
 let initialized = false;
+let importerInitialized = false;
 
 let state = {
   page: 0,
   total: 0,
   rows: [],
+  selectedIds: new Set(),
 };
 
 const ui = {};
@@ -120,7 +127,7 @@ function renderEmpty(message) {
   const tr = document.createElement("tr");
   const td = document.createElement("td");
 
-  td.colSpan = 8;
+  td.colSpan = 9;
   td.className = "bitacora-empty";
   td.textContent = message;
 
@@ -140,6 +147,27 @@ function renderRows(rows) {
 
   for (const row of rows) {
     const tr = document.createElement("tr");
+
+    const selectionTd = document.createElement("td");
+    selectionTd.className = "bitacora-selection-cell";
+    selectionTd.hidden = !isAdmin(context);
+
+    const selection = document.createElement("input");
+    selection.type = "checkbox";
+    selection.className = "bitacora-row-select";
+    selection.value = row.id;
+    selection.checked = state.selectedIds.has(row.id);
+    selection.disabled = row.origen === "MIGRACION_V1";
+    selection.setAttribute(
+      "aria-label",
+      `Seleccionar ${text(row.folio, row.nombre)}`
+    );
+    selection.addEventListener("change", () => {
+      if (selection.checked) state.selectedIds.add(row.id);
+      else state.selectedIds.delete(row.id);
+      updateSelectionToolbar();
+    });
+    selectionTd.appendChild(selection);
 
     const folioTd = document.createElement("td");
     const folio = document.createElement("strong");
@@ -236,8 +264,8 @@ function renderRows(rows) {
       viewButton
     );
 
-    const editableManual =
-      row.origen === "MANUAL" &&
+    const editableOperational =
+      ["MANUAL", "IMPORTACION_EXCEL"].includes(row.origen) &&
       ["BORRADOR", "OBSERVADO", "CORREGIDO"]
         .includes(row.estatus) &&
       can(
@@ -245,7 +273,7 @@ function renderRows(rows) {
         PERMISSIONS.CAPTURE_EDIT_OWN
       );
 
-    if (editableManual) {
+    if (editableOperational) {
       const editButton =
         document.createElement("button");
 
@@ -279,11 +307,11 @@ function renderRows(rows) {
       );
     }
 
-    const removableTestRecord =
-      row.origen === "MANUAL" &&
+    const removableRecord =
+      row.origen !== "MIGRACION_V1" &&
       can(context, PERMISSIONS.RECORD_RETIRE);
 
-    if (removableTestRecord) {
+    if (removableRecord) {
       const retireButton =
         document.createElement("button");
 
@@ -291,17 +319,18 @@ function renderRows(rows) {
       retireButton.className =
         "bitacora-retire-button";
 
-      retireButton.textContent = "Retirar prueba";
+      retireButton.textContent = "Retirar";
 
       retireButton.addEventListener(
         "click",
-        () => retireTestRecord(row)
+        () => retireRecords([row])
       );
 
       actionTd.appendChild(retireButton);
     }
 
     tr.append(
+      selectionTd,
       folioTd,
       dateTd,
       locationTd,
@@ -314,6 +343,27 @@ function renderRows(rows) {
 
     ui.body.appendChild(tr);
   }
+
+  updateSelectionToolbar();
+}
+
+function updateSelectionToolbar() {
+  if (!ui.selectionBar) return;
+
+  const selectedCount = state.selectedIds.size;
+  ui.selectionCount.textContent =
+    `${selectedCount} registro(s) seleccionado(s)`;
+  ui.retireSelected.disabled = selectedCount === 0;
+
+  const selectableRows = state.rows.filter(
+    (row) => row.origen !== "MIGRACION_V1"
+  );
+  ui.selectPage.checked =
+    selectableRows.length > 0 &&
+    selectableRows.every((row) => state.selectedIds.has(row.id));
+  ui.selectPage.indeterminate =
+    !ui.selectPage.checked &&
+    selectableRows.some((row) => state.selectedIds.has(row.id));
 }
 
 function renderPagination() {
@@ -478,6 +528,11 @@ async function fetchRows() {
   state.rows = data ?? [];
   state.total = count ?? 0;
 
+  const pageIds = new Set(state.rows.map((row) => row.id));
+  state.selectedIds = new Set(
+    [...state.selectedIds].filter((id) => pageIds.has(id))
+  );
+
   renderRows(state.rows);
   renderPagination();
 
@@ -546,40 +601,83 @@ function filtersChanged() {
   refresh();
 }
 
-async function retireTestRecord(row) {
-  const folio = text(row.folio, "");
-
-  const confirmation = await Swal.fire({
-    icon: "warning",
-    title: "Retirar registro de prueba",
-    html:
-      "Esta acción solo está disponible para ADMIN. " +
-      "El registro manual dejará de aparecer en la operación, " +
-      "pero conservará su historial y auditoría.",
-    input: "text",
-    inputLabel: `Escribe ${folio} para confirmar`,
-    inputPlaceholder: folio,
-    inputValidator: (value) =>
-      String(value ?? "").trim() === folio
-        ? undefined
-        : "Escribe exactamente el folio mostrado.",
-    showCancelButton: true,
-    confirmButtonText: "Retirar de pruebas",
-    confirmButtonColor: "#B91C1C",
-    cancelButtonText: "Cancelar",
-    reverseButtons: true,
-  });
-
-  if (!confirmation.isConfirmed) return;
+async function retireRecords(rows) {
+  const ids = rows.map((row) => row.id);
+  if (!ids.length) return;
 
   try {
+    const previewResult = await dbV2().rpc(
+      "rpc_admin_previsualizar_retiro",
+      { p_registro_ids: ids }
+    );
+
+    if (previewResult.error) throw previewResult.error;
+
+    const preview = previewResult.data ?? [];
+    const blocked = preview.filter((item) => !item.puede_retirar);
+
+    if (blocked.length) {
+      await Swal.fire({
+        icon: "warning",
+        title: "La selección contiene registros protegidos",
+        text: blocked.map((item) =>
+          `${item.folio}: ${item.motivo_bloqueo}`
+        ).join(" · "),
+      });
+      return;
+    }
+
+    const total = preview.length;
+    if (!total) {
+      throw new Error("No se encontraron registros disponibles para retirar.");
+    }
+
+    const expected = total === 1
+      ? "RETIRAR 1 REGISTRO"
+      : `RETIRAR ${total} REGISTROS`;
+    const confirmation = await Swal.fire({
+      icon: "warning",
+      title: total === 1
+        ? "Retirar registro"
+        : `Retirar ${total} registros`,
+      html: `
+        <p style="text-align:left;line-height:1.55">
+          Dejarán de aparecer en Bitácora y Dashboard, pero conservarán
+          historial y auditoría. MIGRACION_V1 nunca puede retirarse aquí.
+        </p>
+        <label for="cleanupReason" style="display:block;text-align:left;font-weight:700;margin:12px 0 5px">Motivo</label>
+        <textarea id="cleanupReason" class="swal2-textarea" style="margin:0;width:100%" placeholder="Ejemplo: registros generados durante pruebas de capacitación"></textarea>
+        <label for="cleanupConfirmation" style="display:block;text-align:left;font-weight:700;margin:12px 0 5px">Escribe ${expected}</label>
+        <input id="cleanupConfirmation" class="swal2-input" style="margin:0;width:100%" autocomplete="off">
+      `,
+      showCancelButton: true,
+      confirmButtonText: "Retirar de la operación",
+      confirmButtonColor: "#B91C1C",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true,
+      preConfirm: () => {
+        const reason = document.getElementById("cleanupReason")?.value.trim() ?? "";
+        const typed = document.getElementById("cleanupConfirmation")?.value.trim().toUpperCase() ?? "";
+        if (reason.length < 12) {
+          Swal.showValidationMessage("Documenta el motivo con al menos 12 caracteres.");
+          return false;
+        }
+        if (typed !== expected) {
+          Swal.showValidationMessage(`Escribe exactamente ${expected}.`);
+          return false;
+        }
+        return { reason, typed };
+      },
+    });
+
+    if (!confirmation.isConfirmed) return;
+
     const { data, error } = await dbV2().rpc(
-      "rpc_retirar_registro_prueba",
+      "rpc_admin_retirar_registros",
       {
-        p_registro_id: row.id,
-        p_folio_confirmacion: String(
-          confirmation.value ?? ""
-        ).trim(),
+        p_registro_ids: ids,
+        p_confirmacion: confirmation.value.typed,
+        p_motivo: confirmation.value.reason,
       }
     );
 
@@ -589,16 +687,18 @@ async function retireTestRecord(row) {
 
     await Swal.fire({
       icon: "success",
-      title: "Registro retirado",
+      title: total === 1 ? "Registro retirado" : "Registros retirados",
       text:
-        `${retired?.folio ?? folio} fue anulado y retirado de las vistas operativas.`,
+        `${retired?.total_retirados ?? total} registro(s) fueron anulados y retirados de las vistas operativas.`,
     });
+
+    state.selectedIds.clear();
 
     window.dispatchEvent(
       new CustomEvent("v2:record-updated")
     );
   } catch (error) {
-    console.error("Retiro de registro de prueba V2:", error);
+    console.error("Retiro administrativo V2:", error);
 
     await Swal.fire({
       icon: "error",
@@ -718,6 +818,8 @@ async function populateFilters() {
 
   ui.year.value =
     String(currentYear);
+
+  return { units, municipalities };
 }
 
 export async function initBitacoraV2(
@@ -745,6 +847,16 @@ export async function initBitacoraV2(
       $("bitacoraKpiDrafts"),
     kpiMunicipalities:
       $("bitacoraKpiMunicipalities"),
+
+    selectionHeader: $("bitacoraSelectionHeader"),
+    selectionBar: $("bitacoraSelectionBar"),
+    selectPage: $("bitacoraSelectPage"),
+    selectionCount: $("bitacoraSelectionCount"),
+    retireSelected: $("bitacoraRetireSelected"),
+
+    importToggle: $("bitacoraImportToggle"),
+    importWorkspace: $("bitacoraImportWorkspace"),
+    importClose: $("bitacoraImportClose"),
   });
 
   if (!ui.body) {
@@ -804,6 +916,35 @@ export async function initBitacoraV2(
       }
     );
 
+    ui.selectPage?.addEventListener("change", () => {
+      state.rows
+        .filter((row) => row.origen !== "MIGRACION_V1")
+        .forEach((row) => {
+          if (ui.selectPage.checked) state.selectedIds.add(row.id);
+          else state.selectedIds.delete(row.id);
+        });
+      renderRows(state.rows);
+    });
+
+    ui.retireSelected?.addEventListener("click", () => {
+      const selectedRows = state.rows.filter((row) =>
+        state.selectedIds.has(row.id)
+      );
+      retireRecords(selectedRows);
+    });
+
+    ui.importToggle?.addEventListener("click", () => {
+      ui.importWorkspace.hidden = false;
+      ui.importToggle.setAttribute("aria-expanded", "true");
+      ui.importWorkspace.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    ui.importClose?.addEventListener("click", () => {
+      ui.importWorkspace.hidden = true;
+      ui.importToggle.setAttribute("aria-expanded", "false");
+      ui.importToggle.focus();
+    });
+
     window.addEventListener(
       "v2:record-updated",
       () => {
@@ -814,7 +955,33 @@ export async function initBitacoraV2(
     initialized = true;
   }
 
-  await populateFilters();
+  const catalogs = await populateFilters();
+
+  const admin = isAdmin(context);
+  ui.selectionHeader.hidden = !admin;
+  ui.selectionBar.hidden = !admin;
+  ui.importToggle.hidden = !admin;
+
+  if (admin && !importerInitialized) {
+    try {
+      await initializeImporter({
+        context,
+        units: catalogs.units,
+        municipalities: catalogs.municipalities,
+      });
+      importerInitialized = true;
+    } catch (error) {
+      console.error("Importador Excel en Bitácora:", error);
+      const status = $("importStatus");
+      if (status) {
+        status.hidden = false;
+        status.className = "import-status error";
+        status.textContent =
+          "La importación todavía no está habilitada en la base de datos. Ejecuta 12j y 12k, y actualiza la página.";
+      }
+    }
+  }
+
   state.page = 0;
   await refresh();
 }

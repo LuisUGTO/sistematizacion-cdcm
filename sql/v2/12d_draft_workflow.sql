@@ -233,7 +233,7 @@ BEGIN
         'can_read', true,
         'can_edit',
           (
-            r.origen = 'MANUAL'
+            r.origen IN ('MANUAL', 'IMPORTACION_EXCEL')
             AND r.estatus IN ('BORRADOR', 'OBSERVADO', 'CORREGIDO')
             AND v2_private.can_edit_record(r.id)
           )
@@ -353,7 +353,7 @@ BEGIN
       'RECORD_NOT_FOUND: registro inexistente.';
   END IF;
 
-  IF v_record.origen <> 'MANUAL' THEN
+  IF v_record.origen NOT IN ('MANUAL', 'IMPORTACION_EXCEL') THEN
     RAISE EXCEPTION
       'HISTORICAL_READ_ONLY: los registros migrados se conservan de solo lectura en esta fase.';
   END IF;
@@ -887,7 +887,7 @@ BEGIN
       'RECORD_NOT_FOUND: registro inexistente.';
   END IF;
 
-  IF v_record.origen <> 'MANUAL' THEN
+  IF v_record.origen NOT IN ('MANUAL', 'IMPORTACION_EXCEL') THEN
     RAISE EXCEPTION
       'HISTORICAL_READ_ONLY: un histórico migrado no se envía a revisión desde este flujo.';
   END IF;

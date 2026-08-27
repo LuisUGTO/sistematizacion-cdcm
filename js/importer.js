@@ -1,6 +1,6 @@
 /**
  * VINCULACION CULTURAL V2
- * importer.js — Etapa 6.4
+ * importer.js — Etapa 6.5
  * Lectura local de Excel, mapeo asistido, vista previa y carga segura a staging.
  */
 
@@ -517,7 +517,7 @@ async function importRows() {
       p_archivo_nombre: state.file.name,
       p_tipo_importacion: state.profile.key,
       p_metadata: {
-        frontend_version: "6.4",
+        frontend_version: "6.5",
         hoja: ui.sheet.value,
         filas_previsualizadas: state.preview.length,
         filas_validas_cliente: validRows.length,
@@ -538,6 +538,7 @@ async function importRows() {
     if (confirmed.error) throw confirmed.error;
     const result = confirmed.data;
     await loadHistory();
+    window.dispatchEvent(new CustomEvent("v2:record-updated"));
     setStatus(`Importacion terminada: ${result.filas_importadas} borrador(es), ${result.filas_error} error(es) y ${result.filas_duplicadas} duplicado(s).`, result.filas_importadas ? "success" : "warning");
     await Swal.fire({
       icon: result.filas_importadas ? "success" : "warning",

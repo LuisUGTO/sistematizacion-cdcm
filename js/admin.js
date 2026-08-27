@@ -1,13 +1,12 @@
 /**
  * VINCULACIÓN CULTURAL 2.0
- * admin.js — Etapa 6.4
- * Administración V2 de usuarios, roles, alcances e importaciones.
+ * admin.js — Etapa 6.5
+ * Administración V2 de usuarios, roles, alcances y catálogos.
  */
 
 import { supabase, dbV2 } from "./supabase-client.js";
 import { loadAuthContext } from "./auth.js";
 import { isAdmin } from "./permissions.js";
-import { initializeImporter } from "./importer.js";
 
 const publicDb = supabase.schema("public");
 const ADMIN_SAVE_TIMEOUT_MS = 20000;
@@ -551,20 +550,6 @@ async function initialize() {
     await loadCatalogs();
     installLegacyEvents();
     await Promise.all([loadUsers(), loadTeachers(), loadLibraries()]);
-    try {
-      await initializeImporter({
-        context: state.context,
-        units: state.units,
-        municipalities: state.municipalities,
-      });
-    } catch (importError) {
-      console.error("Importador V2 no disponible", importError);
-      const status = $("importStatus");
-      status.hidden = false;
-      status.className = "import-status error";
-      status.textContent =
-        "El importador todavía no está habilitado en la base de datos. Ejecuta 12j_bulk_excel_import.sql y actualiza esta página.";
-    }
     ui.loading.hidden = true;
   } catch (error) {
     ui.loading.hidden = true;
