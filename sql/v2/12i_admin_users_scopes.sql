@@ -256,7 +256,9 @@ BEGIN
     true,
     v_uid
   FROM pg_catalog.unnest(v_unit_ids) WITH ORDINALITY AS ids(id, ordinality)
-  ON CONFLICT (user_id, unidad_operativa_id)
+  -- Usar la restricción por nombre evita la ambigüedad entre la columna
+  -- user_id y la columna de salida user_id de esta función PL/pgSQL.
+  ON CONFLICT ON CONSTRAINT profile_unidades_pkey
   DO UPDATE SET
     activo = true,
     es_principal = EXCLUDED.es_principal;
@@ -276,7 +278,7 @@ BEGIN
     true,
     v_uid
   FROM pg_catalog.unnest(v_municipality_ids) WITH ORDINALITY AS ids(id, ordinality)
-  ON CONFLICT (user_id, municipio_id)
+  ON CONFLICT ON CONSTRAINT profile_municipios_pkey
   DO UPDATE SET
     activo = true,
     es_principal = EXCLUDED.es_principal;
