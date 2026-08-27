@@ -217,8 +217,13 @@ BEGIN
     GROUP BY item.id
   ) x;
 
-  v_unit_count := pg_catalog.coalesce(pg_catalog.array_length(v_unit_ids, 1), 0);
-  v_municipality_count := pg_catalog.coalesce(pg_catalog.array_length(v_municipality_ids, 1), 0);
+  -- COALESCE es una expresión especial de PostgreSQL: no se califica con
+  -- pg_catalog. Esta forma también cubre correctamente los arreglos vacíos.
+  v_unit_count := COALESCE(pg_catalog.array_length(v_unit_ids, 1), 0);
+  v_municipality_count := COALESCE(
+    pg_catalog.array_length(v_municipality_ids, 1),
+    0
+  );
 
   IF p_activo IS TRUE AND v_role = 'CAPTURISTA' AND v_unit_count = 0 THEN
     RAISE EXCEPTION
