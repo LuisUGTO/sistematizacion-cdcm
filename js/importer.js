@@ -1,7 +1,7 @@
 /**
  * VINCULACION CULTURAL V2
- * importer.js — Etapa 6.5
- * Lectura local de Excel, mapeo asistido, vista previa y carga segura a staging.
+ * importer.js — Etapa 6.5.1
+ * Reconocimiento institucional, alternativa avanzada, vista previa y carga segura.
  */
 
 import { dbV2 } from "./supabase-client.js";
@@ -11,6 +11,10 @@ import {
   loadActionConfiguration,
   loadDemographicDefinition,
 } from "./catalogs.js";
+import {
+  parseInstitutionalCdcmWorkbook,
+  SMART_ACTION_CANDIDATES,
+} from "./importer-smart.js";
 
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const MAX_ROWS = 5000;
@@ -36,6 +40,7 @@ const FIELD_DEFINITIONS = [
   { key: "ninez", label: "Ninez", aliases: ["ninez", "ninas ninos", "infancia", "6 11", "6 a 11"] },
   { key: "adolescencia", label: "Adolescencia", aliases: ["adolescencia", "adolescentes", "12 17", "12 a 17"] },
   { key: "juventudes", label: "Juventudes", aliases: ["juventudes", "jovenes", "18 29", "18 a 29"] },
+  { key: "adultos", label: "Personas adultas", aliases: ["adultos", "personas adultas", "30 59", "30 a 59", "adultos 30 59"] },
   { key: "adultos_mayores", label: "Adultos mayores", aliases: ["adultos mayores", "personas adultas mayores", "60 y mas"] },
   { key: "discapacidad", label: "Discapacidad", aliases: ["discapacidad", "personas con discapacidad"] },
   { key: "indigenas", label: "Pueblos indigenas", aliases: ["indigenas", "grupos indigenas", "pueblos indigenas"] },
@@ -45,7 +50,7 @@ const FIELD_DEFINITIONS = [
 
 const DEMOGRAPHIC_FIELDS = [
   "mujeres", "hombres", "primera_infancia", "ninez", "adolescencia",
-  "juventudes", "adultos_mayores", "discapacidad", "indigenas",
+  "juventudes", "adultos", "adultos_mayores", "discapacidad", "indigenas",
   "afromexicanas", "lgbtq",
 ];
 
@@ -62,6 +67,9 @@ const state = {
   config: null,
   demographics: [],
   preview: [],
+  smart: null,
+  smartDestinations: new Map(),
+  smartDemographics: new Map(),
 };
 
 const $ = (id) => document.getElementById(id);
@@ -208,6 +216,105 @@ function currentMapping() {
   );
 }
 
+function setSmartMode(active) {
+  ui.smartSummary.hidden = !active;
+  ui.formatSection.hidden = active;
+  ui.destinationSection.hidden = active;
+  ui.mappingSection.hidden = active;
+  ui.previewButton.textContent = active
+    ? "Revisar actividades detectadas"
+    : "Preparar vista previa";
+}
+
+function renderSmartSummary() {
+  const smart = state.smart;
+  if (!smart?.recognized) return;
+
+  const municipality = findMunicipality(smart.municipalityName);
+  const zeroTotals = smart.rows.filter((row) => !row.total_beneficiarios).length;
+  const missingDestinations = smart.categories.filter(
+    (category) => !state.smartDestinations.get(category.key)?.action
+  ).length;
+
+  ui.smartSummaryText.textContent =
+    `${smart.municipalityName || "Municipio por confirmar"} · ${smart.year} · ` +
+    `${smart.sheets.length} hojas mensuales · ${smart.rows.length} actividades localizadas.`;
+  ui.smartCategoryList.replaceChildren();
+
+  for (const category of smart.categories) {
+    const destination = state.smartDestinations.get(category.key);
+    const item = document.createElement("div");
+    item.className = destination?.action
+      ? "smart-category-card"
+      : "smart-category-card warning";
+
+    const title = document.createElement("strong");
+    title.textContent = `${category.label}: ${category.count}`;
+    const detail = document.createElement("span");
+    detail.textContent = destination?.action
+      ? `Destino V2: ${destination.action.nombre}`
+      : "Falta una acción V2 compatible";
+    item.append(title, detail);
+    ui.smartCategoryList.appendChild(item);
+  }
+
+  const notes = [];
+  if (!municipality) notes.push(`No se reconoció el municipio “${smart.municipalityName}”.`);
+  if (missingDestinations) notes.push(`${missingDestinations} categoría(s) no tienen destino V2 configurado.`);
+  if (zeroTotals) notes.push(`${zeroTotals} actividad(es) no contienen cifra de personas; se mostrarán para revisión.`);
+  ui.smartSummaryNote.textContent = notes.length
+    ? notes.join(" ")
+    : "Todo quedó relacionado automáticamente. Solo revisa la vista previa antes de importar.";
+  ui.smartSummaryNote.className = notes.length
+    ? "smart-summary-note warning"
+    : "smart-summary-note";
+}
+
+async function activateSmartCdcmMode() {
+  const smart = state.smart;
+  const unit = state.units.find((row) =>
+    normalize(row.clave) === "cdcm" || normalize(row.nombre).includes("desarrollo cultural municipal")
+  );
+
+  state.smartDestinations.clear();
+  state.smartDemographics.clear();
+
+  if (!unit) {
+    setSmartMode(true);
+    renderSmartSummary();
+    return;
+  }
+
+  const referenceDate = `${smart.year}-01-01`;
+  const actions = await loadActions(unit.id, null, referenceDate);
+
+  for (const category of smart.categories) {
+    const candidates = SMART_ACTION_CANDIDATES[category.key] ?? [];
+    const action = candidates
+      .map((key) => actions.find((item) => normalize(item.clave) === normalize(key)))
+      .find(Boolean) ?? null;
+    const config = action
+      ? await loadActionConfiguration(action.id, referenceDate)
+      : null;
+
+    state.smartDestinations.set(category.key, { unit, action, config });
+
+    if (config?.esquema_demografico_id && !state.smartDemographics.has(config.esquema_demografico_id)) {
+      const definition = await loadDemographicDefinition(config.esquema_demografico_id);
+      state.smartDemographics.set(config.esquema_demografico_id, definition);
+    }
+  }
+
+  state.profile = {
+    key: smart.profile,
+    label: smart.label,
+    allowed: true,
+    note: "El sistema separó automáticamente meses, bloques, actividades y población.",
+  };
+  setSmartMode(true);
+  renderSmartSummary();
+}
+
 function updateSheet() {
   if (!state.workbook || !ui.sheet.value) return;
   const sheet = state.workbook.Sheets[ui.sheet.value];
@@ -253,15 +360,26 @@ async function readFile(file) {
   const bytes = await file.arrayBuffer();
   state.workbook = XLSX.read(bytes, { type: "array", cellDates: true, raw: true });
   state.file = file;
+  state.smart = parseInstitutionalCdcmWorkbook(state.workbook, file.name, XLSX);
   fillSelect(
     ui.sheet,
     state.workbook.SheetNames.map((name) => ({ id: name, nombre: name })),
     { placeholder: "Seleccione una hoja…" }
   );
   ui.sheet.value = state.workbook.SheetNames[0] ?? "";
-  updateSheet();
+  if (state.smart.recognized) {
+    await activateSmartCdcmMode();
+  } else {
+    setSmartMode(false);
+    updateSheet();
+  }
   ui.configuration.hidden = false;
-  setStatus(`Archivo listo: ${state.workbook.SheetNames.length} hoja(s) detectada(s).`, "success");
+  setStatus(
+    state.smart.recognized
+      ? `Formato institucional reconocido automáticamente: ${state.smart.rows.length} actividades encontradas.`
+      : `Archivo listo: ${state.workbook.SheetNames.length} hoja(s) detectada(s).`,
+    "success"
+  );
 }
 
 function toNumber(value) {
@@ -325,10 +443,10 @@ function fingerprint(parts) {
   return `v2-${(hash >>> 0).toString(16).padStart(8, "0")}-${input.length}`;
 }
 
-function demographicOption(field) {
+function demographicOption(field, definitions = state.demographics) {
   const definition = FIELD_DEFINITIONS.find((item) => item.key === field);
   const aliases = [field, ...(definition?.aliases ?? [])].map(normalize);
-  const options = state.demographics.flatMap((group) => group.options ?? []);
+  const options = (definitions ?? []).flatMap((group) => group.options ?? []);
   return options.find((option) => {
     const values = [option.clave, option.nombre].map(normalize);
     return values.some((value) => aliases.some((alias) => value === alias || value.includes(alias) || alias.includes(value)));
@@ -342,6 +460,117 @@ function makeDemography(row, mapping) {
     const option = demographicOption(field);
     if (!option || quantity === null || quantity <= 0) return [];
     return [{ opcion_poblacion_id: option.id, universo: "BENEFICIARIOS", cantidad: quantity }];
+  });
+}
+
+function makeSmartDemography(row, config) {
+  if (!config?.requiere_demografia) return [];
+  const definitions = state.smartDemographics.get(config.esquema_demografico_id) ?? [];
+  return DEMOGRAPHIC_FIELDS.flatMap((field) => {
+    const quantity = toNumber(row[field]);
+    const option = demographicOption(field, definitions);
+    if (!option || quantity === null || quantity <= 0) return [];
+    return [{ opcion_poblacion_id: option.id, universo: "BENEFICIARIOS", cantidad: quantity }];
+  });
+}
+
+function buildSmartPreviewRows() {
+  const municipality = findMunicipality(state.smart.municipalityName);
+
+  return state.smart.rows.map((row, index) => {
+    const destination = state.smartDestinations.get(row.category) ?? {};
+    const { unit, action, config } = destination;
+    const errors = [];
+
+    if (!unit) errors.push("No se encontró la unidad CDCM");
+    if (!action) errors.push(`No existe una acción V2 para ${row.categoryLabel}`);
+    if (!config) errors.push(`La acción ${action?.nombre ?? row.categoryLabel} no tiene configuración vigente`);
+    if (config?.requiere_municipio && !municipality) {
+      errors.push(`Municipio no reconocido: ${state.smart.municipalityName}`);
+    }
+
+    const beneficiaries = row.total_beneficiarios > 0
+      ? row.total_beneficiarios
+      : null;
+    const formType = String(config?.tipo_formulario ?? "").toUpperCase();
+    const payload = {
+      unidad_operativa_id: unit?.id ?? null,
+      programa_id: action?.programa_id ?? null,
+      accion_id: action?.id ?? null,
+      configuracion_accion_id: config?.id ?? null,
+      municipio_id: municipality?.id ?? null,
+      nombre: row.name,
+      descripcion: row.description || null,
+      fecha_inicio: row.date,
+      fecha_fin: row.date,
+      total_beneficiarios: beneficiaries,
+      total_participantes: null,
+      total_accesos: null,
+      metadata: {
+        frontend: { version: "6.5.1", capture_module: "smart_excel_import" },
+        location_text: { sede: row.venue || null },
+        importacion_automatica: {
+          formato: state.smart.profile,
+          categoria: row.category,
+          mes: row.sheet,
+          fila_excel: row.excelRow,
+          cifras_vacias: beneficiaries === null,
+        },
+        source_labels: {
+          unidad: unit?.nombre ?? "CDCM",
+          programa: action?.programa_id ? "Asignado automáticamente por la acción" : null,
+          accion: action?.nombre ?? null,
+          municipio: municipality?.nombre_oficial ?? state.smart.municipalityName,
+          responsable: row.responsible || null,
+        },
+      },
+      taller: ["TALLER", "CAPACITACION"].includes(formType) ? {
+        disciplina: row.name,
+        programacion: [row.days, row.schedule].filter(Boolean).join(" · ") || null,
+        modalidad_cuota: row.fee || null,
+        observaciones: row.responsible
+          ? `Responsable en archivo: ${row.responsible}`
+          : null,
+      } : null,
+      demografia: makeSmartDemography(row, config),
+    };
+
+    const rowFingerprint = fingerprint([
+      unit?.id,
+      action?.id,
+      municipality?.id,
+      row.date,
+      row.name,
+      beneficiaries,
+      row.sheet,
+    ]);
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      excelRow: row.excelRow,
+      sheet: row.sheet,
+      name: row.name,
+      municipality: municipality?.nombre_oficial ?? state.smart.municipalityName,
+      date: row.date,
+      total: beneficiaries,
+      staging: {
+        numero_fila: index + 1,
+        raw_data: {
+          hoja: row.sheet,
+          fila_excel: row.excelRow,
+          categoria: row.categoryLabel,
+          valores: row.raw,
+        },
+        normalized_data: {
+          perfil: state.smart.profile,
+          hoja: row.sheet,
+          fila_excel: row.excelRow,
+          fingerprint: rowFingerprint,
+          payload,
+        },
+      },
+    };
   });
 }
 
@@ -404,7 +633,7 @@ function buildPreviewRows() {
       total_participantes: participants,
       total_accesos: access,
       metadata: {
-        frontend: { version: "6.4", capture_module: "excel_import" },
+        frontend: { version: "6.5.1", capture_module: "excel_import" },
         location_text: { sede: venue },
         source_labels: {
           unidad: selectedUnit?.nombre ?? null,
@@ -477,6 +706,17 @@ function renderPreview() {
 
 async function preparePreview() {
   try {
+    if (state.smart?.recognized) {
+      state.preview = buildSmartPreviewRows();
+      renderPreview();
+      const valid = state.preview.filter((row) => row.valid).length;
+      setStatus(
+        `Vista previa automática lista: ${valid.toLocaleString("es-MX")} de ${state.preview.length.toLocaleString("es-MX")} actividad(es) pueden importarse.`,
+        valid ? "success" : "warning"
+      );
+      return;
+    }
+
     if (!state.profile?.allowed) {
       const decision = await Swal.fire({
         icon: "warning",
@@ -517,7 +757,7 @@ async function importRows() {
       p_archivo_nombre: state.file.name,
       p_tipo_importacion: state.profile.key,
       p_metadata: {
-        frontend_version: "6.5",
+        frontend_version: "6.5.1",
         hoja: ui.sheet.value,
         filas_previsualizadas: state.preview.length,
         filas_validas_cliente: validRows.length,
@@ -651,6 +891,13 @@ export async function initializeImporter({ context, units, municipalities }) {
     historyBody: $("importHistoryBody"),
     status: $("importStatus"),
     templateLink: $("downloadImportTemplate"),
+    smartSummary: $("importSmartSummary"),
+    smartSummaryText: $("importSmartSummaryText"),
+    smartCategoryList: $("importSmartCategoryList"),
+    smartSummaryNote: $("importSmartSummaryNote"),
+    formatSection: $("importFormatSection"),
+    destinationSection: $("importDestinationSection"),
+    mappingSection: $("importMappingSection"),
   });
 
   state.context = context;

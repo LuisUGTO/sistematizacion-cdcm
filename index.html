@@ -1664,6 +1664,91 @@
       color: #9F2922;
     }
 
+    .smart-import-summary {
+      margin-top: 16px;
+      padding: 18px;
+      border: 1px solid #99F6E4;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #F0FDFA, #F8FAFC);
+    }
+
+    .smart-summary-badge {
+      display: inline-flex;
+      margin-bottom: 8px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #CCFBF1;
+      color: #115E59;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .45px;
+      text-transform: uppercase;
+    }
+
+    .smart-import-summary h3 {
+      margin: 0 0 5px;
+      color: var(--gto-azul);
+      font-family: "Vollkorn", serif;
+      font-size: 20px;
+    }
+
+    .smart-import-summary > p {
+      margin: 0;
+      color: #475569;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .smart-category-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .smart-category-card {
+      padding: 11px 12px;
+      border: 1px solid #A7F3D0;
+      border-radius: 10px;
+      background: white;
+    }
+
+    .smart-category-card.warning {
+      border-color: #F5D99B;
+      background: #FFFBEB;
+    }
+
+    .smart-category-card strong,
+    .smart-category-card span {
+      display: block;
+    }
+
+    .smart-category-card strong {
+      color: #134E4A;
+      font-size: 11px;
+    }
+
+    .smart-category-card span {
+      margin-top: 4px;
+      color: #64748B;
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .smart-summary-note {
+      margin-top: 13px !important;
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: #DCFCE7;
+      color: #166534 !important;
+      font-weight: 700;
+    }
+
+    .smart-summary-note.warning {
+      background: #FFF7E8;
+      color: #7C4A03 !important;
+    }
+
     .import-actions {
       display: flex;
       justify-content: flex-end;
@@ -1980,7 +2065,8 @@
       }
 
       .import-config-grid,
-      .mapping-grid {
+      .mapping-grid,
+      .smart-category-grid {
         grid-template-columns: 1fr;
       }
 
@@ -4496,9 +4582,10 @@
               <div>
                 <h4>Dos maneras de trabajar</h4>
                 <p>
-                  La plantilla oficial se reconoce automáticamente. En otros
-                  archivos, el asistente permite relacionar sus columnas sin
-                  modificar el Excel original.
+                  Los formatos institucionales conocidos se organizan
+                  automáticamente. Solo cuando un archivo no se reconoce se
+                  muestra la relación avanzada de columnas; el Excel original
+                  nunca se modifica.
                 </p>
               </div>
 
@@ -4525,8 +4612,16 @@
 
             <div id="importStatus" class="import-status" hidden></div>
 
+            <section id="importSmartSummary" class="smart-import-summary" hidden>
+              <div class="smart-summary-badge">Reconocimiento automático</div>
+              <h3>El archivo institucional quedó organizado por ti</h3>
+              <p id="importSmartSummaryText"></p>
+              <div id="importSmartCategoryList" class="smart-category-grid"></div>
+              <p id="importSmartSummaryNote" class="smart-summary-note"></p>
+            </section>
+
             <div id="importConfiguration" hidden>
-              <section class="bitacora-import-section">
+              <section id="importFormatSection" class="bitacora-import-section">
                 <h3>1. Formato y hoja</h3>
                 <p>
                   Revisa la detección automática. Si el encabezado no coincide,
@@ -4549,7 +4644,7 @@
                 </div>
               </section>
 
-              <section class="bitacora-import-section">
+              <section id="importDestinationSection" class="bitacora-import-section">
                 <h3>2. Destino institucional</h3>
                 <p>
                   Selecciona la acción V2. La fecha y el municipio
@@ -4585,7 +4680,7 @@
                 </div>
               </section>
 
-              <section class="bitacora-import-section">
+              <section id="importMappingSection" class="bitacora-import-section">
                 <h3>3. Relación de columnas</h3>
                 <p>
                   El sistema propone coincidencias. “Nombre de actividad” es
@@ -4596,7 +4691,7 @@
 
               <div class="import-actions">
                 <button id="prepareImportPreview" class="button button-secondary" type="button">
-                  Preparar vista previa
+                  Preparar vista previa automática
                 </button>
                 <button id="confirmImport" class="button button-primary" type="button" disabled>
                   Importar filas válidas
