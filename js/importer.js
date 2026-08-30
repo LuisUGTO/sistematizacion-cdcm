@@ -1,6 +1,6 @@
 /**
  * VINCULACION CULTURAL V2
- * importer.js — Etapa 6.5.1
+ * importer.js — Etapa 6.5.2
  * Reconocimiento institucional, alternativa avanzada, vista previa y carga segura.
  */
 
@@ -89,6 +89,11 @@ function friendlyError(error) {
   return String(error?.message ?? error ?? "Error no identificado")
     .replace(/^[A-Z_]+:\s*/, "")
     .trim();
+}
+
+function rpcRow(data) {
+  if (Array.isArray(data)) return data[0] ?? null;
+  return data ?? null;
 }
 
 async function alertError(title, error) {
@@ -507,7 +512,7 @@ function buildSmartPreviewRows() {
       total_participantes: null,
       total_accesos: null,
       metadata: {
-        frontend: { version: "6.5.1", capture_module: "smart_excel_import" },
+        frontend: { version: "6.5.2", capture_module: "smart_excel_import" },
         location_text: { sede: row.venue || null },
         importacion_automatica: {
           formato: state.smart.profile,
@@ -633,7 +638,7 @@ function buildPreviewRows() {
       total_participantes: participants,
       total_accesos: access,
       metadata: {
-        frontend: { version: "6.5.1", capture_module: "excel_import" },
+        frontend: { version: "6.5.2", capture_module: "excel_import" },
         location_text: { sede: venue },
         source_labels: {
           unidad: selectedUnit?.nombre ?? null,
@@ -757,7 +762,7 @@ async function importRows() {
       p_archivo_nombre: state.file.name,
       p_tipo_importacion: state.profile.key,
       p_metadata: {
-        frontend_version: "6.5.1",
+        frontend_version: "6.5.2",
         hoja: ui.sheet.value,
         filas_previsualizadas: state.preview.length,
         filas_validas_cliente: validRows.length,
@@ -766,11 +771,36 @@ async function importRows() {
     if (prepare.error) throw prepare.error;
     const jobId = prepare.data;
 
+    let validationResult = null;
     for (let start = 0; start < state.preview.length; start += BATCH_SIZE) {
       const batch = state.preview.slice(start, start + BATCH_SIZE).map((row) => row.staging);
       setStatus(`Validando filas ${start + 1} a ${Math.min(start + BATCH_SIZE, state.preview.length)}…`);
       const loaded = await dbV2().rpc("rpc_import_cargar_lote", { p_job_id: jobId, p_rows: batch });
       if (loaded.error) throw loaded.error;
+      validationResult = rpcRow(loaded.data);
+    }
+
+    const serverValid = Number(validationResult?.filas_validas ?? 0);
+    const serverErrors = Number(validationResult?.filas_error ?? 0);
+    const serverDuplicates = Number(validationResult?.filas_duplicadas ?? 0);
+
+    if (serverValid === 0) {
+      const duplicateOnly = serverDuplicates > 0 && serverErrors === 0;
+      const statusMessage = duplicateOnly
+        ? `El archivo ya había sido importado: ${serverDuplicates.toLocaleString("es-MX")} duplicado(s) y 0 registros nuevos.`
+        : `No se crearon registros: ${serverErrors.toLocaleString("es-MX")} fila(s) con error y ${serverDuplicates.toLocaleString("es-MX")} duplicado(s).`;
+
+      setStatus(statusMessage, duplicateOnly ? "success" : "warning");
+      await loadHistory();
+      await Swal.fire({
+        icon: duplicateOnly ? "info" : "warning",
+        title: duplicateOnly ? "El archivo ya estaba importado" : "No había filas nuevas para importar",
+        html: duplicateOnly
+          ? `<b>${serverDuplicates.toLocaleString("es-MX")}</b> actividad(es) ya existen.<br>No se creó ningún registro duplicado.`
+          : `<b>0</b> registros nuevos.<br>${serverErrors.toLocaleString("es-MX")} error(es) · ${serverDuplicates.toLocaleString("es-MX")} duplicado(s).`,
+        confirmButtonText: "Entendido",
+      });
+      return;
     }
 
     setStatus("Creando borradores V2 y aplicando validaciones institucionales…");
