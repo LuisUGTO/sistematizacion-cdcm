@@ -1,6 +1,6 @@
 /**
  * VINCULACION CULTURAL V2
- * importer.js — Etapa 6.5.3
+ * importer.js — Etapa 6.5.4
  * Reconocimiento institucional, alternativa avanzada, vista previa y carga segura.
  */
 
@@ -517,6 +517,7 @@ function makeSmartDemography(row, config) {
 
 function buildSmartPreviewRows() {
   const municipality = findMunicipality(state.smart.municipalityName);
+  const fingerprintsByBaseAndVenue = new Map();
 
   return state.smart.rows.map((row, index) => {
     const destination = state.smartDestinations.get(row.category) ?? {};
@@ -548,7 +549,7 @@ function buildSmartPreviewRows() {
       total_participantes: null,
       total_accesos: null,
       metadata: {
-        frontend: { version: "6.5.3", capture_module: "smart_excel_import" },
+        frontend: { version: "6.5.4", capture_module: "smart_excel_import" },
         location_text: { sede: row.venue || null },
         importacion_automatica: {
           formato: state.smart.profile,
@@ -576,7 +577,7 @@ function buildSmartPreviewRows() {
       demografia: makeSmartDemography(row, config),
     };
 
-    const rowFingerprint = fingerprint([
+    const baseFingerprintParts = [
       unit?.id,
       action?.id,
       municipality?.id,
@@ -584,7 +585,23 @@ function buildSmartPreviewRows() {
       row.name,
       beneficiaries,
       row.sheet,
-    ]);
+    ];
+    const baseFingerprint = fingerprint(baseFingerprintParts);
+    const venueKey = normalize(row.venue);
+    let fingerprintsByVenue = fingerprintsByBaseAndVenue.get(baseFingerprint);
+    let rowFingerprint = baseFingerprint;
+
+    if (!fingerprintsByVenue) {
+      fingerprintsByVenue = new Map([[venueKey, baseFingerprint]]);
+      fingerprintsByBaseAndVenue.set(baseFingerprint, fingerprintsByVenue);
+    } else if (fingerprintsByVenue.has(venueKey)) {
+      // Una repetición en la misma sede conserva el identificador y se bloquea.
+      rowFingerprint = fingerprintsByVenue.get(venueKey);
+    } else {
+      // Dos actividades iguales en sedes distintas son registros legítimos.
+      rowFingerprint = fingerprint([...baseFingerprintParts, "sede", venueKey || "sin sede"]);
+      fingerprintsByVenue.set(venueKey, rowFingerprint);
+    }
 
     return {
       valid: errors.length === 0,
@@ -595,6 +612,7 @@ function buildSmartPreviewRows() {
       municipality: municipality?.nombre_oficial ?? state.smart.municipalityName,
       date: row.date,
       total: beneficiaries,
+      venue: row.venue || "",
       staging: {
         numero_fila: index + 1,
         raw_data: {
@@ -608,6 +626,7 @@ function buildSmartPreviewRows() {
           hoja: row.sheet,
           fila_excel: row.excelRow,
           fingerprint: rowFingerprint,
+          fingerprint_version: "6.5.4-collision-aware-venue",
           payload,
         },
       },
@@ -674,7 +693,7 @@ function buildPreviewRows() {
       total_participantes: participants,
       total_accesos: access,
       metadata: {
-        frontend: { version: "6.5.3", capture_module: "excel_import" },
+        frontend: { version: "6.5.4", capture_module: "excel_import" },
         location_text: { sede: venue },
         source_labels: {
           unidad: selectedUnit?.nombre ?? null,
@@ -798,7 +817,7 @@ async function importRows() {
       p_archivo_nombre: state.file.name,
       p_tipo_importacion: state.profile.key,
       p_metadata: {
-        frontend_version: "6.5.3",
+        frontend_version: "6.5.4",
         hoja: ui.sheet.value,
         filas_previsualizadas: state.preview.length,
         filas_validas_cliente: validRows.length,
@@ -893,7 +912,7 @@ async function loadHistory() {
   ui.historyBody.replaceChildren();
   if (!(data ?? []).length) {
     const row = ui.historyBody.insertRow();
-    row.insertCell().colSpan = 6;
+    row.insertCell().colSpan = 7;
     row.cells[0].textContent = "Aun no hay importaciones V2.";
     return;
   }
@@ -905,6 +924,77 @@ async function loadHistory() {
     row.insertCell().textContent = job.total_filas;
     row.insertCell().textContent = job.filas_importadas;
     row.insertCell().textContent = `${job.filas_error} / ${job.filas_duplicadas}`;
+    const detailCell = row.insertCell();
+    const issueCount = Number(job.filas_error ?? 0) + Number(job.filas_duplicadas ?? 0);
+    if (!issueCount) {
+      detailCell.textContent = "—";
+      return;
+    }
+    const detailButton = document.createElement("button");
+    detailButton.type = "button";
+    detailButton.className = "button button-secondary";
+    detailButton.textContent = `Ver ${issueCount}`;
+    detailButton.addEventListener("click", async () => {
+      try {
+        await showImportIssues(job);
+      } catch (error) {
+        await alertError("No se pudieron consultar las incidencias", error);
+      }
+    });
+    detailCell.append(detailButton);
+  });
+}
+
+async function showImportIssues(job) {
+  const { data, error } = await dbV2().rpc("rpc_import_incidencias", { p_job_id: job.id });
+  if (error) throw error;
+
+  const issues = data ?? [];
+  const wrapper = document.createElement("div");
+  const summary = document.createElement("p");
+  summary.textContent = issues.length
+    ? `${issues.length.toLocaleString("es-MX")} incidencia(s) registradas. Las filas duplicadas no generaron borradores.`
+    : "Este trabajo no tiene incidencias registradas.";
+  wrapper.append(summary);
+
+  if (issues.length) {
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "import-table-wrap";
+    const table = document.createElement("table");
+    table.className = "import-table";
+    const head = table.createTHead().insertRow();
+    ["Hoja / fila", "Actividad", "Sede", "Resultado", "Motivo"].forEach((label) => {
+      const cell = document.createElement("th");
+      cell.textContent = label;
+      head.append(cell);
+    });
+    const body = table.createTBody();
+    issues.slice(0, 100).forEach((issue) => {
+      const row = body.insertRow();
+      row.insertCell().textContent = `${issue.hoja || "—"} · ${issue.fila_excel ?? issue.numero_fila}`;
+      row.insertCell().textContent = issue.actividad || "—";
+      row.insertCell().textContent = issue.sede || "—";
+      row.insertCell().textContent = String(issue.estatus || "—").replaceAll("_", " ");
+      const reasons = Array.isArray(issue.errores)
+        ? issue.errores.map((item) => item?.mensaje || item?.codigo).filter(Boolean).join(" ")
+        : "";
+      row.insertCell().textContent = reasons || "Sin detalle adicional.";
+    });
+    tableWrap.append(table);
+    wrapper.append(tableWrap);
+    if (issues.length > 100) {
+      const limit = document.createElement("p");
+      limit.textContent = `Se muestran las primeras 100 de ${issues.length.toLocaleString("es-MX")} incidencias.`;
+      wrapper.append(limit);
+    }
+  }
+
+  await Swal.fire({
+    icon: issues.length ? "info" : "success",
+    title: `Detalle de ${job.archivo_nombre}`,
+    html: wrapper,
+    width: "min(980px, 96vw)",
+    confirmButtonText: "Cerrar",
   });
 }
 

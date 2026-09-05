@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cultura-gto-cache-v6-5-3';
+const CACHE_NAME = 'cultura-gto-cache-v6-5-4';
 const RECURSOS_APP = [
   './',
   './index.html',
