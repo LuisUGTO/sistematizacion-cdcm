@@ -1,6 +1,6 @@
 /**
  * VINCULACION CULTURAL V2
- * importer.js — Etapa 6.5.2
+ * importer.js — Etapa 6.5.3
  * Reconocimiento institucional, alternativa avanzada, vista previa y carga segura.
  */
 
@@ -222,13 +222,37 @@ function currentMapping() {
 }
 
 function setSmartMode(active) {
+  ui.smartSummary.className = "smart-import-summary";
+  ui.smartSummaryBadge.textContent = "Reconocimiento automático";
+  ui.smartSummaryTitle.textContent = "El archivo institucional quedó organizado por ti";
   ui.smartSummary.hidden = !active;
   ui.formatSection.hidden = active;
   ui.destinationSection.hidden = active;
   ui.mappingSection.hidden = active;
+  ui.actionBar.hidden = false;
+  ui.previewSection.hidden = false;
   ui.previewButton.textContent = active
     ? "Revisar actividades detectadas"
     : "Preparar vista previa";
+}
+
+function setBlockedMode(profile) {
+  ui.smartSummary.className = "smart-import-summary blocked";
+  ui.smartSummary.hidden = false;
+  ui.smartSummaryBadge.textContent = "Clasificación automática";
+  ui.smartSummaryTitle.textContent = "Este archivo no contiene actividades individuales";
+  ui.smartSummaryText.textContent = `${profile.label}. ${profile.note}`;
+  ui.smartCategoryList.replaceChildren();
+  ui.smartSummaryNote.textContent =
+    "No necesitas seleccionar columnas. El sistema bloqueó su carga en Bitácora para evitar duplicar o distorsionar los indicadores.";
+  ui.smartSummaryNote.className = "smart-summary-note warning";
+  ui.formatSection.hidden = true;
+  ui.destinationSection.hidden = true;
+  ui.mappingSection.hidden = true;
+  ui.actionBar.hidden = true;
+  ui.previewSection.hidden = true;
+  state.preview = [];
+  renderPreview();
 }
 
 function renderSmartSummary() {
@@ -372,18 +396,30 @@ async function readFile(file) {
     { placeholder: "Seleccione una hoja…" }
   );
   ui.sheet.value = state.workbook.SheetNames[0] ?? "";
-  if (state.smart.recognized) {
+  if (state.smart.recognized && state.smart.rows.length) {
     await activateSmartCdcmMode();
   } else {
     setSmartMode(false);
     updateSheet();
+    if (state.smart.recognized) {
+      setBlockedMode({
+        label: "Formato institucional sin actividades extraíbles",
+        note: "El libro fue identificado, pero no contiene filas individuales que puedan convertirse en borradores.",
+      });
+    } else if (!state.profile.allowed) {
+      setBlockedMode(state.profile);
+    }
   }
   ui.configuration.hidden = false;
+  const blocked = (state.smart.recognized && !state.smart.rows.length)
+    || (!state.smart.recognized && !state.profile.allowed);
   setStatus(
-    state.smart.recognized
+    blocked
+      ? `Archivo clasificado como ${state.profile?.label ?? "formato no operativo"}. No se importará a Bitácora.`
+      : state.smart.recognized
       ? `Formato institucional reconocido automáticamente: ${state.smart.rows.length} actividades encontradas.`
       : `Archivo listo: ${state.workbook.SheetNames.length} hoja(s) detectada(s).`,
-    "success"
+    blocked ? "warning" : "success"
   );
 }
 
@@ -512,7 +548,7 @@ function buildSmartPreviewRows() {
       total_participantes: null,
       total_accesos: null,
       metadata: {
-        frontend: { version: "6.5.2", capture_module: "smart_excel_import" },
+        frontend: { version: "6.5.3", capture_module: "smart_excel_import" },
         location_text: { sede: row.venue || null },
         importacion_automatica: {
           formato: state.smart.profile,
@@ -638,7 +674,7 @@ function buildPreviewRows() {
       total_participantes: participants,
       total_accesos: access,
       metadata: {
-        frontend: { version: "6.5.2", capture_module: "excel_import" },
+        frontend: { version: "6.5.3", capture_module: "excel_import" },
         location_text: { sede: venue },
         source_labels: {
           unidad: selectedUnit?.nombre ?? null,
@@ -762,7 +798,7 @@ async function importRows() {
       p_archivo_nombre: state.file.name,
       p_tipo_importacion: state.profile.key,
       p_metadata: {
-        frontend_version: "6.5.2",
+        frontend_version: "6.5.3",
         hoja: ui.sheet.value,
         filas_previsualizadas: state.preview.length,
         filas_validas_cliente: validRows.length,
@@ -922,12 +958,16 @@ export async function initializeImporter({ context, units, municipalities }) {
     status: $("importStatus"),
     templateLink: $("downloadImportTemplate"),
     smartSummary: $("importSmartSummary"),
+    smartSummaryBadge: $("importSmartSummaryBadge"),
+    smartSummaryTitle: $("importSmartSummaryTitle"),
     smartSummaryText: $("importSmartSummaryText"),
     smartCategoryList: $("importSmartCategoryList"),
     smartSummaryNote: $("importSmartSummaryNote"),
     formatSection: $("importFormatSection"),
     destinationSection: $("importDestinationSection"),
     mappingSection: $("importMappingSection"),
+    actionBar: $("importActionBar"),
+    previewSection: $("importPreviewSection"),
   });
 
   state.context = context;

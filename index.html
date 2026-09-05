@@ -1749,6 +1749,16 @@
       color: #7C4A03 !important;
     }
 
+    .smart-import-summary.blocked {
+      border-color: #F5D99B;
+      background: linear-gradient(135deg, #FFFBEB, #FFF7ED);
+    }
+
+    .smart-import-summary.blocked .smart-summary-badge {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
     .import-actions {
       display: flex;
       justify-content: flex-end;
@@ -4613,8 +4623,8 @@
             <div id="importStatus" class="import-status" hidden></div>
 
             <section id="importSmartSummary" class="smart-import-summary" hidden>
-              <div class="smart-summary-badge">Reconocimiento automático</div>
-              <h3>El archivo institucional quedó organizado por ti</h3>
+              <div id="importSmartSummaryBadge" class="smart-summary-badge">Reconocimiento automático</div>
+              <h3 id="importSmartSummaryTitle">El archivo institucional quedó organizado por ti</h3>
               <p id="importSmartSummaryText"></p>
               <div id="importSmartCategoryList" class="smart-category-grid"></div>
               <p id="importSmartSummaryNote" class="smart-summary-note"></p>
@@ -4689,7 +4699,7 @@
                 <div id="importMappingGrid" class="mapping-grid"></div>
               </section>
 
-              <div class="import-actions">
+              <div id="importActionBar" class="import-actions">
                 <button id="prepareImportPreview" class="button button-secondary" type="button">
                   Preparar vista previa automática
                 </button>
@@ -4698,7 +4708,7 @@
                 </button>
               </div>
 
-              <section class="bitacora-import-section">
+              <section id="importPreviewSection" class="bitacora-import-section">
                 <h3>4. Vista previa</h3>
                 <p id="importPreviewSummary">
                   Prepara una vista previa para revisar los datos antes de guardarlos.
