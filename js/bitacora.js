@@ -4,6 +4,7 @@
  *
  * Bitácora V2 con paginación de servidor.
  * No usa select('*') y respeta RLS mediante vw_registros_operativos.
+ * Etapa 6.5.6: conserva filtros por usuario entre recargas y cambios de foco.
  */
 
 import { dbV2 } from "./supabase-client.js";
@@ -23,6 +24,7 @@ import {
 } from "./importer.js";
 
 const PAGE_SIZE = 25;
+const FILTER_STORAGE_PREFIX = "v2.bitacora.filters";
 
 let context = null;
 let initialized = false;
@@ -411,6 +413,51 @@ function getFilters() {
   };
 }
 
+function filterStorageKey() {
+  const userId = context?.user?.id;
+  return userId
+    ? `${FILTER_STORAGE_PREFIX}:${userId}`
+    : null;
+}
+
+function readStoredFilters() {
+  const key = filterStorageKey();
+  if (!key) return {};
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(key) ?? "{}");
+    return saved && typeof saved === "object" ? saved : {};
+  } catch (error) {
+    console.warn("Bitácora V2: no se pudieron leer los filtros guardados.", error);
+    return {};
+  }
+}
+
+function persistFilters(filters = getFilters()) {
+  const key = filterStorageKey();
+  if (!key) return;
+
+  try {
+    localStorage.setItem(key, JSON.stringify({
+      search: String(filters.search ?? ""),
+      status: String(filters.status ?? ""),
+      unitId: String(filters.unitId ?? ""),
+      municipalityId: String(filters.municipalityId ?? ""),
+      year: String(filters.year ?? ""),
+    }));
+  } catch (error) {
+    console.warn("Bitácora V2: no se pudieron guardar los filtros.", error);
+  }
+}
+
+function restoreSelectValue(element, value) {
+  const normalized = String(value ?? "");
+  const exists = [...element.options].some(
+    (option) => option.value === normalized
+  );
+  element.value = exists ? normalized : "";
+}
+
 async function fetchRows() {
   const {
     search,
@@ -597,6 +644,7 @@ function debounce(fn, wait = 350) {
 }
 
 function filtersChanged() {
+  persistFilters();
   state.page = 0;
   refresh();
 }
@@ -768,11 +816,21 @@ function showDetail(row) {
 }
 
 async function populateFilters() {
+  const previousFilters = getFilters();
+
   const [units, municipalities] =
     await Promise.all([
       loadOperationalUnits(context),
       loadMunicipalities(context),
     ]);
+
+  // Se consulta después de esperar los catálogos para conservar cualquier
+  // cambio hecho por la persona mientras la red terminaba de responder.
+  const storedFilters = readStoredFilters();
+  const preferredFilters = {
+    ...previousFilters,
+    ...storedFilters,
+  };
 
   fillSelect(
     ui.unit,
@@ -816,8 +874,16 @@ async function populateFilters() {
     }
   );
 
-  ui.year.value =
-    String(currentYear);
+  if (!previousFilters.year && !("year" in storedFilters)) {
+    preferredFilters.year = String(currentYear);
+  }
+
+  ui.search.value = String(preferredFilters.search ?? "");
+  restoreSelectValue(ui.status, preferredFilters.status);
+  restoreSelectValue(ui.unit, preferredFilters.unitId);
+  restoreSelectValue(ui.municipality, preferredFilters.municipalityId);
+  restoreSelectValue(ui.year, preferredFilters.year);
+  persistFilters();
 
   return { units, municipalities };
 }
@@ -869,10 +935,10 @@ export async function initBitacoraV2(
     const searchChanged =
       debounce(filtersChanged);
 
-    ui.search.addEventListener(
-      "input",
-      searchChanged
-    );
+    ui.search.addEventListener("input", () => {
+      persistFilters();
+      searchChanged();
+    });
 
     [
       ui.status,
