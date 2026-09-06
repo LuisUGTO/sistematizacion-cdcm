@@ -1567,6 +1567,108 @@
       border-top: 1px solid var(--gto-borde);
     }
 
+    .import-history-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 190px;
+    }
+
+    .import-history-actions .button {
+      min-height: 38px;
+      padding: 8px 12px;
+      white-space: nowrap;
+    }
+
+    .import-audit {
+      color: #172033;
+      text-align: left;
+    }
+
+    .import-audit-scope {
+      margin: 0 0 14px;
+      color: #64748B;
+      overflow-wrap: anywhere;
+    }
+
+    .import-audit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .import-audit-metric {
+      display: flex;
+      min-height: 104px;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px;
+      border: 1px solid #D7E3EF;
+      border-radius: 14px;
+      background: #F7FAFC;
+    }
+
+    .import-audit-metric span {
+      color: #64748B;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .import-audit-metric strong {
+      color: var(--gto-azul);
+      font-family: "Vollkorn", Georgia, serif;
+      font-size: 1.32rem;
+      line-height: 1.1;
+    }
+
+    .import-audit-metric small {
+      color: #64748B;
+      line-height: 1.35;
+    }
+
+    .import-audit-notice {
+      margin: 8px 0 0;
+      padding: 11px 13px;
+      border: 1px solid #B9D7EF;
+      border-radius: 11px;
+      background: #EDF7FF;
+      color: #164E73;
+    }
+
+    .import-audit-notice.success {
+      border-color: #9DE2BD;
+      background: #ECFBF3;
+      color: #11623A;
+    }
+
+    .import-audit-notice.warning {
+      border-color: #F3CF8A;
+      background: #FFF7E8;
+      color: #815000;
+    }
+
+    .import-audit-issues {
+      margin-top: 12px;
+      padding: 10px 13px;
+      border: 1px solid #E1E7EF;
+      border-radius: 11px;
+      background: #FFF;
+    }
+
+    .import-audit-issues summary {
+      cursor: pointer;
+      color: var(--gto-azul);
+      font-weight: 800;
+    }
+
+    .import-audit-issues ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
     .import-config-grid,
     .mapping-grid {
       display: grid;
@@ -2094,6 +2196,24 @@
       .import-actions .button {
         width: 100%;
         text-align: center;
+      }
+
+      .import-audit-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .import-audit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .import-history-actions {
+        min-width: 150px;
+      }
+
+      .import-history-actions .button {
+        width: 100%;
       }
     }
 
@@ -4740,7 +4860,7 @@
                   <thead>
                     <tr>
                       <th>Fecha</th><th>Archivo</th><th>Estatus</th>
-                      <th>Filas</th><th>Importadas</th><th>Errores / duplicados</th><th>Detalle</th>
+                      <th>Filas</th><th>Importadas</th><th>Errores / duplicados</th><th>Acciones</th>
                     </tr>
                   </thead>
                   <tbody id="importHistoryBody">
