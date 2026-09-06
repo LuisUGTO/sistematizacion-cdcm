@@ -1,8 +1,8 @@
 /**
  * VINCULACIÓN CULTURAL 2.0
- * draft-editor.js
+ * draft-editor.js — Etapa 6.6.1
  *
- * Completar/editar BORRADOR manual y enviarlo a revisión.
+ * Completar/editar BORRADOR manual o importado y preservar su demografía.
  */
 
 import { dbV2 } from "./supabase-client.js";
@@ -222,6 +222,10 @@ function renderDemography(
     );
 
   const universes = [
+    {
+      key: "BENEFICIARIOS",
+      label: "Personas beneficiarias",
+    },
     {
       key: "PARTICIPANTES",
       label: "Personas que participan",
