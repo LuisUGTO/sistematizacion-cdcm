@@ -1,10 +1,13 @@
-const CACHE_NAME = 'cultura-gto-cache-v7-0';
+const CACHE_NAME = 'cultura-gto-cache-v7-1';
 const RECURSOS_APP = [
   './',
   './index.html',
   './admin.html',
   './manifest.json.json',
-  './Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png',
+  './assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png',
+  './assets/identidad-institucional/inicio/portada/inicio-portada-guanajuato.jpg',
+  './assets/identidad-institucional/inicio/destacados/inicio-patrimonio-cultural.jpg',
+  './assets/identidad-institucional/inicio/destacados/inicio-bibliotecas-lectura.jpg',
   './js/draft-editor.js',
   './js/importer.js',
   './js/importer-smart.js'

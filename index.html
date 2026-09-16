@@ -11,7 +11,7 @@
   <link
     rel="icon"
     type="image/png"
-    href="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001%20(1).png"
+    href="assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001%20(1).png"
   />
 
   <!-- Dependencias -->
@@ -828,6 +828,356 @@
       font-weight: 800;
     }
 
+    /* ================================================================
+       INICIO INSTITUCIONAL — ETAPA 7.1
+       ================================================================ */
+
+    .home-hero {
+      position: relative;
+      min-height: 360px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(330px, .88fr);
+      overflow: hidden;
+      margin-bottom: 16px;
+      border-radius: 22px;
+      background: var(--gto-azul-oscuro);
+      box-shadow: var(--shadow);
+    }
+
+    .home-hero-copy {
+      position: relative;
+      z-index: 2;
+      align-self: center;
+      padding: 42px;
+      color: white;
+      background:
+        linear-gradient(115deg, rgba(0, 54, 98, .99) 0%, rgba(0, 75, 135, .96) 72%, rgba(0, 75, 135, .78) 100%);
+    }
+
+    .home-hero-copy h1 {
+      max-width: 720px;
+      margin: 0;
+      color: white;
+      font-size: clamp(32px, 4.6vw, 52px);
+      line-height: 1.03;
+    }
+
+    .home-hero-copy > p {
+      max-width: 660px;
+      margin-top: 16px;
+      color: #E2EFF8;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .home-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .home-hero-button {
+      min-height: 44px;
+      padding: 11px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .home-hero-button-primary {
+      border: 1px solid white;
+      background: white;
+      color: var(--gto-azul-oscuro);
+    }
+
+    .home-hero-button-secondary {
+      border: 1px solid rgba(255, 255, 255, .5);
+      background: rgba(255, 255, 255, .1);
+      color: white;
+    }
+
+    .home-hero-photo {
+      position: relative;
+      min-height: 360px;
+      background: #17314E;
+    }
+
+    .home-hero-photo img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .home-hero-photo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0, 54, 98, .38), transparent 48%, rgba(0, 0, 0, .18));
+      pointer-events: none;
+    }
+
+    .home-photo-caption {
+      position: absolute;
+      z-index: 2;
+      right: 18px;
+      bottom: 18px;
+      max-width: calc(100% - 36px);
+      padding: 10px 12px;
+      border-left: 3px solid #F4C95D;
+      border-radius: 7px;
+      background: rgba(0, 35, 62, .8);
+      color: white;
+      font-size: 10px;
+      line-height: 1.45;
+      backdrop-filter: blur(5px);
+    }
+
+    .home-session-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      margin-bottom: 28px;
+      padding: 13px 16px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 12px;
+      background: white;
+      color: #64748B;
+      font-size: 11px;
+    }
+
+    .home-session-strip strong {
+      margin-left: 4px;
+      color: var(--gto-azul);
+    }
+
+    .home-section {
+      margin-top: 28px;
+    }
+
+    .home-section-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .home-section-heading h2 {
+      margin: 0;
+      font-size: 25px;
+    }
+
+    .home-section-heading p {
+      color: #64748B;
+      font-size: 11px;
+    }
+
+    .home-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 13px;
+    }
+
+    .home-action-card {
+      min-height: 162px;
+      padding: 18px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 15px;
+      background: white;
+      color: var(--gto-texto);
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 8px 24px -20px rgba(0, 75, 135, .5);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .home-action-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gto-celeste);
+      box-shadow: 0 14px 26px -20px rgba(0, 75, 135, .75);
+    }
+
+    .home-action-number {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 11px;
+      background: #EAF4FB;
+      color: var(--gto-azul);
+      font-family: "Vollkorn", serif;
+      font-weight: 900;
+    }
+
+    .home-action-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--gto-azul);
+      font-size: 13px;
+    }
+
+    .home-action-card span:last-child {
+      color: #64748B;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .home-context-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .92fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .home-context-card {
+      min-height: 270px;
+      padding: 22px;
+      border: 1px solid var(--gto-borde);
+      border-radius: 16px;
+      background: white;
+    }
+
+    .home-context-card h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .home-map-layout {
+      display: grid;
+      grid-template-columns: minmax(210px, .9fr) minmax(190px, 1.1fr);
+      align-items: center;
+      gap: 20px;
+      margin-top: 14px;
+    }
+
+    .home-map-svg {
+      width: 100%;
+      min-height: 190px;
+      display: block;
+    }
+
+    .home-map-svg path {
+      fill: #D9EDF8;
+      stroke: white;
+      stroke-width: 1.1;
+    }
+
+    .home-map-copy strong {
+      display: block;
+      color: var(--gto-azul);
+      font-family: "Vollkorn", serif;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    .home-map-copy > p,
+    .home-scope-copy p {
+      margin-top: 7px;
+      color: #64748B;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .home-scope-copy {
+      margin-top: 13px;
+      padding-top: 12px;
+      border-top: 1px solid var(--gto-borde);
+    }
+
+    .home-flow-list {
+      display: grid;
+      margin-top: 12px;
+    }
+
+    .home-flow-step {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 11px;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--gto-borde);
+    }
+
+    .home-flow-step:last-child { border-bottom: 0; }
+
+    .home-flow-step > span {
+      width: 29px;
+      height: 29px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--gto-azul);
+      color: white;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .home-flow-step strong {
+      display: block;
+      color: #334155;
+      font-size: 12px;
+    }
+
+    .home-flow-step small {
+      color: #64748B;
+      font-size: 10px;
+    }
+
+    .home-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .home-gallery-card {
+      position: relative;
+      min-height: 230px;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--gto-azul-oscuro);
+      box-shadow: var(--shadow);
+    }
+
+    .home-gallery-card img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform .35s ease;
+    }
+
+    .home-gallery-card:hover img { transform: scale(1.025); }
+
+    .home-gallery-copy {
+      position: absolute;
+      inset: auto 0 0;
+      padding: 36px 20px 18px;
+      background: linear-gradient(transparent, rgba(0, 35, 62, .94));
+      color: white;
+    }
+
+    .home-gallery-copy strong {
+      display: block;
+      color: white;
+      font-family: "Vollkorn", serif;
+      font-size: 19px;
+    }
+
+    .home-gallery-copy span {
+      color: #DCEAF4;
+      font-size: 10px;
+    }
+
+    .home-map-status {
+      color: #64748B;
+      font-size: 10px;
+      text-align: center;
+    }
+
     .tabs {
       display: flex;
       gap: 9px;
@@ -1128,6 +1478,22 @@
       .profile-name {
         display: none;
       }
+
+      .home-hero {
+        grid-template-columns: 1fr;
+      }
+
+      .home-hero-photo {
+        min-height: 230px;
+      }
+
+      .home-actions-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .home-context-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 650px) {
@@ -1155,6 +1521,26 @@
 
       .hero {
         padding: 22px;
+      }
+
+      .home-hero-copy {
+        padding: 30px 22px;
+      }
+
+      .home-actions-grid,
+      .home-gallery,
+      .home-map-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .home-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .home-map-svg {
+        min-height: 230px;
       }
 
       .login-card {
@@ -4104,7 +4490,7 @@
     <div class="login-card">
       <img
         class="login-logo"
-        src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png"
+        src="assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png"
         alt="Gobierno del Estado de Guanajuato"
         onerror="this.hidden = true"
       />
@@ -4160,7 +4546,7 @@
       <div class="topbar-inner">
         <div class="brand">
           <img
-            src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png"
+            src="assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png"
             alt="GTO"
             onerror="this.hidden = true"
           />
@@ -4274,29 +4660,6 @@
 
 
     <main class="main">
-      <section class="hero">
-        <div class="hero-kicker">
-          Secretaría de Cultura de Guanajuato
-        </div>
-
-        <h1>Plataforma institucional de sistematización</h1>
-
-        <p>
-          Captura, consulta, validación y seguimiento de la información de
-          Vinculación Cultural en una sola plataforma institucional.
-        </p>
-
-        <div class="hero-badges">
-          <span class="hero-badge">Captura institucional</span>
-          <span class="hero-badge">Validación</span>
-          <span class="hero-badge">Trazabilidad</span>
-          <span class="hero-badge">Indicadores</span>
-          <span class="hero-badge">CDCM</span>
-          <span class="hero-badge">Bibliotecas</span>
-        </div>
-      </section>
-
-
       <nav class="tabs" aria-label="Módulos principales">
         <button
           class="tab-button active"
@@ -4360,139 +4723,153 @@
            ============================================================ -->
 
       <section id="panel-inicio" class="panel active">
-        <div class="grid">
-          <article class="card metric-card">
-            <div class="metric-label">Sesión</div>
-            <div id="metricSession" class="metric-value">Activa</div>
-            <div id="metricSessionHelp" class="metric-help">
-              Sesión institucional verificada.
+        <section class="home-hero" aria-labelledby="homeHeroTitle">
+          <div class="home-hero-copy">
+            <div class="hero-kicker">Vinculación Cultural · Guanajuato</div>
+            <h1 id="homeHeroTitle">La cultura del territorio, en un solo sistema</h1>
+            <p>
+              Registra, valida y consulta la actividad cultural de los municipios
+              con información confiable, ordenada y trazable.
+            </p>
+            <div class="home-hero-actions">
+              <button class="home-hero-button home-hero-button-primary" type="button" data-home-target="captura">
+                Registrar una actividad
+              </button>
+              <button class="home-hero-button home-hero-button-secondary" type="button" data-home-target="bitacora">
+                Consultar bitácora
+              </button>
             </div>
-          </article>
+          </div>
+          <div class="home-hero-photo">
+            <img
+              src="assets/identidad-institucional/inicio/portada/inicio-portada-guanajuato.jpg"
+              alt="Arquitectura y patrimonio cultural de Guanajuato"
+            />
+            <div class="home-photo-caption">
+              Patrimonio cultural de Guanajuato · fotografía institucional
+            </div>
+          </div>
+        </section>
 
-          <article class="card metric-card">
-            <div class="metric-label">Rol</div>
-            <div id="metricRole" class="metric-value">—</div>
-            <div class="metric-help">
-              Perfil institucional asignado a la cuenta.
-            </div>
-          </article>
-
-          <article class="card metric-card">
-            <div class="metric-label">Unidades asignadas</div>
-            <div id="metricUnits" class="metric-value">—</div>
-            <div class="metric-help">
-              Unidades disponibles para la cuenta.
-            </div>
-          </article>
-
-          <article class="card metric-card">
-            <div class="metric-label">Municipios asignados</div>
-            <div id="metricMunicipalities" class="metric-value">—</div>
-            <div class="metric-help">
-              Municipios disponibles para la cuenta.
-            </div>
-          </article>
+        <div class="home-session-strip" aria-label="Resumen de la sesión">
+          <span>Sesión <strong id="metricSession">Activa</strong></span>
+          <span>Rol <strong id="metricRole">—</strong></span>
+          <span>Unidades <strong id="metricUnits">—</strong></span>
+          <span>Municipios <strong id="metricMunicipalities">—</strong></span>
         </div>
 
-
-        <article class="card section-card" hidden aria-hidden="true">
-          <h2>Estado técnico del Frontend V2</h2>
-
-          <p>
-            Este bloque verifica que la interfaz esté trabajando con la
-            arquitectura nueva antes de habilitar captura, bitácora y
-            dashboard productivos.
-          </p>
-
-          <div class="check-list">
-            <div class="check-row">
-              <div id="checkAuthIcon" class="check-icon check-ok">✓</div>
-
-              <div>
-                <div class="check-title">
-                  Auth + perfil V2
-                </div>
-
-                <div id="checkAuthCopy" class="check-copy">
-                  Sesión y perfil cargados correctamente.
-                </div>
-              </div>
-            </div>
-
-            <div class="check-row">
-              <div id="checkApiIcon" class="check-icon check-warn">…</div>
-
-              <div>
-                <div class="check-title">
-                  Data API · schema v2
-                </div>
-
-                <div id="checkApiCopy" class="check-copy">
-                  Comprobando acceso...
-                </div>
-              </div>
-            </div>
-
-            <div class="check-row">
-              <div class="check-icon check-ok">✓</div>
-
-              <div>
-                <div class="check-title">
-                  Autorización gobernada por RLS
-                </div>
-
-                <div class="check-copy">
-                  La UI solo refleja permisos; PostgreSQL conserva la
-                  autoridad real sobre lectura y escritura.
-                </div>
-              </div>
-            </div>
-
-            <div class="check-row">
-              <div class="check-icon check-ok">✓</div>
-
-              <div>
-                <div class="check-title">
-                  V1 preservado
-                </div>
-
-                <div class="check-copy">
-                  Esta versión no escribe en public.registros_culturales.
-                  El frontend nuevo se construye sobre v2.
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-
-        <article class="card section-card">
-          <h2>Alcance de la sesión</h2>
-
-          <p>
-            Los usuarios no administradores trabajan únicamente dentro de
-            los alcances explícitamente asignados. Un ADMIN conserva alcance
-            global por las reglas del servidor.
-          </p>
-
-          <div class="scope-grid">
-            <div class="scope-box">
-              <strong>Unidades operativas</strong>
-              <p id="unitScopeText">
-                Cargando...
-              </p>
-            </div>
-
-            <div class="scope-box">
-              <strong>Municipios</strong>
-              <p id="municipalityScopeText">
-                Cargando...
-              </p>
-            </div>
+        <section class="home-section" aria-labelledby="homeActionsTitle">
+          <div class="home-section-heading">
+            <h2 id="homeActionsTitle">¿Qué necesitas hacer?</h2>
+            <p>Accesos disponibles de acuerdo con tu perfil institucional.</p>
           </div>
 
-          <div id="scopeNotice" class="notice" hidden></div>
-        </article>
+          <div class="home-actions-grid">
+            <button class="home-action-card" type="button" data-home-target="captura">
+              <span class="home-action-number" aria-hidden="true">01</span>
+              <strong>Capturar actividad</strong>
+              <span>Registra una acción cultural y agrega la información necesaria.</span>
+            </button>
+
+            <button class="home-action-card" type="button" data-home-target="bitacora">
+              <span class="home-action-number" aria-hidden="true">02</span>
+              <strong>Consultar bitácora</strong>
+              <span>Busca folios, completa datos y da seguimiento a cada registro.</span>
+            </button>
+
+            <button class="home-action-card" type="button" data-home-target="validacion">
+              <span class="home-action-number" aria-hidden="true">03</span>
+              <strong>Revisar y validar</strong>
+              <span>Confirma la calidad de la información antes de integrarla.</span>
+            </button>
+
+            <button class="home-action-card" type="button" data-home-target="dashboard">
+              <span class="home-action-number" aria-hidden="true">04</span>
+              <strong>Ver resultados</strong>
+              <span>Consulta indicadores, cobertura y resultados territoriales.</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="home-context-grid" aria-label="Cobertura y funcionamiento del sistema">
+          <article class="home-context-card">
+            <h3>Cobertura territorial</h3>
+            <div class="home-map-layout">
+              <div>
+                <svg
+                  id="homeTerritoryMap"
+                  class="home-map-svg"
+                  viewBox="0 0 420 280"
+                  role="img"
+                  aria-labelledby="homeMapTitle homeMapDescription"
+                >
+                  <title id="homeMapTitle">Mapa municipal de Guanajuato</title>
+                  <desc id="homeMapDescription">Representación de los 46 municipios del estado.</desc>
+                </svg>
+                <p id="homeMapStatus" class="home-map-status">Preparando mapa territorial…</p>
+              </div>
+
+              <div class="home-map-copy">
+                <strong>46 municipios</strong>
+                <p>
+                  La plataforma integra la actividad cultural registrada dentro
+                  del alcance autorizado para cada cuenta.
+                </p>
+                <div class="home-scope-copy">
+                  <p id="unitScopeText">Cargando unidades disponibles…</p>
+                  <p id="municipalityScopeText">Cargando municipios disponibles…</p>
+                </div>
+              </div>
+            </div>
+            <div id="scopeNotice" class="notice" hidden></div>
+          </article>
+
+          <article class="home-context-card">
+            <h3>Así funciona</h3>
+            <div class="home-flow-list">
+              <div class="home-flow-step"><span>1</span><div><strong>Captura</strong><small>Registra los datos esenciales de la actividad.</small></div></div>
+              <div class="home-flow-step"><span>2</span><div><strong>Completa</strong><small>Agrega responsable, población y evidencia.</small></div></div>
+              <div class="home-flow-step"><span>3</span><div><strong>Valida</strong><small>Confirma la calidad institucional del registro.</small></div></div>
+              <div class="home-flow-step"><span>4</span><div><strong>Consulta</strong><small>Visualiza los resultados consolidados.</small></div></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="home-section" aria-labelledby="homeTerritoryTitle">
+          <div class="home-section-heading">
+            <h2 id="homeTerritoryTitle">Cultura que sucede en el territorio</h2>
+            <p>Espacios, patrimonio y servicios culturales de Guanajuato.</p>
+          </div>
+
+          <div class="home-gallery">
+            <article class="home-gallery-card">
+              <img
+                src="assets/identidad-institucional/inicio/destacados/inicio-patrimonio-cultural.jpg"
+                alt="Patio de un recinto histórico y cultural de Guanajuato"
+              />
+              <div class="home-gallery-copy">
+                <strong>Patrimonio e infraestructura cultural</strong>
+                <span>Espacios que resguardan y acercan la cultura.</span>
+              </div>
+            </article>
+
+            <article class="home-gallery-card">
+              <img
+                src="assets/identidad-institucional/inicio/destacados/inicio-bibliotecas-lectura.jpg"
+                alt="Biblioteca con acervo y mobiliario de consulta"
+              />
+              <div class="home-gallery-copy">
+                <strong>Bibliotecas y espacios de lectura</strong>
+                <span>Conocimiento, memoria y encuentro comunitario.</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <div hidden aria-hidden="true">
+          <span id="checkApiIcon">…</span>
+          <span id="checkApiCopy">Comprobando acceso…</span>
+        </div>
       </section>
 
 
@@ -6444,6 +6821,17 @@
       ui.dashboardTabButton.disabled = !canDashboard;
       ui.adminTabButton.hidden = !canAdminister;
       ui.adminTabButton.disabled = !canAdminister;
+
+      document
+        .querySelectorAll("[data-home-target]")
+        .forEach((control) => {
+          const destination = document.querySelector(
+            `.tab-button[data-tab-target="${control.dataset.homeTarget}"]`
+          );
+
+          control.hidden = !destination || destination.hidden;
+          control.disabled = !destination || destination.disabled;
+        });
     }
 
 
@@ -6877,6 +7265,68 @@
       });
 
 
+    document
+      .querySelectorAll("[data-home-target]")
+      .forEach((control) => {
+        control.addEventListener("click", () => {
+          if (control.disabled) return;
+
+          const destination = document.querySelector(
+            `.tab-button[data-tab-target="${control.dataset.homeTarget}"]`
+          );
+
+          destination?.click();
+          document.querySelector(".tabs")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      });
+
+
+    async function renderHomeTerritoryMap() {
+      const svgElement = document.getElementById("homeTerritoryMap");
+      const status = document.getElementById("homeMapStatus");
+
+      if (!svgElement || !window.d3) {
+        if (status) status.textContent = "Mapa territorial no disponible.";
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "./assets/geo/guanajuato-municipios.geojson?v=7.1.0",
+          { cache: "force-cache" }
+        );
+
+        if (!response.ok) throw new Error(`MAP_HTTP_${response.status}`);
+
+        const geometry = await response.json();
+        const projection = window.d3
+          .geoMercator()
+          .fitExtent([[12, 12], [408, 268]], geometry);
+        const path = window.d3.geoPath(projection);
+        const svg = window.d3.select(svgElement);
+
+        svg
+          .append("g")
+          .attr("aria-hidden", "true")
+          .selectAll("path")
+          .data(geometry.features ?? [])
+          .join("path")
+          .attr("d", path);
+
+        if (status) status.hidden = true;
+      } catch (error) {
+        console.error("Mapa del inicio:", error);
+        if (status) {
+          status.textContent =
+            "La cobertura territorial continúa disponible en el Dashboard.";
+        }
+      }
+    }
+
+
     window.addEventListener(
       "online",
       async () => {
@@ -6904,6 +7354,7 @@
 
 
     updateNetworkStatus();
+    renderHomeTerritoryMap();
 
     authSubscription =
       onAuthStateChange(async (_event, session) => {
