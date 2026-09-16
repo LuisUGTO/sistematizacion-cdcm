@@ -213,7 +213,7 @@ export async function loadSpaces(
   const result = await dbV2()
     .from("cat_espacios")
     .select(
-      "id,nombre,direccion,municipio_id,unidad_operativa_id,comunidad_id"
+      "id,nombre,direccion,municipio_id,unidad_operativa_id,comunidad_id,metadata"
     )
     .eq("municipio_id", municipalityId)
     .eq("activo", true)
@@ -232,7 +232,61 @@ export async function loadSpaces(
     );
   }
 
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    display_name:
+      row.metadata
+        ?.pendiente_catalogacion === true
+        ? `${row.nombre} · pendiente de catalogación`
+        : row.nombre,
+  }));
+}
+
+export async function resolveCaptureSpace({
+  municipalityId,
+  unitId = null,
+  name,
+}) {
+  const cleanName = String(name ?? "").trim();
+
+  if (!municipalityId) {
+    throw new Error(
+      "Selecciona el municipio antes de registrar una sede no catalogada."
+    );
+  }
+
+  if (cleanName.length < 3) {
+    throw new Error(
+      "Escribe el nombre completo del espacio o sede."
+    );
+  }
+
+  const result = await dbV2()
+    .rpc(
+      "rpc_resolve_espacio_captura",
+      {
+        p_municipio_id:
+          municipalityId,
+        p_unidad_operativa_id:
+          unitId || null,
+        p_nombre:
+          cleanName,
+      }
+    )
+    .single();
+
+  const row = throwIfError(
+    result,
+    "espacio_no_catalogado"
+  );
+
+  if (!row?.id) {
+    throw new Error(
+      "El servidor no devolvió el espacio registrado."
+    );
+  }
+
+  return row;
 }
 
 export async function loadActionConfiguration(

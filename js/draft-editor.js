@@ -10,6 +10,7 @@ import { dbV2 } from "./supabase-client.js";
 import {
   loadMunicipalities,
   loadSpaces,
+  resolveCaptureSpace,
   loadDemographicDefinition,
 } from "./catalogs.js";
 
@@ -472,6 +473,8 @@ async function refreshSpaces(
         spaces.length
           ? "Seleccione espacio..."
           : "Sin espacios catalogados",
+      labelKey:
+        "display_name",
     }
   );
 
@@ -670,6 +673,11 @@ async function renderEditor(data) {
   ui.spaceWrap.hidden =
     !data.config?.requiere_espacio;
 
+  ui.spaceTextWrap.hidden =
+    !data.config?.requiere_espacio;
+
+  ui.spaceText.value = "";
+
   const isTraining =
     ["TALLER", "CAPACITACION"]
       .includes(
@@ -819,7 +827,9 @@ async function openRecord(
   }
 }
 
-function buildPayload() {
+function buildPayload(
+  resolvedSpaceId = null
+) {
   return {
     nombre:
       ui.name.value.trim(),
@@ -840,6 +850,7 @@ function buildPayload() {
       null,
 
     espacio_id:
+      resolvedSpaceId ||
       ui.space.value ||
       null,
 
@@ -915,11 +926,37 @@ function buildPayload() {
   };
 }
 
+async function resolveEditorSpace() {
+  if (!state.data?.config?.requiere_espacio) {
+    return ui.space.value || null;
+  }
+
+  if (ui.space.value) {
+    return ui.space.value;
+  }
+
+  const resolved =
+    await resolveCaptureSpace({
+      municipalityId:
+        ui.municipality.value,
+      unitId:
+        state.data?.record
+          ?.unidad_operativa_id,
+      name:
+        ui.spaceText.value,
+    });
+
+  return resolved.id;
+}
+
 async function saveChanges() {
   clearMessage();
   setBusy(true);
 
   try {
+    const resolvedSpaceId =
+      await resolveEditorSpace();
+
     const {
       data,
       error,
@@ -934,7 +971,9 @@ async function saveChanges() {
             state.rowVersion,
 
           p_payload:
-            buildPayload(),
+            buildPayload(
+              resolvedSpaceId
+            ),
         }
       )
       .single();
@@ -1176,6 +1215,9 @@ async function submitReview() {
 
   try {
     // Primero persistimos cualquier cambio visible.
+    const resolvedSpaceId =
+      await resolveEditorSpace();
+
     const saveResult =
       await dbV2()
         .rpc(
@@ -1188,7 +1230,9 @@ async function submitReview() {
               state.rowVersion,
 
             p_payload:
-              buildPayload(),
+              buildPayload(
+                resolvedSpaceId
+              ),
           }
         )
         .single();
@@ -1297,6 +1341,10 @@ export async function initDraftEditor(
       $("draftEditorSpace"),
     spaceWrap:
       $("draftEditorSpaceWrap"),
+    spaceText:
+      $("draftEditorSpaceText"),
+    spaceTextWrap:
+      $("draftEditorSpaceTextWrap"),
 
     totalBeneficiaries:
       $("draftEditorTotalBeneficiaries"),

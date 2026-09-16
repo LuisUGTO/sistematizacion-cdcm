@@ -2873,6 +2873,14 @@
       font-size: 11px;
     }
 
+    .draft-field small {
+      display: block;
+      margin-top: 5px;
+      color: #64748B;
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
     .draft-span-2 {
       grid-column: span 2;
     }
@@ -6374,6 +6382,21 @@
             <div id="draftEditorSpaceWrap" class="draft-field">
               <label for="draftEditorSpace">Espacio catalogado</label>
               <select id="draftEditorSpace"></select>
+            </div>
+
+            <div id="draftEditorSpaceTextWrap" class="draft-field draft-span-2">
+              <label for="draftEditorSpaceText">
+                Otro espacio o sede no catalogada
+              </label>
+              <input
+                id="draftEditorSpaceText"
+                type="text"
+                maxlength="180"
+                placeholder="Escribe el nombre completo del espacio o sede"
+              />
+              <small>
+                Úsalo solamente cuando el lugar todavía no aparezca en el catálogo.
+              </small>
             </div>
           </div>
         </section>

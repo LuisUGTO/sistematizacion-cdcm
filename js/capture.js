@@ -15,6 +15,7 @@ import {
   loadActions,
   loadMunicipalities,
   loadSpaces,
+  resolveCaptureSpace,
   loadActionConfiguration,
   loadDemographicDefinition,
 } from "./catalogs.js";
@@ -366,6 +367,7 @@ async function refreshSpaces() {
       spaces.length > 0
         ? "Seleccione espacio..."
         : "Sin espacios catalogados",
+    labelKey: "display_name",
   });
 }
 
@@ -847,6 +849,35 @@ async function saveDraft(event) {
     const beneficiaries =
       numberOrNull(ui.totalBeneficiaries.value);
 
+    let resolvedSpaceId =
+      ui.space.value || null;
+
+    let resolvedSpaceName =
+      ui.space.value
+        ? selectedText(ui.space)
+        : null;
+
+    if (
+      currentConfig.requiere_espacio &&
+      !resolvedSpaceId
+    ) {
+      const resolvedSpace =
+        await resolveCaptureSpace({
+          municipalityId:
+            ui.municipality.value,
+          unitId:
+            ui.unit.value,
+          name:
+            ui.spaceText.value,
+        });
+
+      resolvedSpaceId =
+        resolvedSpace.id;
+
+      resolvedSpaceName =
+        resolvedSpace.nombre;
+    }
+
     const metadata = {
       frontend: {
         version: "2.1-phase2.3",
@@ -861,7 +892,10 @@ async function saveDraft(event) {
         programa: selectedText(ui.program),
         accion: selectedText(ui.action),
         municipio: selectedText(ui.municipality),
-        espacio: selectedText(ui.space),
+        espacio:
+          resolvedSpaceName ||
+          ui.spaceText.value.trim() ||
+          null,
       },
     };
 
@@ -875,7 +909,7 @@ async function saveDraft(event) {
       municipio_id:
         ui.municipality.value || null,
       espacio_id:
-        ui.space.value || null,
+        resolvedSpaceId,
 
       nombre: ui.activityName.value.trim(),
       descripcion:
