@@ -281,15 +281,15 @@ function renderSmartSummary() {
     title.textContent = `${category.label}: ${category.count}`;
     const detail = document.createElement("span");
     detail.textContent = destination?.action
-      ? `Destino V2: ${destination.action.nombre}`
-      : "Falta una acción V2 compatible";
+      ? `Destino institucional: ${destination.action.nombre}`
+      : "Falta una acción institucional compatible";
     item.append(title, detail);
     ui.smartCategoryList.appendChild(item);
   }
 
   const notes = [];
   if (!municipality) notes.push(`No se reconoció el municipio “${smart.municipalityName}”.`);
-  if (missingDestinations) notes.push(`${missingDestinations} categoría(s) no tienen destino V2 configurado.`);
+  if (missingDestinations) notes.push(`${missingDestinations} categoría(s) no tienen un destino institucional configurado.`);
   if (zeroTotals) notes.push(`${zeroTotals} actividad(es) no contienen cifra de personas; se mostrarán para revisión.`);
   ui.smartSummaryNote.textContent = notes.length
     ? notes.join(" ")
@@ -525,7 +525,7 @@ function buildSmartPreviewRows() {
     const errors = [];
 
     if (!unit) errors.push("No se encontró la unidad CDCM");
-    if (!action) errors.push(`No existe una acción V2 para ${row.categoryLabel}`);
+    if (!action) errors.push(`No existe una acción institucional para ${row.categoryLabel}`);
     if (!config) errors.push(`La acción ${action?.nombre ?? row.categoryLabel} no tiene configuración vigente`);
     if (config?.requiere_municipio && !municipality) {
       errors.push(`Municipio no reconocido: ${state.smart.municipalityName}`);
@@ -804,7 +804,7 @@ async function importRows() {
   const decision = await Swal.fire({
     icon: "question",
     title: `Importar ${validRows.length.toLocaleString("es-MX")} actividad(es)`,
-    html: `Se guardaran como <b>borradores V2</b> para su revision.${invalidCount ? `<br>${invalidCount} fila(s) con observaciones quedaran registradas en el trabajo, sin crear actividad.` : ""}`,
+    html: `Se guardarán como <b>borradores</b> para su revisión.${invalidCount ? `<br>${invalidCount} fila(s) con observaciones quedarán registradas en el trabajo, sin crear actividad.` : ""}`,
     showCancelButton: true,
     confirmButtonText: "Si, iniciar importacion",
     cancelButtonText: "Revisar de nuevo",
@@ -858,7 +858,7 @@ async function importRows() {
       return;
     }
 
-    setStatus("Creando borradores V2 y aplicando validaciones institucionales…");
+    setStatus("Creando borradores y aplicando validaciones institucionales…");
     const confirmed = await dbV2().rpc("rpc_import_confirmar", { p_job_id: jobId }).single();
     if (confirmed.error) throw confirmed.error;
     const result = confirmed.data;
@@ -913,7 +913,7 @@ async function loadHistory() {
   if (!(data ?? []).length) {
     const row = ui.historyBody.insertRow();
     row.insertCell().colSpan = 7;
-    row.cells[0].textContent = "Aun no hay importaciones V2.";
+    row.cells[0].textContent = "Aún no hay importaciones.";
     return;
   }
   data.forEach((job) => {

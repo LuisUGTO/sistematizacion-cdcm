@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Vinculación Cultural V2 | Secretaría de Cultura de Guanajuato</title>
+  <title>Sistematización de Vinculación | Secretaría de Cultura de Guanajuato</title>
 
   <meta name="theme-color" content="#004B87" />
-  <meta name="description" content="Sistema Integral de Sistematización de Vinculación Cultural — V2" />
+  <meta name="description" content="Sistema Institucional de Sistematización de Vinculación Cultural" />
   <link
     rel="icon"
     type="image/png"
@@ -4109,7 +4109,7 @@
         onerror="this.hidden = true"
       />
 
-      <h1>Acceso Operativo V2</h1>
+      <h1>Acceso institucional</h1>
 
       <p>
         Sistema Integral de Sistematización de Vinculación Cultural
@@ -4135,9 +4135,8 @@
       </form>
 
       <p class="login-help">
-        La autorización no depende del correo escrito en el navegador.
-        El acceso y el rol se validan contra <strong>v2.profiles</strong>
-        y las políticas RLS del servidor.
+        Utiliza el correo institucional autorizado por la coordinación.
+        Recibirás un enlace seguro para iniciar sesión.
       </p>
 
       <button id="loginHelpButton" class="login-support-link" type="button">
@@ -4236,7 +4235,7 @@
                   hidden
                 >
                   <span class="profile-menu-action-icon" aria-hidden="true">⌘</span>
-                  <span>Panel de mantenimiento</span>
+                  <span>Administración del sistema</span>
                 </button>
 
                 <button id="profileHelpButton" class="profile-menu-action" type="button">
@@ -4277,22 +4276,21 @@
     <main class="main">
       <section class="hero">
         <div class="hero-kicker">
-          Vinculación Cultural 2.0 · Core V2.1
+          Secretaría de Cultura de Guanajuato
         </div>
 
         <h1>Plataforma institucional de sistematización</h1>
 
         <p>
-          Operación institucional integrada sobre el schema V2: captura,
-          bitácora, validación, trazabilidad y seguimiento directivo de metas
-          e indicadores con seguridad por alcance.
+          Captura, consulta, validación y seguimiento de la información de
+          Vinculación Cultural en una sola plataforma institucional.
         </p>
 
         <div class="hero-badges">
-          <span class="hero-badge">PostgreSQL + RLS</span>
-          <span class="hero-badge">Supabase Auth</span>
-          <span class="hero-badge">Storage privado</span>
-          <span class="hero-badge">Auditoría</span>
+          <span class="hero-badge">Captura institucional</span>
+          <span class="hero-badge">Validación</span>
+          <span class="hero-badge">Trazabilidad</span>
+          <span class="hero-badge">Indicadores</span>
           <span class="hero-badge">CDCM</span>
           <span class="hero-badge">Bibliotecas</span>
         </div>
@@ -4305,7 +4303,7 @@
           type="button"
           data-tab-target="inicio"
         >
-          Inicio V2
+          Inicio
         </button>
 
         <button
@@ -4367,15 +4365,15 @@
             <div class="metric-label">Sesión</div>
             <div id="metricSession" class="metric-value">Activa</div>
             <div id="metricSessionHelp" class="metric-help">
-              Autenticación validada por Supabase Auth.
+              Sesión institucional verificada.
             </div>
           </article>
 
           <article class="card metric-card">
-            <div class="metric-label">Rol V2</div>
+            <div class="metric-label">Rol</div>
             <div id="metricRole" class="metric-value">—</div>
             <div class="metric-help">
-              El rol proviene de v2.profiles; no se asigna en el navegador.
+              Perfil institucional asignado a la cuenta.
             </div>
           </article>
 
@@ -4383,7 +4381,7 @@
             <div class="metric-label">Unidades asignadas</div>
             <div id="metricUnits" class="metric-value">—</div>
             <div class="metric-help">
-              Alcance desde v2.profile_unidades.
+              Unidades disponibles para la cuenta.
             </div>
           </article>
 
@@ -4391,13 +4389,13 @@
             <div class="metric-label">Municipios asignados</div>
             <div id="metricMunicipalities" class="metric-value">—</div>
             <div class="metric-help">
-              Alcance desde v2.profile_municipios.
+              Municipios disponibles para la cuenta.
             </div>
           </article>
         </div>
 
 
-        <article class="card section-card">
+        <article class="card section-card" hidden aria-hidden="true">
           <h2>Estado técnico del Frontend V2</h2>
 
           <p>
@@ -4507,11 +4505,11 @@
           <article class="card section-card">
             <div class="capture-heading">
               <div>
-                <div class="hero-kicker capture-kicker">Captura Operativa V2</div>
+                <div class="hero-kicker capture-kicker">Captura de actividades</div>
                 <h2>1. Clasificación y ubicación</h2>
                 <p>
-                  Los catálogos se cargan desde PostgreSQL. Las acciones y
-                  formularios dependen de la configuración vigente.
+                  Selecciona la clasificación institucional correspondiente
+                  antes de registrar la actividad.
                 </p>
               </div>
 
@@ -4593,8 +4591,8 @@
           <article class="card section-card">
             <h2>2. Personas atendidas</h2>
             <p>
-              V2 distingue Beneficiarios históricos, Participación y Acceso.
-              Ningún valor se calcula automáticamente.
+              Registra únicamente las cifras reportadas para la actividad.
+              Los campos pueden variar según la acción seleccionada.
             </p>
 
             <div class="capture-grid capture-metrics">
@@ -4643,8 +4641,8 @@
               <div class="capture-subheading">
                 <h3>Desagregación demográfica</h3>
                 <p>
-                  Se usa el esquema demográfico configurado para la acción.
-                  V2 no distribuye porcentajes ni inventa valores.
+                  Captura las cifras disponibles para cada grupo de población.
+                  El sistema no completa valores automáticamente.
                 </p>
               </div>
 
@@ -4715,8 +4713,8 @@
             <div>
               <h2>Guardar como borrador</h2>
               <p>
-                En esta fase el registro se crea únicamente como BORRADOR.
-                No alimenta indicadores hasta completar evidencia y validación.
+                El registro se guardará como borrador y podrá completarse
+                antes de enviarlo a revisión.
               </p>
             </div>
 
@@ -4725,7 +4723,7 @@
               class="capture-save"
               type="submit"
             >
-              Guardar borrador V2
+              Guardar borrador
             </button>
           </article>
 
@@ -4742,11 +4740,11 @@
         <article class="card section-card">
           <div class="bitacora-heading">
             <div>
-              <div class="hero-kicker capture-kicker">Bitácora Operativa V2</div>
+              <div class="hero-kicker capture-kicker">Bitácora institucional</div>
               <h2>Registros de Vinculación Cultural</h2>
               <p>
-                Consulta paginada desde la vista institucional V2.
-                Los resultados respetan RLS y el alcance del usuario.
+                Consulta y da seguimiento a los registros disponibles según
+                tu unidad, municipio y rol.
               </p>
             </div>
 
@@ -4865,7 +4863,7 @@
               <section id="importDestinationSection" class="bitacora-import-section">
                 <h3>2. Destino institucional</h3>
                 <p>
-                  Selecciona la acción V2. La fecha y el municipio
+                  Selecciona la acción institucional. La fecha y el municipio
                   predeterminados solo se usan cuando la hoja no los contiene.
                 </p>
 
@@ -5046,7 +5044,7 @@
               <tbody id="bitacoraBody">
                 <tr>
                   <td colspan="9" class="bitacora-empty">
-                    Cargando registros V2...
+                    Cargando registros...
                   </td>
                 </tr>
               </tbody>
@@ -5210,11 +5208,11 @@
           <article class="card dashboard-card">
             <div class="dashboard-heading">
               <div>
-                <h2>Dashboard Directivo V2</h2>
+                <h2>Dashboard directivo</h2>
                 <p>
                   Seguimiento operativo, validación, cobertura territorial y
-                  cumplimiento de las metas institucionales visibles dentro
-                  del alcance autorizado por RLS.
+                  cumplimiento de metas institucionales dentro del alcance
+                  autorizado para la cuenta.
                 </p>
               </div>
 
@@ -5288,10 +5286,9 @@
           <div class="dashboard-rule-notice">
             <strong>Regla institucional de avance</strong>
             Los indicadores automáticos cuentan únicamente expedientes
-            <b>VALIDADO</b>. Los borradores históricos de
-            <b>MIGRACION_V1</b> permanecen visibles en la operación, pero no
-            aportan a las metas. QC4102.2601 conserva su meta oficial sin
-            inferir una relación automática que no ha sido aprobada.
+            <b>VALIDADO</b>. Los registros históricos permanecen disponibles
+            para consulta, pero no aportan a las metas hasta contar con la
+            validación institucional correspondiente.
           </div>
 
 
@@ -5302,7 +5299,7 @@
             >
               <span class="dashboard-kpi-label">Registros visibles</span>
               <strong id="dashboardKpiRecords" class="dashboard-kpi-value">—</strong>
-              <small>Todos los estatus dentro de los filtros y el alcance RLS.</small>
+              <small>Todos los estados incluidos en los filtros aplicados.</small>
             </article>
 
             <article
@@ -5347,7 +5344,7 @@
             >
               <span class="dashboard-kpi-label">Participantes</span>
               <strong id="dashboardKpiParticipants" class="dashboard-kpi-value">—</strong>
-              <small>Variable 2026 independiente de beneficiarios y accesos.</small>
+              <small>Personas participantes reportadas en las actividades.</small>
             </article>
 
             <article
@@ -5356,7 +5353,7 @@
             >
               <span class="dashboard-kpi-label">Accesos</span>
               <strong id="dashboardKpiAccesses" class="dashboard-kpi-value">—</strong>
-              <small>Variable 2026 independiente de participación.</small>
+              <small>Accesos reportados en las actividades.</small>
             </article>
 
             <article
@@ -5387,7 +5384,7 @@
             </div>
 
             <div class="dashboard-executive-item">
-              <span>Históricos MIGRACION_V1</span>
+              <span>Registros históricos</span>
               <strong id="dashboardHistoricalCount">—</strong>
             </div>
           </div>
@@ -5546,7 +5543,7 @@
                 <h3>Metas e indicadores institucionales</h3>
                 <p>
                   Avance dentro del alcance visible contra la meta registrada.
-                  Las cifras provienen de las reglas de aporte de PostgreSQL.
+                  Las cifras se calculan con las reglas institucionales vigentes.
                 </p>
               </div>
             </div>
@@ -5634,12 +5631,12 @@
         <article class="card section-card">
           <div class="bitacora-heading">
             <div>
-              <div class="hero-kicker capture-kicker">Administración V2</div>
+              <div class="hero-kicker capture-kicker">Administración</div>
               <h2>Controles institucionales</h2>
               <p>
                 Herramientas administrativas disponibles únicamente para el
-                rol ADMIN. Las decisiones sensibles continúan protegidas en
-                PostgreSQL mediante Auth, RLS y auditoría.
+                rol administrador. Todas las decisiones sensibles conservan
+                trazabilidad y requieren confirmación explícita.
               </p>
             </div>
           </div>
@@ -5650,7 +5647,7 @@
               <p>
                 Revisa registros manuales o importados desde Bitácora y retira
                 los que ya no se necesiten. El retiro conserva trazabilidad y
-                protege los históricos MIGRACION_V1.
+                protege los registros históricos.
               </p>
               <button id="adminManageRecords" class="btn-secondary" type="button">
                 Abrir Bitácora
@@ -5661,10 +5658,10 @@
               <h3>Usuarios, alcances y catálogos</h3>
               <p>
                 Gestiona roles, unidades y municipios de cada persona, además
-                de los catálogos operativos disponibles para mantenimiento.
+                de los catálogos operativos disponibles para administración.
               </p>
               <button id="adminOpenMaintenance" class="btn-secondary" type="button">
-                Abrir panel de mantenimiento
+                Abrir administración
               </button>
             </section>
           </div>
@@ -5679,8 +5676,7 @@
 
 
       <footer class="footer">
-        Secretaría de Cultura de Guanajuato · Vinculación Cultural V2.1 ·
-        Experiencia y soporte digital con PULSO Q
+        Secretaría de Cultura de Guanajuato · Sistematización de Vinculación
       </footer>
     </main>
   </div>
@@ -5735,7 +5731,7 @@
         <div class="support-contact-list">
           <a
             class="support-contact"
-            href="mailto:planeacionscul@guanajuato.gob.mx?subject=Soporte%20Vinculaci%C3%B3n%20Cultural%20V2"
+            href="mailto:planeacionscul@guanajuato.gob.mx?subject=Soporte%20de%20Sistematizaci%C3%B3n%20de%20Vinculaci%C3%B3n"
           >
             <span class="support-contact-icon" aria-hidden="true">✉</span>
             <span>
@@ -5746,7 +5742,7 @@
 
           <a
             class="support-contact"
-            href="mailto:la.duranalvarez@ugto.mx?subject=Soporte%20Vinculaci%C3%B3n%20Cultural%20V2%20%7C%20PULSO%20Q"
+            href="mailto:la.duranalvarez@ugto.mx?subject=Soporte%20de%20Sistematizaci%C3%B3n%20de%20Vinculaci%C3%B3n%20%7C%20PULSO%20Q"
           >
             <span class="support-contact-icon" aria-hidden="true">Q</span>
             <span>
@@ -5788,7 +5784,7 @@
           </div>
 
           <h2 id="validationDetailTitle">
-            Expediente V2
+            Expediente
           </h2>
 
           <p id="validationDetailSubtitle">—</p>
@@ -5923,8 +5919,8 @@
     <section class="draft-editor" role="dialog" aria-modal="true">
       <header class="draft-editor-header">
         <div>
-          <div class="hero-kicker capture-kicker">Flujo operativo V2</div>
-          <h2 id="draftEditorTitle">Completar borrador V2</h2>
+          <div class="hero-kicker capture-kicker">Registro de actividad</div>
+          <h2 id="draftEditorTitle">Completar borrador</h2>
           <p>
             Completa los campos institucionales, agrega evidencia privada y
             envía el registro a revisión cuando no existan faltantes.
@@ -6012,7 +6008,7 @@
         >
           <h3>
             2. Persona responsable
-            <span class="draft-required-badge">Requerido 2026</span>
+            <span class="draft-required-badge">Requerido</span>
           </h3>
 
           <p>
@@ -6155,8 +6151,8 @@
           </h3>
 
           <p>
-            JPG, PNG, WEBP o PDF; máximo 10 MB. El objeto se almacena en el
-            bucket privado <strong>evidencias-v2</strong>.
+            JPG, PNG, WEBP o PDF; máximo 10 MB. Los archivos se almacenan de
+            forma privada y solo pueden consultarlos usuarios autorizados.
           </p>
 
           <div class="draft-evidence-toolbar">
@@ -6512,7 +6508,7 @@
         isGlobalAdmin
           ? "ADMIN: todas las unidades operativas."
           : unitCount > 0
-            ? `${unitCount} unidad(es) asignada(s) en v2.profile_unidades.`
+            ? `${unitCount} unidad(es) asignada(s).`
             : "No existe una unidad operativa asignada."
       );
 
@@ -6521,7 +6517,7 @@
         isGlobalAdmin
           ? "ADMIN: todos los municipios."
           : municipalityCount > 0
-            ? `${municipalityCount} municipio(s) asignado(s) en v2.profile_municipios.`
+            ? `${municipalityCount} municipio(s) asignado(s).`
             : "No existe un municipio asignado."
       );
 
@@ -6535,8 +6531,8 @@
       if (noScope) {
         ui.scopeNotice.textContent =
           "La sesión es válida, pero el usuario todavía no tiene alcance " +
-          "operativo asignado. RLS mantendrá el acceso de datos restringido " +
-          "hasta que un administrador configure unidad y/o municipios.";
+          "operativo asignado. El acceso a la información permanecerá " +
+          "restringido hasta que un administrador configure unidades o municipios.";
       }
 
       configureTabs(context);
@@ -6555,7 +6551,7 @@
             captureNotice.hidden = false;
             captureNotice.dataset.type = "error";
             captureNotice.textContent =
-              "No se pudieron cargar los catálogos de Captura V2: " +
+              "No se pudieron cargar los catálogos de captura: " +
               (error?.message ?? "error desconocido");
           }
         }
@@ -6704,14 +6700,14 @@
 
         const message =
           error?.code === "AUTH_PROFILE_INACTIVE"
-            ? "Tu perfil V2 está inactivo. Solicita habilitación a un administrador."
+            ? "Tu perfil está inactivo. Solicita habilitación a un administrador."
             : error?.code === "AUTH_PROFILE_NOT_AVAILABLE"
-              ? "La sesión existe, pero no se pudo cargar el perfil V2."
+              ? "La sesión existe, pero no se pudo cargar el perfil institucional."
               : error?.message ?? "No se pudo validar la sesión.";
 
         await Swal.fire({
           icon: "warning",
-          title: "Acceso V2 no disponible",
+          title: "Acceso no disponible",
           text: message,
         });
       }

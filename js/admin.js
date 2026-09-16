@@ -226,7 +226,7 @@ function updateGuidance() {
   const role = ui.dialogRole.value;
   if (role === "ADMIN") {
     ui.guidance.textContent =
-      "ADMIN tiene acceso global. Los alcances seleccionados se conservan para trazabilidad, pero no limitan su operación.";
+      "El administrador tiene acceso global y puede gestionar usuarios. Reserva este rol para responsables del sistema; no es necesario para la captura cotidiana.";
   } else if (role === "CAPTURISTA") {
     ui.guidance.textContent =
       "Un capturista activo necesita al menos una unidad y un municipio. La primera selección se guarda como principal.";
@@ -294,7 +294,7 @@ async function loadCatalogs() {
 }
 
 async function loadUsers() {
-  ui.userList.innerHTML = '<div class="empty">Actualizando usuarios V2…</div>';
+  ui.userList.innerHTML = '<div class="empty">Actualizando usuarios…</div>';
   const { data, error } = await dbV2().rpc("rpc_admin_listar_usuarios");
   if (error) throw error;
   state.users = data ?? [];
@@ -354,7 +354,7 @@ async function saveAccess(event) {
     await Swal.fire({
       icon: "success",
       title: "Acceso actualizado",
-      text: "El rol y los alcances V2 quedaron guardados.",
+      text: "El rol y los alcances quedaron guardados.",
       timer: 1800,
       showConfirmButton: false,
     });
@@ -543,7 +543,7 @@ async function initialize() {
   try {
     state.context = await loadAuthContext({ force: true });
     if (!state.context || !isAdmin(state.context)) {
-      throw new Error("ADMIN_REQUIRED: esta pantalla requiere rol ADMIN V2 activo.");
+      throw new Error("Esta pantalla requiere un perfil de administrador activo.");
     }
 
     ui.adminIdentity.textContent = `${state.context.user.email} · ADMIN`;

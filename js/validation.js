@@ -937,7 +937,7 @@ function renderDetail(data) {
 
   ui.detailTitle.textContent =
     data.record.folio ??
-    "Revisión V2";
+    "Revisión de expediente";
 
   ui.detailSubtitle.textContent =
     [

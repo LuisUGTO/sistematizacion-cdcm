@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#004b87" />
-  <title>Administración V2 | Secretaría de Cultura de Guanajuato</title>
+  <title>Administración | Secretaría de Cultura de Guanajuato</title>
   <link rel="icon" href="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -86,16 +86,16 @@
   </style>
 </head>
 <body>
-  <div id="loadingOverlay" class="loading"><div class="spinner"></div><h3>Validando acceso ADMIN V2…</h3><p>Preparando usuarios y alcances institucionales.</p></div>
-  <header class="topbar"><div class="topbar-inner"><div class="brand"><img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" /><div><small>Secretaría de Cultura de Guanajuato</small><strong>Administración V2</strong></div></div><div class="top-actions"><span id="adminIdentity" class="admin-identity">Validando…</span><a href="index.html" class="button button-secondary" style="text-decoration:none">← Volver</a></div></div></header>
+  <div id="loadingOverlay" class="loading"><div class="spinner"></div><h3>Validando acceso…</h3><p>Preparando usuarios y alcances institucionales.</p></div>
+  <header class="topbar"><div class="topbar-inner"><div class="brand"><img src="Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" /><div><small>Secretaría de Cultura de Guanajuato</small><strong>Administración</strong></div></div><div class="top-actions"><span id="adminIdentity" class="admin-identity">Validando…</span><a href="index.html" class="button button-secondary" style="text-decoration:none">← Volver</a></div></div></header>
   <main>
-    <section class="hero"><h1>Usuarios, roles y alcances</h1><p>Configura quién captura, valida o consulta información. Los permisos se guardan directamente en V2 y continúan protegidos por RLS, auditoría y sesión autenticada.</p><div class="hero-tags"><span class="hero-tag">Solo ADMIN</span><span class="hero-tag">Sin programación</span><span class="hero-tag">Cambios auditables</span></div></section>
-    <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos V2</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button></nav>
+    <section class="hero"><h1>Usuarios, roles y alcances</h1><p>Configura quién puede capturar, revisar o consultar información y define su cobertura institucional.</p><div class="hero-tags"><span class="hero-tag">Acceso restringido</span><span class="hero-tag">Cambios auditables</span></div></section>
+    <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button></nav>
     <section id="panel-users" class="panel active"><article class="card">
       <div class="card-heading"><div><h2>Control de usuarios</h2><p>Los usuarios aparecen después de iniciar sesión por primera vez. Configura su rol y alcance antes de que comiencen a trabajar.</p></div><button id="refreshUsers" class="button button-secondary" type="button">Actualizar</button></div>
       <div class="stats"><div class="stat"><span>Total</span><strong id="statTotal">—</strong></div><div class="stat"><span>Listos</span><strong id="statReady">—</strong></div><div class="stat"><span>Incompletos</span><strong id="statIncomplete">—</strong></div><div class="stat"><span>Inactivos</span><strong id="statInactive">—</strong></div></div>
       <div class="toolbar"><input id="userSearch" class="control" type="search" placeholder="Buscar por correo o nombre…" /><select id="userFilter" class="control" aria-label="Filtrar usuarios"><option value="ALL">Todos los usuarios</option><option value="INCOMPLETE">Configuración incompleta</option><option value="READY">Listos para trabajar</option><option value="INACTIVE">Inactivos</option></select><button id="showIncomplete" class="button button-quiet" type="button">Ver pendientes</button></div>
-      <div id="userList" class="user-list"><div class="empty">Cargando usuarios V2…</div></div>
+      <div id="userList" class="user-list"><div class="empty">Cargando usuarios…</div></div>
     </article></section>
     <section id="panel-teachers" class="panel"><article class="card"><div class="card-heading"><div><h2>Docentes y talleristas</h2><p>Catálogo operativo conservado para CDCM.</p></div></div><form id="teacherForm" class="legacy-grid"><div><label for="teacherName">Nombre completo</label><input id="teacherName" class="control" required /></div><button class="button button-primary" type="submit">Registrar docente</button></form><div class="table-wrap"><table><thead><tr><th>#</th><th>Nombre</th><th>Estatus</th><th>Acción</th></tr></thead><tbody id="teacherTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div></article></section>
     <section id="panel-libraries" class="panel"><article class="card"><div class="card-heading"><div><h2>Bibliotecas públicas</h2><p>Catálogo operativo conservado para la Red Estatal.</p></div></div><form id="libraryForm" class="legacy-grid three"><div><label for="libraryMunicipality">Municipio</label><select id="libraryMunicipality" class="control" required></select></div><div><label for="libraryName">Biblioteca</label><input id="libraryName" class="control" required /></div><div><label for="libraryManager">Responsable</label><input id="libraryManager" class="control" required /></div><button class="button button-primary" type="submit">Registrar sede</button></form><div class="table-wrap"><table><thead><tr><th>Municipio</th><th>Biblioteca</th><th>Responsable</th><th>Acción</th></tr></thead><tbody id="libraryTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div></article></section>
@@ -108,6 +108,6 @@
       <p id="dialogGuidance" class="dialog-note">Un capturista activo necesita al menos una unidad y un municipio. La primera selección se guarda como principal.</p></div>
     <div class="dialog-actions"><button id="cancelAccess" class="button button-secondary" type="button">Cancelar</button><button id="saveAccess" class="button button-primary" type="submit">Guardar acceso</button></div>
   </form></dialog>
-  <script type="module" src="./js/admin.js?v=6.5.0"></script>
+  <script type="module" src="./js/admin.js?v=7.0.0"></script>
 </body>
 </html>

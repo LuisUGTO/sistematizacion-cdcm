@@ -794,7 +794,7 @@ async function openRecord(
     }
 
     ui.title.textContent =
-      "Completar borrador V2";
+      "Completar borrador";
 
     await renderEditor(data);
 

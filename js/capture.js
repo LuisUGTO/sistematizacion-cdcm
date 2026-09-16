@@ -103,7 +103,7 @@ function setBusy(busy) {
   ui.saveDraftButton.disabled = busy;
   ui.saveDraftButton.textContent = busy
     ? "Guardando..."
-    : "Guardar borrador V2";
+    : "Guardar borrador";
 }
 
 function renderConfigSummary(config) {
@@ -936,13 +936,13 @@ async function saveDraft(event) {
     created = data;
 
     showNotice(
-      `Borrador ${created.folio} guardado correctamente en una transacción V2.`,
+      `Borrador ${created.folio} guardado correctamente.`,
       "success"
     );
 
     await Swal.fire({
       icon: "success",
-      title: "Borrador V2 guardado",
+      title: "Borrador guardado",
       text:
         `${created.folio} quedó registrado como BORRADOR. ` +
         "Todavía no alimenta indicadores.",
@@ -975,7 +975,7 @@ async function saveDraft(event) {
       title: "No se pudo guardar",
       text:
         error?.message ??
-        "Ocurrió un error al guardar el borrador V2.",
+        "Ocurrió un error al guardar el borrador.",
     });
   } finally {
     setBusy(false);

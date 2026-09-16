@@ -179,7 +179,7 @@ function renderRows(rows) {
     const origin = document.createElement("small");
     origin.textContent =
       row.legacy_folio
-        ? `Legado: ${row.legacy_folio}`
+        ? `Folio anterior: ${row.legacy_folio}`
         : text(row.origen);
 
     folioTd.append(folio, origin);
@@ -398,7 +398,7 @@ function setLoading(loading) {
 
   if (loading) {
     renderEmpty(
-      "Cargando registros desde V2..."
+      "Cargando registros..."
     );
   }
 }
@@ -691,10 +691,10 @@ async function retireRecords(rows) {
       html: `
         <p style="text-align:left;line-height:1.55">
           Dejarán de aparecer en Bitácora y Dashboard, pero conservarán
-          historial y auditoría. MIGRACION_V1 nunca puede retirarse aquí.
+          historial y auditoría. Los registros históricos protegidos no pueden retirarse aquí.
         </p>
         <label for="cleanupReason" style="display:block;text-align:left;font-weight:700;margin:12px 0 5px">Motivo</label>
-        <textarea id="cleanupReason" class="swal2-textarea" style="margin:0;width:100%" placeholder="Ejemplo: registros generados durante pruebas de capacitación"></textarea>
+        <textarea id="cleanupReason" class="swal2-textarea" style="margin:0;width:100%" placeholder="Ejemplo: carga duplicada confirmada"></textarea>
         <label for="cleanupConfirmation" style="display:block;text-align:left;font-weight:700;margin:12px 0 5px">Escribe ${expected}</label>
         <input id="cleanupConfirmation" class="swal2-input" style="margin:0;width:100%" autocomplete="off">
       `,
@@ -789,7 +789,7 @@ function showDetail(row) {
       "Actualizado",
       formatDateTime(row.updated_at),
     ],
-    ["Folio V1", row.legacy_folio],
+    ["Folio anterior", row.legacy_folio],
   ];
 
   for (const [label, value] of fields) {
@@ -808,7 +808,7 @@ function showDetail(row) {
   }
 
   Swal.fire({
-    title: text(row.folio, "Registro V2"),
+    title: text(row.folio, "Registro"),
     html: content,
     width: 820,
     confirmButtonText: "Cerrar",
