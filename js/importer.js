@@ -1,7 +1,7 @@
 /**
  * VINCULACION CULTURAL V2
- * importer.js — Etapa 6.6
- * Reconocimiento institucional, carga segura y auditoria operativa por lote.
+ * importer.js — Etapa 6.6.2
+ * Reconocimiento institucional, carga segura y auditoria accionable por lote.
  */
 
 import { dbV2 } from "./supabase-client.js";
@@ -1001,11 +1001,83 @@ function appendIssueSummary(wrapper, issues) {
   const list = document.createElement("ul");
   entries.forEach(([code, total]) => {
     const item = document.createElement("li");
-    item.textContent = `${code.replaceAll("_", " ")}: ${Number(total).toLocaleString("es-MX")}`;
+    item.textContent = `${qualityLabel(code)}: ${Number(total).toLocaleString("es-MX")}`;
     list.append(item);
   });
   details.append(summary, list);
   wrapper.append(details);
+}
+
+const QUALITY_LABELS = Object.freeze({
+  SIN_FOLIO: "Falta folio",
+  SIN_CONFIGURACION_ACCION: "Falta configuración de la acción",
+  SIN_MUNICIPIO: "Falta municipio",
+  SIN_COMUNIDAD: "Falta comunidad",
+  SIN_ESPACIO: "Falta espacio",
+  SIN_RESPONSABLE: "Falta responsable",
+  SIN_TOTAL_BENEFICIARIOS: "Falta total de beneficiarios",
+  SIN_DEMOGRAFIA: "Falta desglose demográfico",
+  SIN_EVIDENCIA: "Falta evidencia",
+});
+
+function qualityLabel(code) {
+  return QUALITY_LABELS[code] ?? String(code ?? "Dato faltante")
+    .replaceAll("_", " ")
+    .toLocaleLowerCase("es-MX");
+}
+
+function openBlockedRecord(recordId) {
+  Swal.close();
+  window.setTimeout(() => {
+    window.dispatchEvent(new CustomEvent("v2:edit-record", {
+      detail: { id: recordId },
+    }));
+  }, 80);
+}
+
+function appendBlockedRecords(wrapper, records) {
+  if (!records.length) return;
+
+  const section = document.createElement("section");
+  section.className = "import-audit-blocked";
+  const heading = document.createElement("h3");
+  heading.textContent = "Registros que requieren atención";
+  const help = document.createElement("p");
+  help.textContent = "Aquí está el folio exacto. Completa el registro y vuelve a auditar el lote.";
+  const list = document.createElement("div");
+  list.className = "import-audit-blocked-list";
+
+  records.forEach((record) => {
+    const item = document.createElement("article");
+    item.className = "import-audit-blocked-item";
+
+    const description = document.createElement("div");
+    description.className = "import-audit-blocked-description";
+    const folio = document.createElement("strong");
+    folio.textContent = record.folio || "Sin folio";
+    const name = document.createElement("span");
+    name.textContent = record.nombre || "Actividad sin nombre";
+    const issues = document.createElement("ul");
+    (record.incidencias ?? []).forEach((code) => {
+      const issue = document.createElement("li");
+      issue.textContent = qualityLabel(code);
+      issues.append(issue);
+    });
+    description.append(folio, name, issues);
+
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "button button-secondary import-audit-open-record";
+    openButton.textContent = "Completar";
+    openButton.setAttribute("aria-label", `Completar ${record.folio || "registro"}`);
+    openButton.addEventListener("click", () => openBlockedRecord(record.registro_id));
+
+    item.append(description, openButton);
+    list.append(item);
+  });
+
+  section.append(heading, help, list);
+  wrapper.append(section);
 }
 
 async function runBatchAction(job, action) {
@@ -1109,12 +1181,15 @@ async function runBatchAction(job, action) {
 }
 
 async function showBatchAudit(job) {
-  const { data, error } = await dbV2()
-    .rpc("rpc_import_auditar_lote", { p_job_id: job.id })
-    .single();
-  if (error) throw error;
-  const audit = rpcRow(data);
+  const [auditResponse, blockedResponse] = await Promise.all([
+    dbV2().rpc("rpc_import_auditar_lote", { p_job_id: job.id }).single(),
+    dbV2().rpc("rpc_import_faltantes_lote", { p_job_id: job.id }),
+  ]);
+  if (auditResponse.error) throw auditResponse.error;
+  if (blockedResponse.error) throw blockedResponse.error;
+  const audit = rpcRow(auditResponse.data);
   if (!audit) throw new Error("El lote no devolvió información de auditoría.");
+  const blockedRecords = blockedResponse.data ?? [];
 
   const wrapper = document.createElement("div");
   wrapper.className = "import-audit";
@@ -1162,15 +1237,18 @@ async function showBatchAudit(job) {
     );
   }
   appendIssueSummary(wrapper, audit.incidencias_resumen);
+  appendBlockedRecords(wrapper, blockedRecords);
 
   const submitReady = Number(audit.borradores_listos ?? 0);
   const validateReady = Number(audit.revision_lista ?? 0);
-  const primary = submitReady
-    ? { action: "submit", label: `Enviar ${submitReady.toLocaleString("es-MX")} a revisión` }
-    : validateReady
-      ? { action: "validate", label: `Validar ${validateReady.toLocaleString("es-MX")}` }
-      : null;
-  const secondary = submitReady && validateReady
+  const primary = blocked
+    ? null
+    : submitReady
+      ? { action: "submit", label: `Enviar ${submitReady.toLocaleString("es-MX")} a revisión` }
+      : validateReady
+        ? { action: "validate", label: `Validar ${validateReady.toLocaleString("es-MX")}` }
+        : null;
+  const secondary = !blocked && submitReady && validateReady
     ? { action: "validate", label: `Validar ${validateReady.toLocaleString("es-MX")}` }
     : null;
 

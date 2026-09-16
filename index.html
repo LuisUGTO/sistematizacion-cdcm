@@ -1669,6 +1669,85 @@
       padding-left: 20px;
     }
 
+    .import-audit-blocked {
+      margin-top: 12px;
+      padding: 13px;
+      border: 1px solid #F3CF8A;
+      border-radius: 12px;
+      background: #FFFBF2;
+    }
+
+    .import-audit-blocked h3,
+    .import-audit-blocked p {
+      margin: 0;
+    }
+
+    .import-audit-blocked h3 {
+      color: var(--gto-azul);
+      font-size: 1rem;
+    }
+
+    .import-audit-blocked > p {
+      margin-top: 4px;
+      color: #64748B;
+      font-size: .88rem;
+    }
+
+    .import-audit-blocked-list {
+      display: grid;
+      max-height: 310px;
+      gap: 8px;
+      margin-top: 11px;
+      overflow-y: auto;
+    }
+
+    .import-audit-blocked-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 11px 12px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      background: #FFF;
+    }
+
+    .import-audit-blocked-description {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    .import-audit-blocked-description strong {
+      color: var(--gto-azul);
+    }
+
+    .import-audit-blocked-description span {
+      overflow-wrap: anywhere;
+    }
+
+    .import-audit-blocked-description ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 3px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .import-audit-blocked-description li {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #FFF1D6;
+      color: #815000;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    .import-audit-open-record {
+      flex: 0 0 auto;
+    }
+
     .import-config-grid,
     .mapping-grid {
       display: grid;
@@ -2206,6 +2285,15 @@
     @media (max-width: 560px) {
       .import-audit-grid {
         grid-template-columns: 1fr;
+      }
+
+      .import-audit-blocked-item {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .import-audit-open-record {
+        width: 100%;
       }
 
       .import-history-actions {
