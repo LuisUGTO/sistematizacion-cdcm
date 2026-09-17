@@ -9,10 +9,11 @@ import { dbV2 } from "./supabase-client.js";
 
 import {
   loadMunicipalities,
+  loadCommunities,
   loadSpaces,
   resolveCaptureSpace,
   loadDemographicDefinition,
-} from "./catalogs.js";
+} from "./catalogs.js?v=7.2.2";
 
 import {
   uploadEvidence,
@@ -490,6 +491,56 @@ async function refreshSpaces(
   }
 }
 
+async function refreshCommunities(
+  selectedId = null
+) {
+  const municipalityId =
+    ui.municipality.value;
+
+  fillSelect(
+    ui.community,
+    [],
+    {
+      placeholder:
+        municipalityId
+          ? "Cargando comunidades..."
+          : "Seleccione primero municipio",
+    }
+  );
+
+  ui.community.disabled =
+    !municipalityId;
+
+  if (!municipalityId) return;
+
+  const communities =
+    await loadCommunities(
+      municipalityId
+    );
+
+  fillSelect(
+    ui.community,
+    communities,
+    {
+      placeholder:
+        communities.length
+          ? "Seleccione comunidad..."
+          : "Sin comunidades catalogadas",
+    }
+  );
+
+  if (
+    selectedId &&
+    [...ui.community.options]
+      .some(
+        (option) =>
+          option.value === selectedId
+      )
+  ) {
+    ui.community.value = selectedId;
+  }
+}
+
 async function loadLatestObservation(
   recordId
 ) {
@@ -666,9 +717,24 @@ async function renderEditor(data) {
       data.record.municipio_id;
   }
 
-  await refreshSpaces(
-    data.record.espacio_id
-  );
+  await Promise.all([
+    refreshCommunities(
+      data.record.comunidad_id
+    ),
+    refreshSpaces(
+      data.record.espacio_id
+    ),
+  ]);
+
+  ui.communityWrap.hidden = false;
+  ui.community.required =
+    Boolean(
+      data.config?.requiere_comunidad
+    );
+  ui.communityHelp.textContent =
+    data.config?.requiere_comunidad
+      ? "Dato obligatorio para esta acción."
+      : "Dato opcional; las opciones dependen del municipio.";
 
   ui.spaceWrap.hidden =
     !data.config?.requiere_espacio;
@@ -767,7 +833,7 @@ async function fetchEditor(
     error,
   } = await dbV2()
     .rpc(
-      "rpc_get_registro_editor",
+      "rpc_get_registro_editor_con_comunidad",
       {
         p_registro_id:
           recordId,
@@ -847,6 +913,10 @@ function buildPayload(
 
     municipio_id:
       ui.municipality.value ||
+      null,
+
+    comunidad_id:
+      ui.community.value ||
       null,
 
     espacio_id:
@@ -954,6 +1024,15 @@ async function saveChanges() {
   setBusy(true);
 
   try {
+    if (
+      state.data?.config?.requiere_comunidad &&
+      !ui.community.value
+    ) {
+      throw new Error(
+        "Selecciona la comunidad / localidad."
+      );
+    }
+
     const resolvedSpaceId =
       await resolveEditorSpace();
 
@@ -962,7 +1041,7 @@ async function saveChanges() {
       error,
     } = await dbV2()
       .rpc(
-        "rpc_update_borrador",
+        "rpc_update_borrador_con_comunidad",
         {
           p_registro_id:
             state.recordId,
@@ -1215,13 +1294,22 @@ async function submitReview() {
 
   try {
     // Primero persistimos cualquier cambio visible.
+    if (
+      state.data?.config?.requiere_comunidad &&
+      !ui.community.value
+    ) {
+      throw new Error(
+        "Selecciona la comunidad / localidad."
+      );
+    }
+
     const resolvedSpaceId =
       await resolveEditorSpace();
 
     const saveResult =
       await dbV2()
         .rpc(
-          "rpc_update_borrador",
+          "rpc_update_borrador_con_comunidad",
           {
             p_registro_id:
               state.recordId,
@@ -1337,6 +1425,12 @@ export async function initDraftEditor(
 
     municipality:
       $("draftEditorMunicipality"),
+    community:
+      $("draftEditorCommunity"),
+    communityWrap:
+      $("draftEditorCommunityWrap"),
+    communityHelp:
+      $("draftEditorCommunityHelp"),
     space:
       $("draftEditorSpace"),
     spaceWrap:
@@ -1433,8 +1527,12 @@ export async function initDraftEditor(
     ui.municipality
       .addEventListener(
         "change",
-        () =>
-          refreshSpaces(null)
+        async () => {
+          await Promise.all([
+            refreshCommunities(null),
+            refreshSpaces(null),
+          ]);
+        }
       );
 
     ui.feeMode

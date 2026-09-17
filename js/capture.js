@@ -14,11 +14,12 @@ import {
   loadPrograms,
   loadActions,
   loadMunicipalities,
+  loadCommunities,
   loadSpaces,
   resolveCaptureSpace,
   loadActionConfiguration,
   loadDemographicDefinition,
-} from "./catalogs.js";
+} from "./catalogs.js?v=7.2.2";
 
 let context = null;
 let currentConfig = null;
@@ -141,6 +142,14 @@ function toggleSpecializedFields(config) {
 
   ui.demographySection.hidden =
     !config?.requiere_demografia;
+
+  ui.communityWrap.hidden = !config;
+  ui.community.required =
+    Boolean(config?.requiere_comunidad);
+  ui.communityHelp.textContent =
+    config?.requiere_comunidad
+      ? "Dato obligatorio para esta acción."
+      : "Dato opcional; las opciones dependen del municipio.";
 
   ui.spaceSelectWrap.hidden =
     !config?.requiere_espacio;
@@ -368,6 +377,30 @@ async function refreshSpaces() {
         ? "Seleccione espacio..."
         : "Sin espacios catalogados",
     labelKey: "display_name",
+  });
+}
+
+async function refreshCommunities() {
+  const municipalityId = ui.municipality.value;
+
+  fillSelect(ui.community, [], {
+    placeholder: municipalityId
+      ? "Cargando comunidades..."
+      : "Seleccione primero municipio",
+  });
+
+  ui.community.disabled = !municipalityId;
+
+  if (!municipalityId) return;
+
+  const communities = await loadCommunities(
+    municipalityId
+  );
+
+  fillSelect(ui.community, communities, {
+    placeholder: communities.length
+      ? "Seleccione comunidad..."
+      : "Sin comunidades catalogadas",
   });
 }
 
@@ -636,7 +669,7 @@ async function restoreLocalDraft() {
       await refreshActionConfig();
     }
 
-    // 5. Municipio -> espacios.
+    // 5. Municipio -> comunidades y espacios.
     if (
       values.captureMunicipality &&
       [...ui.municipality.options].some(
@@ -648,7 +681,10 @@ async function restoreLocalDraft() {
       ui.municipality.value =
         values.captureMunicipality;
 
-      await refreshSpaces();
+      await Promise.all([
+        refreshCommunities(),
+        refreshSpaces(),
+      ]);
     }
 
     // 6. Restaurar todos los valores restantes.
@@ -744,6 +780,13 @@ function validateBeforeSave() {
     !ui.municipality.value
   ) {
     throw new Error("Selecciona el municipio.");
+  }
+
+  if (
+    currentConfig.requiere_comunidad &&
+    !ui.community.value
+  ) {
+    throw new Error("Selecciona la comunidad / localidad.");
   }
 
   if (!ui.activityName.value.trim()) {
@@ -892,6 +935,10 @@ async function saveDraft(event) {
         programa: selectedText(ui.program),
         accion: selectedText(ui.action),
         municipio: selectedText(ui.municipality),
+        comunidad:
+          ui.community.value
+            ? selectedText(ui.community)
+            : null,
         espacio:
           resolvedSpaceName ||
           ui.spaceText.value.trim() ||
@@ -908,6 +955,8 @@ async function saveDraft(event) {
 
       municipio_id:
         ui.municipality.value || null,
+      comunidad_id:
+        ui.community.value || null,
       espacio_id:
         resolvedSpaceId,
 
@@ -958,7 +1007,7 @@ async function saveDraft(event) {
     // una sola transacción del lado servidor.
     const { data, error } = await dbV2()
       .rpc(
-        "rpc_create_borrador",
+        "rpc_create_borrador_con_comunidad",
         {
           p_payload: recordPayload,
         }
@@ -1082,6 +1131,9 @@ export async function initCaptureV2(authContext) {
     program: $("captureProgram"),
     action: $("captureAction"),
     municipality: $("captureMunicipality"),
+    community: $("captureCommunity"),
+    communityWrap: $("captureCommunityWrap"),
+    communityHelp: $("captureCommunityHelp"),
     space: $("captureSpace"),
     spaceSelectWrap: $("captureSpaceSelectWrap"),
     spaceText: $("captureSpaceText"),
@@ -1152,7 +1204,12 @@ export async function initCaptureV2(authContext) {
 
     ui.municipality.addEventListener(
       "change",
-      refreshSpaces
+      async () => {
+        await Promise.all([
+          refreshCommunities(),
+          refreshSpaces(),
+        ]);
+      }
     );
 
     ui.feeMode.addEventListener(

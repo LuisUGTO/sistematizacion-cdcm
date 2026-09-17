@@ -4924,6 +4924,14 @@
                 <select id="captureMunicipality"></select>
               </div>
 
+              <div id="captureCommunityWrap" class="capture-field" hidden>
+                <label for="captureCommunity">Comunidad / localidad</label>
+                <select id="captureCommunity"></select>
+                <small id="captureCommunityHelp">
+                  Selecciona primero el municipio.
+                </small>
+              </div>
+
               <div id="captureSpaceSelectWrap" class="capture-field">
                 <label for="captureSpace">Espacio catalogado</label>
                 <select id="captureSpace"></select>
@@ -6379,6 +6387,14 @@
               <select id="draftEditorMunicipality"></select>
             </div>
 
+            <div id="draftEditorCommunityWrap" class="draft-field" hidden>
+              <label for="draftEditorCommunity">Comunidad / localidad</label>
+              <select id="draftEditorCommunity"></select>
+              <small id="draftEditorCommunityHelp">
+                Selecciona primero el municipio.
+              </small>
+            </div>
+
             <div id="draftEditorSpaceWrap" class="draft-field">
               <label for="draftEditorSpace">Espacio catalogado</label>
               <select id="draftEditorSpace"></select>
@@ -6633,7 +6649,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js";
+    } from "./js/capture.js?v=7.2.2";
 
     import {
       initBitacoraV2,
@@ -6641,7 +6657,7 @@
 
     import {
       initDraftEditor,
-    } from "./js/draft-editor.js";
+    } from "./js/draft-editor.js?v=7.2.2";
 
     import {
       initValidationV2,

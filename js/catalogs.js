@@ -204,6 +204,24 @@ export async function loadMunicipalities(context) {
   return rows;
 }
 
+export async function loadCommunities(municipalityId) {
+  if (!municipalityId) return [];
+
+  const result = await dbV2()
+    .from("cat_comunidades")
+    .select(
+      "id,municipio_id,tipo_asentamiento_id,clave,nombre,latitud,longitud"
+    )
+    .eq("municipio_id", municipalityId)
+    .eq("activo", true)
+    .order("nombre", { ascending: true });
+
+  return throwIfError(
+    result,
+    "cat_comunidades"
+  );
+}
+
 export async function loadSpaces(
   municipalityId,
   unitId = null
