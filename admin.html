@@ -67,6 +67,21 @@
     .preview-note { color:var(--muted); font-size:12px; margin:9px 0 0; } .action-note { margin-top:7px; color:#52687c; font-size:11px; line-height:1.4; }
     .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; } table { width:100%; border-collapse:collapse; font-size:13px; }
     th,td { text-align:left; padding:12px 14px; border-bottom:1px solid #e8eef4; } th { color:var(--blue); background:#f2f6fa; font-size:11px; text-transform:uppercase; }
+    .catalog-switcher { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .catalog-switch { border:1px solid #bfd1e4; border-radius:999px; padding:9px 14px; background:#fff; color:var(--blue); font-weight:700; }
+    .catalog-switch[aria-selected="true"] { background:var(--blue); color:#fff; border-color:var(--blue); }
+    .catalog-view { display:none; } .catalog-view.active { display:block; }
+    .catalog-form { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; padding:18px; margin-bottom:18px; background:#f7fafc; border:1px solid var(--line); border-radius:15px; }
+    .catalog-form .span-2 { grid-column:span 2; } .catalog-form .span-4 { grid-column:span 4; }
+    .catalog-form-actions { grid-column:1/-1; display:flex; justify-content:flex-end; gap:9px; border-top:1px solid var(--line); padding-top:14px; }
+    .catalog-table-actions { display:flex; gap:7px; flex-wrap:wrap; }
+    .catalog-table-actions .button { min-height:34px; padding:6px 10px; font-size:11px; }
+    .catalog-status { display:inline-flex; border-radius:999px; padding:5px 8px; font-size:11px; font-weight:700; }
+    .catalog-status.active { color:#087443; background:#dcfce7; } .catalog-status.inactive { color:#b42318; background:#fee4e2; }
+    .catalog-help { margin:-8px 0 18px; color:var(--muted); font-size:12px; line-height:1.5; }
+    .requirements { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .requirement { display:flex; align-items:center; gap:8px; padding:9px 10px; background:#fff; border:1px solid var(--line); border-radius:9px; }
+    .requirement label { margin:0; color:var(--ink); text-transform:none; font-size:12px; cursor:pointer; }
     dialog { width:min(900px,calc(100vw - 28px)); max-height:calc(100vh - 28px); padding:0; border:0; border-radius:22px; box-shadow:0 28px 80px rgba(0,0,0,.28); }
     dialog::backdrop { background:rgba(5,23,39,.62); backdrop-filter:blur(3px); } .dialog-head { display:flex; justify-content:space-between; align-items:flex-start; gap:15px; padding:22px 24px 17px; border-bottom:1px solid var(--line); }
     .dialog-head h2 { margin-bottom:4px; } .dialog-email { color:var(--muted); font-size:13px; overflow-wrap:anywhere; } .icon-button { border:0; background:#edf3f7; width:38px; height:38px; border-radius:50%; color:#3c4d61; font-size:20px; }
@@ -81,21 +96,111 @@
     .dialog-actions { position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:9px; padding:16px 24px; background:#fff; border-top:1px solid var(--line); }
     .loading { position:fixed; inset:0; z-index:100; display:grid; place-content:center; text-align:center; background:rgba(255,255,255,.94); } .spinner { width:46px; height:46px; margin:0 auto 14px; border:4px solid #dce7f0; border-top-color:var(--blue); border-radius:50%; animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } .user-row { grid-template-columns:1fr auto; } .scope-summary { grid-column:1/-1; } .legacy-grid.three { grid-template-columns:1fr 1fr; } .mapping-grid,.import-config-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media (max-width:640px) { .topbar-inner { padding:10px 14px; } .brand img { width:58px; } .brand small,.admin-identity { display:none; } .brand strong { font-size:17px; } .top-actions .button { padding:9px 11px; font-size:12px; } main { padding:0 12px; margin-top:16px; } .hero,.card { border-radius:17px; padding:18px; } .toolbar,.dialog-grid,.legacy-grid,.legacy-grid.three,.mapping-grid,.import-config-grid,.import-lead { grid-template-columns:1fr; } .import-config-grid .wide { grid-column:auto; } .import-lead-actions,.import-actions { display:grid; } .toolbar .button,.import-actions .button,.import-lead-actions .button { width:100%; } .user-row { display:block; } .badges,.scope-summary { margin-top:10px; } .user-row>.button { width:100%; margin-top:13px; } .check-grid { grid-template-columns:1fr; } .dialog-head,.dialog-body,.dialog-actions { padding-left:16px; padding-right:16px; } .dialog-actions .button { flex:1; } }
+    @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } .user-row { grid-template-columns:1fr auto; } .scope-summary { grid-column:1/-1; } .legacy-grid.three { grid-template-columns:1fr 1fr; } .mapping-grid,.import-config-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form .span-4 { grid-column:span 2; } .requirements { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:640px) { .topbar-inner { padding:10px 14px; } .brand img { width:58px; } .brand small,.admin-identity { display:none; } .brand strong { font-size:17px; } .top-actions .button { padding:9px 11px; font-size:12px; } main { padding:0 12px; margin-top:16px; } .hero,.card { border-radius:17px; padding:18px; } .toolbar,.dialog-grid,.legacy-grid,.legacy-grid.three,.mapping-grid,.import-config-grid,.import-lead,.catalog-form,.requirements { grid-template-columns:1fr; } .catalog-form .span-2,.catalog-form .span-4 { grid-column:auto; } .import-config-grid .wide { grid-column:auto; } .import-lead-actions,.import-actions { display:grid; } .toolbar .button,.import-actions .button,.import-lead-actions .button { width:100%; } .user-row { display:block; } .badges,.scope-summary { margin-top:10px; } .user-row>.button { width:100%; margin-top:13px; } .check-grid { grid-template-columns:1fr; } .dialog-head,.dialog-body,.dialog-actions { padding-left:16px; padding-right:16px; } .dialog-actions .button { flex:1; } }
   </style>
 </head>
 <body>
   <div id="loadingOverlay" class="loading"><div class="spinner"></div><h3>Validando acceso…</h3><p>Preparando usuarios y alcances institucionales.</p></div>
   <header class="topbar"><div class="topbar-inner"><div class="brand"><img src="assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" /><div><small>Secretaría de Cultura de Guanajuato</small><strong>Administración</strong></div></div><div class="top-actions"><span id="adminIdentity" class="admin-identity">Validando…</span><a href="index.html" class="button button-secondary" style="text-decoration:none">← Volver</a></div></div></header>
   <main>
-    <section class="hero"><h1>Usuarios, roles y alcances</h1><p>Configura quién puede capturar, revisar o consultar información y define su cobertura institucional.</p><div class="hero-tags"><span class="hero-tag">Acceso restringido</span><span class="hero-tag">Cambios auditables</span></div></section>
-    <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button></nav>
+    <section class="hero"><h1>Administración institucional</h1><p>Configura usuarios, alcances y catálogos operativos sin perder la trazabilidad de los registros históricos.</p><div class="hero-tags"><span class="hero-tag">Acceso restringido</span><span class="hero-tag">Cambios auditables</span><span class="hero-tag">Sin borrado histórico</span></div></section>
+    <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos</button><button class="tab" type="button" data-tab="catalogs" aria-selected="false">Catálogos operativos</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button></nav>
     <section id="panel-users" class="panel active"><article class="card">
       <div class="card-heading"><div><h2>Control de usuarios</h2><p>Los usuarios aparecen después de iniciar sesión por primera vez. Configura su rol y alcance antes de que comiencen a trabajar.</p></div><button id="refreshUsers" class="button button-secondary" type="button">Actualizar</button></div>
       <div class="stats"><div class="stat"><span>Total</span><strong id="statTotal">—</strong></div><div class="stat"><span>Listos</span><strong id="statReady">—</strong></div><div class="stat"><span>Incompletos</span><strong id="statIncomplete">—</strong></div><div class="stat"><span>Inactivos</span><strong id="statInactive">—</strong></div></div>
       <div class="toolbar"><input id="userSearch" class="control" type="search" placeholder="Buscar por correo o nombre…" /><select id="userFilter" class="control" aria-label="Filtrar usuarios"><option value="ALL">Todos los usuarios</option><option value="INCOMPLETE">Configuración incompleta</option><option value="READY">Listos para trabajar</option><option value="INACTIVE">Inactivos</option></select><button id="showIncomplete" class="button button-quiet" type="button">Ver pendientes</button></div>
       <div id="userList" class="user-list"><div class="empty">Cargando usuarios…</div></div>
+    </article></section>
+    <section id="panel-catalogs" class="panel"><article class="card">
+      <div class="card-heading"><div><h2>Catálogos operativos</h2><p>Administra las opciones que utiliza la captura. Los elementos con historial se desactivan; no se eliminan.</p></div><button id="catalogRefresh" class="button button-secondary" type="button">Actualizar</button></div>
+      <div class="catalog-switcher" aria-label="Catálogos disponibles">
+        <button class="catalog-switch" type="button" data-catalog="communities" aria-selected="true">Comunidades</button>
+        <button class="catalog-switch" type="button" data-catalog="spaces" aria-selected="false">Espacios y sedes</button>
+        <button class="catalog-switch" type="button" data-catalog="programs" aria-selected="false">Programas</button>
+        <button class="catalog-switch" type="button" data-catalog="actions" aria-selected="false">Acciones / procesos</button>
+      </div>
+
+      <section id="catalog-communities" class="catalog-view active">
+        <h3>Comunidades y localidades</h3><p class="catalog-help">La comunidad queda vinculada al municipio seleccionado. El nombre no puede repetirse dentro del mismo municipio.</p>
+        <form id="communityForm" class="catalog-form">
+          <input id="communityId" type="hidden" />
+          <div><label for="communityMunicipality">Municipio</label><select id="communityMunicipality" class="control" required></select></div>
+          <div><label for="communityType">Tipo de asentamiento</label><select id="communityType" class="control"><option value="">Sin especificar</option></select></div>
+          <div><label for="communityCode">Clave opcional</label><input id="communityCode" class="control" maxlength="80" /></div>
+          <div><label for="communityName">Nombre</label><input id="communityName" class="control" maxlength="180" required /></div>
+          <div><label for="communityLatitude">Latitud opcional</label><input id="communityLatitude" class="control" type="number" min="-90" max="90" step="any" /></div>
+          <div><label for="communityLongitude">Longitud opcional</label><input id="communityLongitude" class="control" type="number" min="-180" max="180" step="any" /></div>
+          <div class="catalog-form-actions"><button class="button button-secondary catalog-cancel" type="button" data-form="communityForm" hidden>Cancelar edición</button><button class="button button-primary" type="submit">Guardar comunidad</button></div>
+        </form>
+        <div class="toolbar"><input id="communitySearch" class="control" type="search" placeholder="Buscar comunidad…" /><select id="communityMunicipalityFilter" class="control"></select><select id="communityStatusFilter" class="control"><option value="ALL">Todos</option><option value="ACTIVE">Activos</option><option value="INACTIVE">Inactivos</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Municipio</th><th>Comunidad</th><th>Tipo</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="communityTable"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
+      </section>
+
+      <section id="catalog-spaces" class="catalog-view">
+        <h3>Espacios y sedes</h3><p class="catalog-help">La comunidad es opcional, pero cuando se selecciona debe pertenecer al municipio del espacio.</p>
+        <form id="spaceForm" class="catalog-form">
+          <input id="spaceId" type="hidden" />
+          <div><label for="spaceMunicipality">Municipio</label><select id="spaceMunicipality" class="control" required></select></div>
+          <div><label for="spaceCommunity">Comunidad opcional</label><select id="spaceCommunity" class="control"><option value="">Sin comunidad</option></select></div>
+          <div><label for="spaceType">Tipo de espacio</label><select id="spaceType" class="control" required></select></div>
+          <div><label for="spaceUnit">Unidad operativa opcional</label><select id="spaceUnit" class="control"><option value="">Sin unidad específica</option></select></div>
+          <div><label for="spaceCode">Clave opcional</label><input id="spaceCode" class="control" maxlength="80" /></div>
+          <div class="span-2"><label for="spaceName">Nombre del espacio</label><input id="spaceName" class="control" maxlength="220" required /></div>
+          <div class="span-2"><label for="spaceAddress">Dirección opcional</label><input id="spaceAddress" class="control" maxlength="350" /></div>
+          <div><label for="spaceLatitude">Latitud opcional</label><input id="spaceLatitude" class="control" type="number" min="-90" max="90" step="any" /></div>
+          <div><label for="spaceLongitude">Longitud opcional</label><input id="spaceLongitude" class="control" type="number" min="-180" max="180" step="any" /></div>
+          <div class="catalog-form-actions"><button class="button button-secondary catalog-cancel" type="button" data-form="spaceForm" hidden>Cancelar edición</button><button class="button button-primary" type="submit">Guardar espacio</button></div>
+        </form>
+        <div class="toolbar"><input id="spaceSearch" class="control" type="search" placeholder="Buscar espacio…" /><select id="spaceMunicipalityFilter" class="control"></select><select id="spaceStatusFilter" class="control"><option value="ALL">Todos</option><option value="ACTIVE">Activos</option><option value="INACTIVE">Inactivos</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Municipio</th><th>Espacio</th><th>Tipo / comunidad</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="spaceTable"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
+      </section>
+
+      <section id="catalog-programs" class="catalog-view">
+        <h3>Programas</h3><p class="catalog-help">Cada programa pertenece a una unidad operativa. Al desactivarlo dejará de aparecer en nuevas capturas.</p>
+        <form id="programForm" class="catalog-form">
+          <input id="programId" type="hidden" />
+          <div><label for="programUnit">Unidad operativa</label><select id="programUnit" class="control" required></select></div>
+          <div><label for="programCode">Clave</label><input id="programCode" class="control" maxlength="80" required /></div>
+          <div class="span-2"><label for="programName">Nombre</label><input id="programName" class="control" maxlength="220" required /></div>
+          <div class="span-4"><label for="programDescription">Descripción opcional</label><input id="programDescription" class="control" maxlength="500" /></div>
+          <div><label for="programOrder">Orden</label><input id="programOrder" class="control" type="number" min="0" step="1" value="0" /></div>
+          <div class="catalog-form-actions"><button class="button button-secondary catalog-cancel" type="button" data-form="programForm" hidden>Cancelar edición</button><button class="button button-primary" type="submit">Guardar programa</button></div>
+        </form>
+        <div class="toolbar"><input id="programSearch" class="control" type="search" placeholder="Buscar programa…" /><select id="programUnitFilter" class="control"></select><select id="programStatusFilter" class="control"><option value="ALL">Todos</option><option value="ACTIVE">Activos</option><option value="INACTIVE">Inactivos</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Unidad</th><th>Clave</th><th>Programa</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="programTable"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
+      </section>
+
+      <section id="catalog-actions" class="catalog-view">
+        <h3>Acciones y procesos</h3><p class="catalog-help">La configuración determina qué formulario y requisitos tendrá la acción. Una acción sin configuración vigente no aparece en Captura.</p>
+        <form id="actionForm" class="catalog-form">
+          <input id="actionId" type="hidden" />
+          <div><label for="actionUnit">Unidad operativa</label><select id="actionUnit" class="control" required></select></div>
+          <div><label for="actionProgram">Programa</label><select id="actionProgram" class="control" required></select></div>
+          <div><label for="actionCode">Clave</label><input id="actionCode" class="control" maxlength="80" required /></div>
+          <div><label for="actionName">Nombre</label><input id="actionName" class="control" maxlength="260" required /></div>
+          <div class="span-4"><label for="actionDescription">Descripción opcional</label><input id="actionDescription" class="control" maxlength="600" /></div>
+          <div><label for="actionRecordType">Tipo de registro</label><select id="actionRecordType" class="control" required></select></div>
+          <div><label for="actionFormType">Formulario</label><select id="actionFormType" class="control" required><option value="EVENTO">Evento</option><option value="TALLER">Taller</option><option value="CAPACITACION">Capacitación</option><option value="PROYECTO">Proyecto</option><option value="REUNION">Reunión</option><option value="INTERCAMBIO">Intercambio</option><option value="APOYO">Apoyo</option><option value="ESTADISTICA_BIBLIOTECA">Estadística de biblioteca</option></select></div>
+          <div><label for="actionValidFrom">Vigente desde</label><input id="actionValidFrom" class="control" type="date" required /></div>
+          <div><label for="actionValidUntil">Vigente hasta</label><input id="actionValidUntil" class="control" type="date" /></div>
+          <div><label for="actionOrder">Orden</label><input id="actionOrder" class="control" type="number" min="0" step="1" value="0" /></div>
+          <div class="span-4"><label>Requisitos del registro</label><div class="requirements">
+            <div class="requirement"><input id="actionReqCommunity" type="checkbox" /><label for="actionReqCommunity">Comunidad</label></div>
+            <div class="requirement"><input id="actionReqSpace" type="checkbox" /><label for="actionReqSpace">Espacio catalogado</label></div>
+            <div class="requirement"><input id="actionReqResponsible" type="checkbox" checked /><label for="actionReqResponsible">Responsable</label></div>
+            <div class="requirement"><input id="actionReqTeacher" type="checkbox" /><label for="actionReqTeacher">Docente</label></div>
+            <div class="requirement"><input id="actionReqBeneficiaries" type="checkbox" /><label for="actionReqBeneficiaries">Beneficiarios</label></div>
+            <div class="requirement"><input id="actionReqDemography" type="checkbox" /><label for="actionReqDemography">Demografía</label></div>
+            <div class="requirement"><input id="actionReqGps" type="checkbox" /><label for="actionReqGps">Ubicación GPS</label></div>
+            <div class="requirement"><input id="actionReqEvidence" type="checkbox" checked /><label for="actionReqEvidence">Evidencia</label></div>
+            <div class="requirement"><input id="actionReqValidation" type="checkbox" checked /><label for="actionReqValidation">Validación</label></div>
+          </div></div>
+          <div class="catalog-form-actions"><button class="button button-secondary catalog-cancel" type="button" data-form="actionForm" hidden>Cancelar edición</button><button class="button button-primary" type="submit">Guardar acción y configuración</button></div>
+        </form>
+        <div class="toolbar"><input id="actionSearch" class="control" type="search" placeholder="Buscar acción…" /><select id="actionUnitFilter" class="control"></select><select id="actionStatusFilter" class="control"><option value="ALL">Todos</option><option value="ACTIVE">Activos</option><option value="INACTIVE">Inactivos</option></select></div>
+        <div class="table-wrap"><table><thead><tr><th>Clasificación</th><th>Clave</th><th>Acción / formulario</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="actionTable"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
+      </section>
     </article></section>
     <section id="panel-teachers" class="panel"><article class="card"><div class="card-heading"><div><h2>Docentes y talleristas</h2><p>Catálogo operativo conservado para CDCM.</p></div></div><form id="teacherForm" class="legacy-grid"><div><label for="teacherName">Nombre completo</label><input id="teacherName" class="control" required /></div><button class="button button-primary" type="submit">Registrar docente</button></form><div class="table-wrap"><table><thead><tr><th>#</th><th>Nombre</th><th>Estatus</th><th>Acción</th></tr></thead><tbody id="teacherTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div></article></section>
     <section id="panel-libraries" class="panel"><article class="card"><div class="card-heading"><div><h2>Bibliotecas públicas</h2><p>Catálogo operativo conservado para la Red Estatal.</p></div></div><form id="libraryForm" class="legacy-grid three"><div><label for="libraryMunicipality">Municipio</label><select id="libraryMunicipality" class="control" required></select></div><div><label for="libraryName">Biblioteca</label><input id="libraryName" class="control" required /></div><div><label for="libraryManager">Responsable</label><input id="libraryManager" class="control" required /></div><button class="button button-primary" type="submit">Registrar sede</button></form><div class="table-wrap"><table><thead><tr><th>Municipio</th><th>Biblioteca</th><th>Responsable</th><th>Acción</th></tr></thead><tbody id="libraryTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div></article></section>
@@ -108,6 +213,7 @@
       <p id="dialogGuidance" class="dialog-note">Un capturista activo necesita al menos una unidad y un municipio. La primera selección se guarda como principal.</p></div>
     <div class="dialog-actions"><button id="cancelAccess" class="button button-secondary" type="button">Cancelar</button><button id="saveAccess" class="button button-primary" type="submit">Guardar acceso</button></div>
   </form></dialog>
-  <script type="module" src="./js/admin.js?v=7.0.0"></script>
+  <script type="module" src="./js/admin.js?v=7.2.1"></script>
+  <script type="module" src="./js/catalog-admin.js?v=7.2.1"></script>
 </body>
 </html>
