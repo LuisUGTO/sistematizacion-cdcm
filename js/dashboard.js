@@ -776,23 +776,38 @@ function updateMapDetail(code, payload) {
   const catalog = municipalityCatalogByCode(code);
 
   if (!feature || !code) {
+    const summary = payload?.resumen ?? {};
+    const summaryMetric = {
+      total_registros: summary.total_registros,
+      validados: summary.validados,
+      pendientes: summary.pendientes_revision,
+      beneficiarios: summary.total_beneficiarios,
+      participantes: summary.total_participantes,
+      accesos: summary.total_accesos,
+    };
+
+    setText(ui.mapKicker, "Resumen estatal");
     setText(ui.mapMunicipality, "Vista estatal");
     setText(
       ui.mapRegion,
-      "Selecciona un municipio en el mapa para consultar su detalle."
+      "Totales de todos los municipios dentro de los filtros actuales."
     );
-    setText(ui.mapMetricValue, "—");
-    setText(ui.mapValidated, "—");
-    setText(ui.mapPending, "—");
-    setText(ui.mapBeneficiaries, "—");
-    setText(ui.mapParticipants, "—");
-    setText(ui.mapAccesses, "—");
-    setText(ui.mapCode, "—");
+    setText(ui.mapMetricLabel, metric.label);
+    setText(ui.mapMetricHint, "Total estatal dentro de los filtros actuales");
+    setText(ui.mapMetricValue, formatNumber(summaryMetric[metric.key]));
+    setText(ui.mapValidated, formatNumber(summary.validados));
+    setText(ui.mapPending, formatNumber(summary.pendientes_revision));
+    setText(ui.mapBeneficiaries, formatNumber(summary.total_beneficiarios));
+    setText(ui.mapParticipants, formatNumber(summary.total_participantes));
+    setText(ui.mapAccesses, formatNumber(summary.total_accesos));
+    setText(ui.mapCodeLabel, "Municipios con actividad");
+    setText(ui.mapCode, formatNumber(summary.municipios_con_actividad));
     ui.mapFilter.disabled = true;
     refreshMapClearControl();
     return;
   }
 
+  setText(ui.mapKicker, "Municipio seleccionado");
   setText(
     ui.mapMunicipality,
     row?.municipio_nombre ||
@@ -813,6 +828,7 @@ function updateMapDetail(code, payload) {
   setText(ui.mapBeneficiaries, formatNumber(row?.beneficiarios));
   setText(ui.mapParticipants, formatNumber(row?.participantes));
   setText(ui.mapAccesses, formatNumber(row?.accesos));
+  setText(ui.mapCodeLabel, "CVEGEO");
   setText(ui.mapCode, code);
 
   ui.mapFilter.disabled = !catalog;
@@ -1100,6 +1116,7 @@ function bindUi() {
     mapMetric: $("dashboardMapMetric"),
     mapSvg: $("dashboardMapSvg"),
     mapLoading: $("dashboardMapLoading"),
+    mapKicker: $("dashboardMapKicker"),
     mapMunicipality: $("dashboardMapMunicipality"),
     mapRegion: $("dashboardMapRegion"),
     mapMetricLabel: $("dashboardMapMetricLabel"),
@@ -1110,6 +1127,7 @@ function bindUi() {
     mapBeneficiaries: $("dashboardMapBeneficiaries"),
     mapParticipants: $("dashboardMapParticipants"),
     mapAccesses: $("dashboardMapAccesses"),
+    mapCodeLabel: $("dashboardMapCodeLabel"),
     mapCode: $("dashboardMapCode"),
     mapFilter: $("dashboardMapFilterButton"),
     mapClear: $("dashboardMapClearButton"),
