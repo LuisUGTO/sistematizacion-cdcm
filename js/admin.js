@@ -469,49 +469,7 @@ async function deleteTeacher(id) {
   await loadTeachers();
 }
 
-async function loadLibraries() {
-  const tbody = $("libraryTable");
-  const { data, error } = await publicDb.from("cat_bibliotecas").select("*").order("municipio");
-  tbody.replaceChildren();
-  if (error) {
-    const row = tbody.insertRow();
-    row.insertCell().colSpan = 4;
-    row.cells[0].textContent = `Catálogo no disponible: ${error.message}`;
-    return;
-  }
-  (data ?? []).forEach((library) => {
-    const row = tbody.insertRow();
-    row.insertCell().textContent = library.municipio;
-    row.insertCell().textContent = library.nombre_biblioteca;
-    row.insertCell().textContent = library.responsable || "Sin asignar";
-    const cell = row.insertCell();
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "button button-danger";
-    button.textContent = "Eliminar";
-    button.addEventListener("click", () => deleteLibrary(library.id));
-    cell.appendChild(button);
-  });
-}
-
-async function deleteLibrary(id) {
-  const decision = await Swal.fire({ title: "¿Eliminar biblioteca?", icon: "warning", showCancelButton: true, confirmButtonText: "Eliminar", confirmButtonColor: "#c2413b" });
-  if (!decision.isConfirmed) return;
-  const { error } = await publicDb.from("cat_bibliotecas").delete().eq("id", id);
-  if (error) return showError("No se pudo eliminar", error);
-  await loadLibraries();
-}
-
 function installLegacyEvents() {
-  const municipalitySelect = $("libraryMunicipality");
-  municipalitySelect.innerHTML = '<option value="">Seleccione municipio…</option>';
-  state.municipalities.forEach((municipality) => {
-    const option = document.createElement("option");
-    option.value = municipality.nombre_oficial;
-    option.textContent = municipality.nombre_oficial;
-    municipalitySelect.appendChild(option);
-  });
-
   $("teacherForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const name = $("teacherName").value.trim();
@@ -522,18 +480,6 @@ function installLegacyEvents() {
     await loadTeachers();
   });
 
-  $("libraryForm").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const payload = {
-      municipio: $("libraryMunicipality").value,
-      nombre_biblioteca: $("libraryName").value.trim(),
-      responsable: $("libraryManager").value.trim(),
-    };
-    const { error } = await publicDb.from("cat_bibliotecas").insert(payload);
-    if (error) return showError("No se pudo registrar", error);
-    event.target.reset();
-    await loadLibraries();
-  });
 }
 
 async function initialize() {
@@ -549,7 +495,7 @@ async function initialize() {
     ui.adminIdentity.textContent = `${state.context.user.email} · ADMIN`;
     await loadCatalogs();
     installLegacyEvents();
-    await Promise.all([loadUsers(), loadTeachers(), loadLibraries()]);
+    await Promise.all([loadUsers(), loadTeachers()]);
     ui.loading.hidden = true;
   } catch (error) {
     ui.loading.hidden = true;

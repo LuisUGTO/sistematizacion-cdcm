@@ -79,6 +79,13 @@
     .catalog-status { display:inline-flex; border-radius:999px; padding:5px 8px; font-size:11px; font-weight:700; }
     .catalog-status.active { color:#087443; background:#dcfce7; } .catalog-status.inactive { color:#b42318; background:#fee4e2; }
     .catalog-help { margin:-8px 0 18px; color:var(--muted); font-size:12px; line-height:1.5; }
+    .library-form { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; padding:18px; margin-bottom:18px; background:#f7fafc; border:1px solid var(--line); border-radius:15px; }
+    .library-form .span-2 { grid-column:span 2; } .library-form .span-4 { grid-column:span 4; }
+    .library-form-actions { grid-column:1/-1; display:flex; justify-content:flex-end; gap:9px; padding-top:12px; border-top:1px solid var(--line); }
+    .library-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+    .library-summary div { padding:14px; border:1px solid var(--line); border-radius:12px; background:#f8fafc; }
+    .library-summary span { display:block; color:var(--muted); font-size:10px; font-weight:800; text-transform:uppercase; }
+    .library-summary strong { display:block; margin-top:4px; color:var(--blue); font:700 24px Vollkorn,serif; }
     .requirements { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
     .requirement { display:flex; align-items:center; gap:8px; padding:9px 10px; background:#fff; border:1px solid var(--line); border-radius:9px; }
     .requirement label { margin:0; color:var(--ink); text-transform:none; font-size:12px; cursor:pointer; }
@@ -96,8 +103,8 @@
     .dialog-actions { position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:9px; padding:16px 24px; background:#fff; border-top:1px solid var(--line); }
     .loading { position:fixed; inset:0; z-index:100; display:grid; place-content:center; text-align:center; background:rgba(255,255,255,.94); } .spinner { width:46px; height:46px; margin:0 auto 14px; border:4px solid #dce7f0; border-top-color:var(--blue); border-radius:50%; animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } .user-row { grid-template-columns:1fr auto; } .scope-summary { grid-column:1/-1; } .legacy-grid.three { grid-template-columns:1fr 1fr; } .mapping-grid,.import-config-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form .span-4 { grid-column:span 2; } .requirements { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media (max-width:640px) { .topbar-inner { padding:10px 14px; } .brand img { width:58px; } .brand small,.admin-identity { display:none; } .brand strong { font-size:17px; } .top-actions .button { padding:9px 11px; font-size:12px; } main { padding:0 12px; margin-top:16px; } .hero,.card { border-radius:17px; padding:18px; } .toolbar,.dialog-grid,.legacy-grid,.legacy-grid.three,.mapping-grid,.import-config-grid,.import-lead,.catalog-form,.requirements { grid-template-columns:1fr; } .catalog-form .span-2,.catalog-form .span-4 { grid-column:auto; } .import-config-grid .wide { grid-column:auto; } .import-lead-actions,.import-actions { display:grid; } .toolbar .button,.import-actions .button,.import-lead-actions .button { width:100%; } .user-row { display:block; } .badges,.scope-summary { margin-top:10px; } .user-row>.button { width:100%; margin-top:13px; } .check-grid { grid-template-columns:1fr; } .dialog-head,.dialog-body,.dialog-actions { padding-left:16px; padding-right:16px; } .dialog-actions .button { flex:1; } }
+    @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } .user-row { grid-template-columns:1fr auto; } .scope-summary { grid-column:1/-1; } .legacy-grid.three { grid-template-columns:1fr 1fr; } .mapping-grid,.import-config-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form,.library-form { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form .span-4,.library-form .span-4 { grid-column:span 2; } .requirements { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media (max-width:640px) { .topbar-inner { padding:10px 14px; } .brand img { width:58px; } .brand small,.admin-identity { display:none; } .brand strong { font-size:17px; } .top-actions .button { padding:9px 11px; font-size:12px; } main { padding:0 12px; margin-top:16px; } .hero,.card { border-radius:17px; padding:18px; } .toolbar,.dialog-grid,.legacy-grid,.legacy-grid.three,.mapping-grid,.import-config-grid,.import-lead,.catalog-form,.library-form,.library-summary,.requirements { grid-template-columns:1fr; } .catalog-form .span-2,.catalog-form .span-4,.library-form .span-2,.library-form .span-4 { grid-column:auto; } .import-config-grid .wide { grid-column:auto; } .import-lead-actions,.import-actions { display:grid; } .toolbar .button,.import-actions .button,.import-lead-actions .button { width:100%; } .user-row { display:block; } .badges,.scope-summary { margin-top:10px; } .user-row>.button { width:100%; margin-top:13px; } .check-grid { grid-template-columns:1fr; } .dialog-head,.dialog-body,.dialog-actions { padding-left:16px; padding-right:16px; } .dialog-actions .button { flex:1; } }
   </style>
 </head>
 <body>
@@ -203,7 +210,26 @@
       </section>
     </article></section>
     <section id="panel-teachers" class="panel"><article class="card"><div class="card-heading"><div><h2>Docentes y talleristas</h2><p>Catálogo operativo conservado para CDCM.</p></div></div><form id="teacherForm" class="legacy-grid"><div><label for="teacherName">Nombre completo</label><input id="teacherName" class="control" required /></div><button class="button button-primary" type="submit">Registrar docente</button></form><div class="table-wrap"><table><thead><tr><th>#</th><th>Nombre</th><th>Estatus</th><th>Acción</th></tr></thead><tbody id="teacherTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div></article></section>
-    <section id="panel-libraries" class="panel"><article class="card"><div class="card-heading"><div><h2>Bibliotecas públicas</h2><p>Catálogo operativo conservado para la Red Estatal.</p></div></div><form id="libraryForm" class="legacy-grid three"><div><label for="libraryMunicipality">Municipio</label><select id="libraryMunicipality" class="control" required></select></div><div><label for="libraryName">Biblioteca</label><input id="libraryName" class="control" required /></div><div><label for="libraryManager">Responsable</label><input id="libraryManager" class="control" required /></div><button class="button button-primary" type="submit">Registrar sede</button></form><div class="table-wrap"><table><thead><tr><th>Municipio</th><th>Biblioteca</th><th>Responsable</th><th>Acción</th></tr></thead><tbody id="libraryTable"><tr><td colspan="4">Cargando…</td></tr></tbody></table></div></article></section>
+    <section id="panel-libraries" class="panel"><article class="card">
+      <div class="card-heading"><div><h2>Red Estatal de Bibliotecas Públicas</h2><p>Directorio institucional vinculado con municipios, comunidades, espacios y responsables V2.</p></div></div>
+      <div class="library-summary"><div><span>Total</span><strong id="libraryTotal">0</strong></div><div><span>Activas</span><strong id="libraryActive">0</strong></div><div><span>Municipios con biblioteca</span><strong id="libraryMunicipalities">0</strong></div></div>
+      <form id="libraryForm" class="library-form">
+        <input id="libraryId" type="hidden" />
+        <div><label for="libraryMunicipality">Municipio</label><select id="libraryMunicipality" class="control" required></select></div>
+        <div><label for="libraryCommunity">Comunidad / localidad</label><select id="libraryCommunity" class="control"><option value="">Sin comunidad específica</option></select></div>
+        <div><label for="libraryDgb">Número DGB</label><input id="libraryDgb" class="control" maxlength="80" /></div>
+        <div><label for="libraryActiveInput">Estatus</label><select id="libraryActiveInput" class="control"><option value="true">Activa</option><option value="false">Inactiva</option></select></div>
+        <div class="span-2"><label for="libraryName">Nombre oficial de la biblioteca</label><input id="libraryName" class="control" maxlength="220" required /></div>
+        <div class="span-2"><label for="libraryAddress">Dirección</label><input id="libraryAddress" class="control" maxlength="350" /></div>
+        <div class="span-2"><label for="libraryManager">Persona responsable</label><input id="libraryManager" class="control" maxlength="180" /></div>
+        <div><label for="libraryEmail">Correo</label><input id="libraryEmail" class="control" type="email" maxlength="180" /></div>
+        <div><label for="libraryPhone">Teléfono</label><input id="libraryPhone" class="control" maxlength="40" /></div>
+        <div class="span-4"><label for="librarySchedule">Horario de atención</label><input id="librarySchedule" class="control" maxlength="500" placeholder="Ej. Lunes a viernes, 09:00 a 18:00" /></div>
+        <div class="library-form-actions"><button id="libraryCancel" class="button button-secondary" type="button" hidden>Cancelar edición</button><button class="button button-primary" type="submit">Guardar biblioteca</button></div>
+      </form>
+      <div class="toolbar"><input id="librarySearch" class="control" type="search" placeholder="Buscar biblioteca, municipio o DGB…" /><select id="libraryMunicipalityFilter" class="control"><option value="">Todos los municipios</option></select><select id="libraryStatusFilter" class="control"><option value="ALL">Todas</option><option value="ACTIVE">Activas</option><option value="INACTIVE">Inactivas</option></select></div>
+      <div class="table-wrap"><table><thead><tr><th>Municipio</th><th>Biblioteca / DGB</th><th>Responsable y contacto</th><th>Horario</th><th>Estatus</th><th>Acciones</th></tr></thead><tbody id="libraryTable"><tr><td colspan="6">Cargando…</td></tr></tbody></table></div>
+    </article></section>
   </main>
   <dialog id="accessDialog" aria-labelledby="accessDialogTitle"><form id="accessForm" method="dialog">
     <div class="dialog-head"><div><h2 id="accessDialogTitle">Configurar acceso</h2><div id="dialogEmail" class="dialog-email"></div></div><button id="closeDialogX" class="icon-button" type="button" aria-label="Cerrar">×</button></div>
@@ -213,7 +239,8 @@
       <p id="dialogGuidance" class="dialog-note">Un capturista activo necesita al menos una unidad y un municipio. La primera selección se guarda como principal.</p></div>
     <div class="dialog-actions"><button id="cancelAccess" class="button button-secondary" type="button">Cancelar</button><button id="saveAccess" class="button button-primary" type="submit">Guardar acceso</button></div>
   </form></dialog>
-  <script type="module" src="./js/admin.js?v=7.2.1"></script>
+  <script type="module" src="./js/admin.js?v=7.3"></script>
   <script type="module" src="./js/catalog-admin.js?v=7.2.1"></script>
+  <script type="module" src="./js/library-admin.js?v=7.3"></script>
 </body>
 </html>
