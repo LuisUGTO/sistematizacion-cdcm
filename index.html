@@ -186,6 +186,23 @@
       font-size: 11px !important;
     }
 
+    .login-alternative-button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 11px 14px;
+      border: 1px solid var(--gto-azul);
+      border-radius: 10px;
+      background: white;
+      color: var(--gto-azul);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .login-alternative-button:hover {
+      background: #EEF6FC;
+    }
+
     .login-support-link {
       width: 100%;
       display: flex;
@@ -4599,14 +4616,30 @@
           required
         />
 
+        <label for="loginPassword" class="form-label" style="margin-top: 16px;">
+          Contraseña
+        </label>
+
+        <input
+          id="loginPassword"
+          class="text-input"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Escribe tu contraseña"
+          required
+        />
+
         <button id="loginButton" class="btn-primary" type="submit">
-          Solicitar enlace de acceso
+          Iniciar sesión
         </button>
       </form>
 
+      <button id="magicLinkButton" class="login-alternative-button" type="button">
+        Recibir enlace de acceso
+      </button>
+
       <p class="login-help">
-        Utiliza el correo institucional autorizado por la coordinación.
-        Recibirás un enlace seguro para iniciar sesión.
+        Ingresa con la contraseña que elegiste al activar tu cuenta. El enlace de acceso sigue disponible como alternativa.
       </p>
 
       <button id="loginHelpButton" class="login-support-link" type="button">
@@ -6769,6 +6802,7 @@
   <script type="module">
     import {
       sendMagicLink,
+      signInWithPassword,
       loadAuthContext,
       signOut,
       onAuthStateChange,
@@ -6812,7 +6846,9 @@
 
       loginForm: document.getElementById("loginForm"),
       loginEmail: document.getElementById("loginEmail"),
+      loginPassword: document.getElementById("loginPassword"),
       loginButton: document.getElementById("loginButton"),
+      magicLinkButton: document.getElementById("magicLinkButton"),
 
       networkStatus: document.getElementById("networkStatus"),
 
@@ -7283,32 +7319,48 @@
       event.preventDefault();
 
       const email = ui.loginEmail.value.trim();
+      const password = ui.loginPassword.value;
 
       ui.loginButton.disabled = true;
-      ui.loginButton.textContent = "Enviando...";
+      ui.loginButton.textContent = "Ingresando...";
 
       try {
-        await sendMagicLink(email);
-
-        await Swal.fire({
-          icon: "success",
-          title: "Enlace enviado",
-          text:
-            "Revisa el correo indicado. El rol y los permisos se validarán " +
-            "en el servidor al iniciar sesión.",
-        });
+        await signInWithPassword(email, password);
       } catch (error) {
-        console.error("Magic link:", error);
+        console.error("Password login:", error);
 
         await Swal.fire({
           icon: "error",
-          title: "No se pudo enviar el enlace",
-          text: error?.message ?? "Error de autenticación.",
+          title: "No se pudo iniciar sesión",
+          text: error?.message === "AUTH_PASSWORD_REQUIRED"
+            ? "Escribe tu contraseña para continuar."
+            : "Revisa tu correo y contraseña, o solicita un enlace de acceso.",
         });
       } finally {
         ui.loginButton.disabled = false;
-        ui.loginButton.textContent =
-          "Solicitar enlace de acceso";
+        ui.loginButton.textContent = "Iniciar sesión";
+      }
+    });
+
+    ui.magicLinkButton.addEventListener("click", async () => {
+      const email = ui.loginEmail.value.trim();
+      if (!email) {
+        await Swal.fire("Falta el correo", "Escribe tu correo de acceso para enviarte el enlace.", "warning");
+        ui.loginEmail.focus();
+        return;
+      }
+
+      ui.magicLinkButton.disabled = true;
+      ui.magicLinkButton.textContent = "Enviando enlace...";
+      try {
+        await sendMagicLink(email);
+        await Swal.fire("Enlace enviado", "Revisa el correo indicado para iniciar sesión de forma segura.", "success");
+      } catch (error) {
+        console.error("Magic link:", error);
+        await Swal.fire("No se pudo enviar el enlace", error?.message ?? "Error de autenticación.", "error");
+      } finally {
+        ui.magicLinkButton.disabled = false;
+        ui.magicLinkButton.textContent = "Recibir enlace de acceso";
       }
     });
 

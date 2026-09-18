@@ -56,6 +56,27 @@ export async function sendMagicLink(email, options = {}) {
   return data;
 }
 
+export async function signInWithPassword(email, password) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail || !normalizedEmail.includes("@")) {
+    throw new Error("AUTH_EMAIL_INVALID");
+  }
+
+  if (!String(password ?? "")) {
+    throw new Error("AUTH_PASSWORD_REQUIRED");
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: normalizedEmail,
+    password: String(password),
+  });
+
+  if (error) throw error;
+
+  return data;
+}
+
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession();
 

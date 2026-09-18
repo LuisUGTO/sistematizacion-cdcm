@@ -300,7 +300,19 @@ async function sendInvitation(event) {
       }, signal: controller.signal });
     } finally { window.clearTimeout(timeoutId); }
     const { data, error } = result;
-    if (error) throw error;
+    if (error) {
+      let message = null;
+      const response = error?.context;
+      if (response?.clone && typeof response.clone().json === "function") {
+        try {
+          const payload = await response.clone().json();
+          message = payload?.error || null;
+        } catch (_) {
+          // La respuesta puede no contener JSON; se usa el mensaje de respaldo.
+        }
+      }
+      throw new Error(message || error?.message || "No se pudo enviar la invitación.");
+    }
     if (!data?.ok) throw new Error(data?.error || "No se confirmó la invitación.");
     ui.inviteDialog.close();
     await loadUsers();

@@ -59,6 +59,23 @@ Deno.serve(async (req) => {
       return json({ ok: false, error: "El capturista necesita unidad y municipio." }, 400);
     }
 
+    // Evita invocar al proveedor de correo cuando la persona ya tiene una
+    // cuenta institucional configurada. Además de informar con claridad,
+    // esto evita que la pantalla quede esperando una respuesta innecesaria.
+    console.log("invite-user: revisando cuenta existente", { email });
+    const { data: existingProfile, error: existingProfileError } = await within(
+      "EXISTING_USER",
+      admin.schema("v2").from("profiles").select("user_id,email,activo").eq("email", email).maybeSingle(),
+    );
+    if (existingProfileError) throw existingProfileError;
+    if (existingProfile) {
+      return json({
+        ok: false,
+        code: "USER_ALREADY_EXISTS",
+        error: `La cuenta ${email} ya está registrada en la plataforma. Configúrala desde la lista de usuarios si necesitas cambiar su rol o alcance.`,
+      }, 409);
+    }
+
     console.log("invite-user: enviando correo", { email, role });
     const { data: invited, error: inviteError } = await within("EMAIL", admin.auth.admin.inviteUserByEmail(email, {
       redirectTo: `${appUrl.replace(/\/$/, "")}/establecer-acceso.html`, data: { full_name: name },
