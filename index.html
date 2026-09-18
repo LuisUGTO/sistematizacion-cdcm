@@ -101,9 +101,10 @@
       z-index: 5000;
 
       display: grid;
-      place-items: center;
+      place-items: start center;
+      overflow-y: auto;
 
-      padding: 24px;
+      padding: clamp(16px, 4vh, 36px) 24px;
 
       background:
         radial-gradient(
@@ -116,7 +117,8 @@
 
     .login-card {
       width: min(460px, 100%);
-      padding: 38px;
+      margin: auto;
+      padding: clamp(22px, 3vw, 32px);
 
       background: white;
       border-radius: 22px;
@@ -130,17 +132,17 @@
 
     .login-logo {
       display: block;
-      height: 150px;
+      height: clamp(88px, 16vh, 126px);
       width: auto;
       max-width: 100%;
 
-      margin: 0 auto 18px;
+      margin: 0 auto 12px;
       object-fit: contain;
     }
 
     .login-card h1 {
-      font-size: 29px;
-      margin-bottom: 8px;
+      font-size: clamp(26px, 4vw, 29px);
+      margin-bottom: 6px;
     }
 
     .login-card p {
@@ -150,7 +152,7 @@
     }
 
     .login-form {
-      margin-top: 28px;
+      margin-top: 18px;
       text-align: left;
     }
 
@@ -201,6 +203,27 @@
 
     .login-alternative-button:hover {
       background: #EEF6FC;
+    }
+
+    .login-recovery-button {
+      display: block;
+      width: 100%;
+      margin-top: 9px;
+      border: 0;
+      background: transparent;
+      color: var(--gto-azul);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-height: 720px) {
+      .login-card { padding: 20px 24px; }
+      .login-logo { height: 82px; }
+      .login-form { margin-top: 14px; }
+      .login-support-link { margin-top: 12px; padding-top: 10px; }
     }
 
     .login-support-link {
@@ -4638,8 +4661,12 @@
         Recibir enlace de acceso
       </button>
 
+      <button id="passwordSetupButton" class="login-recovery-button" type="button">
+        Crear o restablecer contraseña
+      </button>
+
       <p class="login-help">
-        Ingresa con la contraseña que elegiste al activar tu cuenta. El enlace de acceso sigue disponible como alternativa.
+        Si antes ingresabas sólo con enlace, utiliza “Crear o restablecer contraseña”. Recibirás un correo seguro para elegirla.
       </p>
 
       <button id="loginHelpButton" class="login-support-link" type="button">
@@ -6803,11 +6830,12 @@
     import {
       sendMagicLink,
       signInWithPassword,
+      sendPasswordSetupLink,
       loadAuthContext,
       signOut,
       onAuthStateChange,
       getDisplayIdentity,
-    } from "./js/auth.js";
+    } from "./js/auth.js?v=7.4.3";
 
     import {
       checkDataApi,
@@ -6849,6 +6877,7 @@
       loginPassword: document.getElementById("loginPassword"),
       loginButton: document.getElementById("loginButton"),
       magicLinkButton: document.getElementById("magicLinkButton"),
+      passwordSetupButton: document.getElementById("passwordSetupButton"),
 
       networkStatus: document.getElementById("networkStatus"),
 
@@ -7361,6 +7390,32 @@
       } finally {
         ui.magicLinkButton.disabled = false;
         ui.magicLinkButton.textContent = "Recibir enlace de acceso";
+      }
+    });
+
+    ui.passwordSetupButton.addEventListener("click", async () => {
+      const email = ui.loginEmail.value.trim();
+      if (!email) {
+        await Swal.fire("Falta el correo", "Escribe tu correo de acceso para enviarte el enlace seguro.", "warning");
+        ui.loginEmail.focus();
+        return;
+      }
+
+      ui.passwordSetupButton.disabled = true;
+      ui.passwordSetupButton.textContent = "Enviando correo...";
+      try {
+        await sendPasswordSetupLink(email);
+        await Swal.fire(
+          "Revisa tu correo",
+          "Te enviamos un enlace seguro para crear o restablecer tu contraseña.",
+          "success",
+        );
+      } catch (error) {
+        console.error("Password setup:", error);
+        await Swal.fire("No se pudo enviar el correo", error?.message ?? "Error de autenticación.", "error");
+      } finally {
+        ui.passwordSetupButton.disabled = false;
+        ui.passwordSetupButton.textContent = "Crear o restablecer contraseña";
       }
     });
 

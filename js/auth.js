@@ -77,6 +77,23 @@ export async function signInWithPassword(email, password) {
   return data;
 }
 
+export async function sendPasswordSetupLink(email) {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!normalizedEmail || !normalizedEmail.includes("@")) {
+    throw new Error("AUTH_EMAIL_INVALID");
+  }
+
+  const { data, error } = await supabase.auth.resetPasswordForEmail(
+    normalizedEmail,
+    { redirectTo: buildRedirectUrl("establecer-acceso.html") },
+  );
+
+  if (error) throw error;
+
+  return data;
+}
+
 export async function getSession() {
   const { data, error } = await supabase.auth.getSession();
 
