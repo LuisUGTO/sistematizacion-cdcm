@@ -1691,6 +1691,82 @@
       font-size: 10px;
     }
 
+    .population-mode {
+      display: grid;
+      grid-template-columns: minmax(180px, 280px) 1fr;
+      gap: 8px 12px;
+      align-items: end;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+    }
+
+    .population-mode label {
+      grid-column: 1 / -1;
+      color: #334155;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .35px;
+      text-transform: uppercase;
+    }
+
+    .population-mode select,
+    .population-mode input {
+      width: 100%;
+      min-height: 40px;
+      padding: 9px 11px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      background: white;
+      font: inherit;
+      font-size: 11px;
+    }
+
+    .population-status {
+      grid-column: 1 / -1;
+      color: #475569;
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .population-status[data-valid="false"] {
+      color: #B91C1C;
+      font-weight: 800;
+    }
+
+    .population-general .demographic-dimension {
+      opacity: .45;
+    }
+
+    .capture-requirement {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .capture-requirement[data-required="true"] {
+      background: #FFF7ED;
+      color: #9A3412;
+    }
+
+    .capture-inline-action {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      background: #EFF6FF;
+      color: #07518E;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
     .demographic-dimension {
       margin-top: 16px;
     }
@@ -4982,7 +5058,40 @@
 
 
           <article class="card section-card">
-            <h2>2. Personas atendidas</h2>
+            <h2>
+              2. Persona responsable
+              <span id="captureResponsibleRequirement" class="capture-requirement">Opcional</span>
+            </h2>
+            <p>
+              Es la persona responsable de la actividad. Puede ser distinta
+              de quien está capturando el registro.
+            </p>
+
+            <div class="capture-grid">
+              <div class="capture-field">
+                <label for="captureResponsibleName">Nombre completo</label>
+                <input id="captureResponsibleName" type="text" maxlength="180" placeholder="Nombre de la persona responsable" />
+              </div>
+              <div class="capture-field">
+                <label for="captureResponsibleEmail">Correo</label>
+                <input id="captureResponsibleEmail" type="email" maxlength="180" placeholder="correo@institucion.mx" />
+              </div>
+              <div class="capture-field">
+                <label for="captureResponsiblePhone">Teléfono</label>
+                <input id="captureResponsiblePhone" type="tel" maxlength="40" placeholder="Opcional" />
+              </div>
+              <div class="capture-field">
+                <label>Atajo</label>
+                <button id="captureUseMyIdentity" class="capture-inline-action" type="button">
+                  Usar mis datos de sesión
+                </button>
+              </div>
+            </div>
+          </article>
+
+
+          <article class="card section-card">
+            <h2>3. Personas atendidas</h2>
             <p>
               Registra únicamente las cifras reportadas para la actividad.
               Los campos pueden variar según la acción seleccionada.
@@ -5045,7 +5154,7 @@
 
 
           <article id="captureTrainingFields" class="card section-card" hidden>
-            <h2>3. Detalle de taller / capacitación</h2>
+            <h2>4. Detalle de taller / capacitación</h2>
 
             <div class="capture-grid">
               <div class="capture-field">
@@ -5102,12 +5211,41 @@
           </article>
 
 
+          <article class="card section-card">
+            <h2>
+              5. Evidencias
+              <span id="captureEvidenceRequirement" class="capture-requirement">Opcional</span>
+            </h2>
+            <p>
+              Puedes adjuntar varias evidencias ahora o completar este paso
+              después desde Bitácora. Formatos: JPG, PNG, WEBP o PDF; máximo
+              10 MB por archivo.
+            </p>
+
+            <div class="capture-grid">
+              <div class="capture-field">
+                <label for="captureEvidenceType">Tipo de evidencia</label>
+                <select id="captureEvidenceType">
+                  <option value="FOTOGRAFIA">Fotografía</option>
+                  <option value="DOCUMENTO">Documento</option>
+                  <option value="LISTA_ASISTENCIA">Lista de asistencia</option>
+                  <option value="OTRA">Otra</option>
+                </select>
+              </div>
+              <div class="capture-field">
+                <label for="captureEvidenceFiles">Archivos</label>
+                <input id="captureEvidenceFiles" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" multiple />
+              </div>
+            </div>
+          </article>
+
+
           <article class="card section-card capture-actions-card">
             <div>
-              <h2>Guardar como borrador</h2>
+              <h2>Pausar y continuar después</h2>
               <p>
-                El registro se guardará como borrador y podrá completarse
-                antes de enviarlo a revisión.
+                El registro se guardará en el sistema como BORRADOR. Podrás
+                retomarlo desde Bitácora, completarlo y enviarlo a revisión.
               </p>
             </div>
 
@@ -5116,7 +5254,7 @@
               class="capture-save"
               type="submit"
             >
-              Guardar borrador
+              Guardar y continuar después
             </button>
           </article>
 
@@ -6649,7 +6787,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js?v=7.2.2";
+    } from "./js/capture.js?v=7.2.3";
 
     import {
       initBitacoraV2,

@@ -2,7 +2,7 @@
  * VINCULACIÓN CULTURAL 2.0
  * capture.js
  *
- * Captura Operativa V2 — Fase 2.3.3.1.
+ * Captura Operativa V2 — Etapa 7.2.3.
  *
  * Guarda registros nuevos como BORRADOR.
  * No valida ni alimenta indicadores hasta completar el flujo posterior.
@@ -20,6 +20,10 @@ import {
   loadActionConfiguration,
   loadDemographicDefinition,
 } from "./catalogs.js?v=7.2.2";
+import {
+  uploadEvidence,
+  validateEvidenceFile,
+} from "./evidence.js";
 
 let context = null;
 let currentConfig = null;
@@ -104,8 +108,8 @@ function clearNotice() {
 function setBusy(busy) {
   ui.saveDraftButton.disabled = busy;
   ui.saveDraftButton.textContent = busy
-    ? "Guardando..."
-    : "Guardar borrador";
+    ? "Guardando borrador y evidencias..."
+    : "Guardar y continuar después";
 }
 
 function renderConfigSummary(config) {
@@ -158,6 +162,22 @@ function toggleSpecializedFields(config) {
     config?.requiere_espacio
       ? "Sede / espacio (si no aparece catalogado)"
       : "Lugar / sede (opcional)";
+
+  ui.responsibleRequirement.textContent =
+    config?.requiere_responsable
+      ? "Requerido antes de enviar a revisión"
+      : "Opcional";
+  ui.responsibleRequirement.dataset.required = String(
+    Boolean(config?.requiere_responsable)
+  );
+
+  ui.evidenceRequirement.textContent =
+    config?.requiere_evidencia
+      ? "Requerida antes de enviar a revisión"
+      : "Opcional";
+  ui.evidenceRequirement.dataset.required = String(
+    Boolean(config?.requiere_evidencia)
+  );
 }
 
 function createDemographicInput(
@@ -216,6 +236,7 @@ function renderDemography(groups) {
   for (const universe of universes) {
     const universeCard = document.createElement("div");
     universeCard.className = "demographic-universe";
+    universeCard.dataset.universe = universe.key;
 
     const title = document.createElement("h4");
     title.textContent = universe.label;
@@ -225,7 +246,37 @@ function renderDemography(groups) {
       "Cada dimensión se interpreta por separado. " +
       "No se suman Género + Grupo etario + Grupo prioritario.";
 
-    universeCard.append(title, help);
+    const modeWrap = document.createElement("div");
+    modeWrap.className = "population-mode";
+
+    const modeLabel = document.createElement("label");
+    modeLabel.htmlFor = `capturePopulationMode_${universe.key}`;
+    modeLabel.textContent = "Nivel de desglose disponible";
+
+    const mode = document.createElement("select");
+    mode.id = `capturePopulationMode_${universe.key}`;
+    mode.dataset.populationMode = universe.key;
+    mode.innerHTML = `
+      <option value="DETALLADO">Desglose completo</option>
+      <option value="PARCIAL_ESTIMADO">Desglose parcial o estimado</option>
+      <option value="GENERAL">Sólo población general</option>
+    `;
+
+    const method = document.createElement("input");
+    method.id = `capturePopulationMethod_${universe.key}`;
+    method.dataset.populationMethod = universe.key;
+    method.type = "text";
+    method.maxLength = 240;
+    method.placeholder =
+      "Indica cómo se obtuvo la cifra (conteo, aforo, estimación...)";
+    method.hidden = true;
+
+    const status = document.createElement("div");
+    status.className = "population-status";
+    status.dataset.populationStatus = universe.key;
+
+    modeWrap.append(modeLabel, mode, method, status);
+    universeCard.append(title, help, modeWrap);
 
     for (const dimension of groups) {
       const section = document.createElement("section");
@@ -254,6 +305,176 @@ function renderDemography(groups) {
 
     ui.demographyContainer.appendChild(universeCard);
   }
+
+  ui.demographyContainer
+    .querySelectorAll("select[data-population-mode]")
+    .forEach((select) => {
+      select.addEventListener("change", () => {
+        updatePopulationMode(select.dataset.populationMode);
+        scheduleLocalDraftSave();
+      });
+    });
+
+  ui.demographyContainer
+    .querySelectorAll("input[data-option-id]")
+    .forEach((input) => {
+      input.addEventListener("input", () => {
+        updatePopulationStatus(input.dataset.universe);
+      });
+    });
+
+  updateAllPopulationStatuses();
+}
+
+function totalForUniverse(universe) {
+  return numberOrNull(
+    universe === "PARTICIPANTES"
+      ? ui.totalParticipants.value
+      : ui.totalAccess.value
+  );
+}
+
+function isExclusiveDimension(key = "") {
+  const normalized = String(key).toUpperCase();
+  return ["SEXO", "GENERO", "EDAD", "ETARIO"]
+    .some((token) => normalized.includes(token));
+}
+
+function populationMode(universe) {
+  return $(
+    `capturePopulationMode_${universe}`
+  )?.value || "DETALLADO";
+}
+
+function updatePopulationMode(universe) {
+  const card = ui.demographyContainer.querySelector(
+    `[data-universe="${universe}"]`
+  );
+  if (!card) return;
+
+  const mode = populationMode(universe);
+  const general = mode === "GENERAL";
+  const method = $(
+    `capturePopulationMethod_${universe}`
+  );
+
+  card
+    .querySelectorAll("input[data-option-id]")
+    .forEach((input) => {
+      input.disabled = general;
+    });
+
+  if (method) {
+    method.hidden = mode === "DETALLADO";
+    method.required = mode !== "DETALLADO";
+  }
+
+  card.classList.toggle("population-general", general);
+  updatePopulationStatus(universe);
+}
+
+function populationValidation(universe, { strict = false } = {}) {
+  const mode = populationMode(universe);
+  const total = totalForUniverse(universe);
+  const method = $(
+    `capturePopulationMethod_${universe}`
+  )?.value.trim() || "";
+
+  if (mode === "GENERAL") {
+    if (strict && total === null) {
+      return { valid: false, message: "Captura el total general." };
+    }
+    if (strict && !method) {
+      return { valid: false, message: "Indica cómo se obtuvo el total general." };
+    }
+    return {
+      valid: true,
+      message: total === null
+        ? "Pendiente de capturar el total general."
+        : `Se conservará el total general de ${total.toLocaleString("es-MX")} sin inventar un desglose.`,
+    };
+  }
+
+  const inputs = [...ui.demographyContainer.querySelectorAll(
+    `input[data-universe="${universe}"][data-option-id]`
+  )];
+
+  if (strict && total === null) {
+    return { valid: false, message: "Captura el total antes del desglose." };
+  }
+
+  const byDimension = new Map();
+  for (const input of inputs) {
+    const value = numberOrNull(input.value) ?? 0;
+    const key = input.dataset.dimensionKey || "OTRA";
+    byDimension.set(key, (byDimension.get(key) ?? 0) + value);
+
+    if (total !== null && value > total) {
+      return {
+        valid: false,
+        message: `Un valor de ${value} supera el total de ${total}.`,
+      };
+    }
+  }
+
+  const exclusive = [...byDimension.entries()]
+    .filter(([key]) => isExclusiveDimension(key));
+
+  for (const [, sum] of exclusive) {
+    if (total !== null && sum > total) {
+      return {
+        valid: false,
+        message: `Un desglose suma ${sum} y supera el total de ${total}.`,
+      };
+    }
+
+    if (
+      strict &&
+      mode === "DETALLADO" &&
+      total !== null &&
+      sum !== total
+    ) {
+      return {
+        valid: false,
+        message: `En desglose completo, cada dimensión excluyente debe sumar ${total}; actualmente suma ${sum}.`,
+      };
+    }
+  }
+
+  if (strict && mode === "PARCIAL_ESTIMADO" && !method) {
+    return {
+      valid: false,
+      message: "Describe el método de conteo o estimación.",
+    };
+  }
+
+  const summary = exclusive.length
+    ? exclusive.map(([, sum]) => sum).join(" / ")
+    : "sin dimensiones excluyentes";
+
+  return {
+    valid: true,
+    message: total === null
+      ? "Captura el total para comprobar la congruencia."
+      : `Total ${total.toLocaleString("es-MX")}; sumas por dimensión: ${summary}.`,
+  };
+}
+
+function updatePopulationStatus(universe) {
+  const status = ui.demographyContainer.querySelector(
+    `[data-population-status="${universe}"]`
+  );
+  if (!status) return;
+
+  const result = populationValidation(universe);
+  status.textContent = result.message;
+  status.dataset.valid = String(result.valid);
+}
+
+function updateAllPopulationStatuses() {
+  ["PARTICIPANTES", "ACCESOS"].forEach((universe) => {
+    updatePopulationMode(universe);
+  });
 }
 
 async function refreshPrograms() {
@@ -694,6 +915,8 @@ async function restoreLocalDraft() {
     ui.cost.disabled =
       ui.feeMode.value !== "CUOTA";
 
+    updateAllPopulationStatuses();
+
     updateLocalDraftIndicator(snapshot);
 
     showNotice(
@@ -740,6 +963,10 @@ function collectDemography() {
   return [...ui.demographyContainer.querySelectorAll(
     "input[data-option-id][data-universe]"
   )]
+    .filter(
+      (input) =>
+        populationMode(input.dataset.universe) !== "GENERAL"
+    )
     .map((input) => ({
       opcion_poblacion_id: input.dataset.optionId,
       universo: input.dataset.universe,
@@ -750,6 +977,64 @@ function collectDemography() {
         row.cantidad !== null &&
         row.cantidad > 0
     );
+}
+
+function collectPopulationMetadata() {
+  const result = {};
+
+  for (const universe of ["PARTICIPANTES", "ACCESOS"]) {
+    const mode = populationMode(universe);
+    const method = $(
+      `capturePopulationMethod_${universe}`
+    )?.value.trim() || null;
+
+    result[universe] = {
+      modo: mode,
+      metodo: method,
+      total: totalForUniverse(universe),
+      declaracion:
+        mode === "GENERAL"
+          ? "Sin desglose; no inferido por el sistema."
+          : mode === "PARCIAL_ESTIMADO"
+            ? "Desglose parcial o estimado declarado por la persona capturista."
+            : "Desglose completo declarado por la persona capturista.",
+    };
+  }
+
+  return result;
+}
+
+function validatePopulationBeforeSave() {
+  if (!currentConfig?.requiere_demografia) return;
+
+  for (const universe of ["PARTICIPANTES", "ACCESOS"]) {
+    const total = totalForUniverse(universe);
+    const hasValues = [...ui.demographyContainer.querySelectorAll(
+      `input[data-universe="${universe}"][data-option-id]`
+    )].some((input) => numberOrNull(input.value) !== null);
+
+    if (total === null && !hasValues) continue;
+
+    const result = populationValidation(universe, { strict: true });
+    if (!result.valid) {
+      const label = universe === "PARTICIPANTES"
+        ? "Personas que participan"
+        : "Personas que acceden";
+      throw new Error(`${label}: ${result.message}`);
+    }
+  }
+}
+
+function responsiblePayload() {
+  return {
+    nombre: ui.responsibleName.value.trim() || null,
+    correo: ui.responsibleEmail.value.trim() || null,
+    telefono: ui.responsiblePhone.value.trim() || null,
+  };
+}
+
+function selectedEvidenceFiles() {
+  return [...(ui.evidenceFiles.files ?? [])];
 }
 
 function validateBeforeSave() {
@@ -803,6 +1088,12 @@ function validateBeforeSave() {
     throw new Error(
       "Indica el espacio o sede de la actividad."
     );
+  }
+
+  validatePopulationBeforeSave();
+
+  for (const file of selectedEvidenceFiles()) {
+    validateEvidenceFile(file);
   }
 }
 
@@ -923,9 +1214,11 @@ async function saveDraft(event) {
 
     const metadata = {
       frontend: {
-        version: "2.1-phase2.3",
+        version: "7.2.3",
         capture_module: "core",
       },
+      captura_poblacion:
+        collectPopulationMetadata(),
       location_text: {
         sede:
           ui.spaceText.value.trim() || null,
@@ -974,6 +1267,8 @@ async function saveDraft(event) {
 
       metadata,
 
+      responsable: responsiblePayload(),
+
       taller: (
         ["TALLER", "CAPACITACION"].includes(
           String(
@@ -1007,7 +1302,7 @@ async function saveDraft(event) {
     // una sola transacción del lado servidor.
     const { data, error } = await dbV2()
       .rpc(
-        "rpc_create_borrador_con_comunidad",
+        "rpc_create_borrador_integral",
         {
           p_payload: recordPayload,
         }
@@ -1018,6 +1313,34 @@ async function saveDraft(event) {
 
     created = data;
 
+    const evidenceFiles = selectedEvidenceFiles();
+    const uploadedEvidence = [];
+
+    for (const file of evidenceFiles) {
+      uploadedEvidence.push(
+        await uploadEvidence({
+          recordId: created.id,
+          unitId: ui.unit.value,
+          file,
+          type: ui.evidenceType.value || "FOTOGRAFIA",
+        })
+      );
+    }
+
+    const pending = [];
+    if (
+      currentConfig.requiere_responsable &&
+      !ui.responsibleName.value.trim()
+    ) {
+      pending.push("persona responsable");
+    }
+    if (
+      currentConfig.requiere_evidencia &&
+      uploadedEvidence.length === 0
+    ) {
+      pending.push("evidencia");
+    }
+
     showNotice(
       `Borrador ${created.folio} guardado correctamente.`,
       "success"
@@ -1025,10 +1348,10 @@ async function saveDraft(event) {
 
     await Swal.fire({
       icon: "success",
-      title: "Borrador guardado",
-      text:
-        `${created.folio} quedó registrado como BORRADOR. ` +
-        "Todavía no alimenta indicadores.",
+      title: "Borrador guardado en el sistema",
+      text: pending.length
+        ? `${created.folio} quedó pausado. Podrás retomarlo en Bitácora; falta completar: ${pending.join(", ")}.`
+        : `${created.folio} quedó completo como BORRADOR y puede retomarse o enviarse a revisión desde Bitácora.`,
     });
 
     // Ya existe un BORRADOR oficial en PostgreSQL:
@@ -1048,16 +1371,21 @@ async function saveDraft(event) {
   } catch (error) {
     console.error("Guardar borrador V2:", error);
 
+    const partialMessage = created?.folio
+      ? `${created.folio} sí quedó guardado como BORRADOR, pero no se cargaron todas las evidencias. Retómalo desde Bitácora para completar la carga.`
+      : null;
+
     showNotice(
-      error?.message ?? "No se pudo guardar el borrador.",
-      "error"
+      partialMessage ?? error?.message ?? "No se pudo guardar el borrador.",
+      created ? "warning" : "error"
     );
 
     await Swal.fire({
-      icon: "error",
-      title: "No se pudo guardar",
-      text:
-        error?.message ??
+      icon: created ? "warning" : "error",
+      title: created
+        ? "Borrador guardado con evidencia pendiente"
+        : "No se pudo guardar",
+      text: partialMessage ?? error?.message ??
         "Ocurrió un error al guardar el borrador.",
     });
   } finally {
@@ -1157,6 +1485,16 @@ export async function initCaptureV2(authContext) {
     cost: $("captureCost"),
     trainingNotes: $("captureTrainingNotes"),
 
+    responsibleName: $("captureResponsibleName"),
+    responsibleEmail: $("captureResponsibleEmail"),
+    responsiblePhone: $("captureResponsiblePhone"),
+    useMyIdentity: $("captureUseMyIdentity"),
+    responsibleRequirement: $("captureResponsibleRequirement"),
+
+    evidenceFiles: $("captureEvidenceFiles"),
+    evidenceType: $("captureEvidenceType"),
+    evidenceRequirement: $("captureEvidenceRequirement"),
+
     demographySection: $("captureDemographySection"),
     demographyContainer: $("captureDemographyContainer"),
 
@@ -1223,6 +1561,28 @@ export async function initCaptureV2(authContext) {
         if (!showCost) {
           ui.cost.value = "";
         }
+      }
+    );
+
+    ui.totalParticipants.addEventListener(
+      "input",
+      () => updatePopulationStatus("PARTICIPANTES")
+    );
+
+    ui.totalAccess.addEventListener(
+      "input",
+      () => updatePopulationStatus("ACCESOS")
+    );
+
+    ui.useMyIdentity.addEventListener(
+      "click",
+      () => {
+        ui.responsibleName.value =
+          context?.profile?.nombre || "";
+        ui.responsibleEmail.value =
+          context?.profile?.email ||
+          context?.user?.email || "";
+        scheduleLocalDraftSave();
       }
     );
 
