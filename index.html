@@ -6078,6 +6078,15 @@
                   Ver solo este municipio
                 </button>
 
+                <button
+                  id="dashboardMapClearButton"
+                  class="btn-secondary dashboard-map-filter"
+                  type="button"
+                  hidden
+                >
+                  Mostrar todos los municipios
+                </button>
+
                 <div class="dashboard-map-legend">
                   <span class="dashboard-map-legend-title">Escala de intensidad</span>
                   <div id="dashboardMapLegend" class="dashboard-map-legend-items"></div>
@@ -6871,7 +6880,7 @@
 
     import {
       initDashboardV2,
-    } from "./js/dashboard.js";
+    } from "./js/dashboard.js?v=7.6.0";
 
     import {
       getHomeContent,

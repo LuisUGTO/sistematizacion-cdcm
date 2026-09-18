@@ -776,10 +776,10 @@ function updateMapDetail(code, payload) {
   const catalog = municipalityCatalogByCode(code);
 
   if (!feature || !code) {
-    setText(ui.mapMunicipality, "Sin selección");
+    setText(ui.mapMunicipality, "Vista estatal");
     setText(
       ui.mapRegion,
-      "Elige un polígono o usa el filtro de municipio."
+      "Selecciona un municipio en el mapa para consultar su detalle."
     );
     setText(ui.mapMetricValue, "—");
     setText(ui.mapValidated, "—");
@@ -789,6 +789,7 @@ function updateMapDetail(code, payload) {
     setText(ui.mapAccesses, "—");
     setText(ui.mapCode, "—");
     ui.mapFilter.disabled = true;
+    refreshMapClearControl();
     return;
   }
 
@@ -815,6 +816,19 @@ function updateMapDetail(code, payload) {
   setText(ui.mapCode, code);
 
   ui.mapFilter.disabled = !catalog;
+  refreshMapClearControl();
+}
+
+function refreshMapClearControl() {
+  const hasMunicipalityFilter = Boolean(ui.municipality.value);
+  const hasMapSelection = Boolean(selectedMapCode);
+  const shouldShow = hasMunicipalityFilter || hasMapSelection;
+
+  ui.mapClear.hidden = !shouldShow;
+  ui.mapClear.disabled = !shouldShow;
+  ui.mapClear.textContent = hasMunicipalityFilter
+    ? "Mostrar todos los municipios"
+    : "Quitar selección del mapa";
 }
 
 function selectMapMunicipality(code, payload) {
@@ -833,6 +847,19 @@ function selectMapMunicipality(code, payload) {
   updateMapDetail(selectedMapCode, payload);
 }
 
+function clearMapSelection(payload) {
+  selectedMapCode = null;
+
+  if (window.d3 && ui.mapSvg) {
+    window.d3
+      .select(ui.mapSvg)
+      .selectAll(".dashboard-map-municipality")
+      .classed("is-selected", false);
+  }
+
+  updateMapDetail(null, payload);
+}
+
 function defaultMapSelection(payload, visibleCodes) {
   const selectedCatalog = catalogState.municipalities.find(
     (row) => row.id === ui.municipality.value
@@ -849,15 +876,9 @@ function defaultMapSelection(payload, visibleCodes) {
     return selectedMapCode;
   }
 
-  const firstDataCode = (payload.municipios ?? [])
-    .map((row) => normalizeMapCode(row.clave_inegi))
-    .find((code) => visibleCodes.has(code));
-
-  if (firstDataCode) return firstDataCode;
-
-  return normalizeMapCode(
-    catalogState.municipalities[0]?.clave_inegi
-  );
+  // La vista sin filtro es estatal: no se selecciona arbitrariamente el
+  // primer municipio ni se convierte el clic de detalle en un filtro.
+  return null;
 }
 
 function showMapError(error) {
@@ -965,8 +986,12 @@ async function renderMap(payload) {
 
   renderMapLegend(scale, maximum);
 
-  selectedMapCode = defaultMapSelection(payload, visibleCodes);
-  selectMapMunicipality(selectedMapCode, payload);
+  const nextSelection = defaultMapSelection(payload, visibleCodes);
+  if (nextSelection) {
+    selectMapMunicipality(nextSelection, payload);
+  } else {
+    clearMapSelection(payload);
+  }
 
   ui.mapLoading.hidden = true;
   ui.mapSvg.removeAttribute("hidden");
@@ -1087,6 +1112,7 @@ function bindUi() {
     mapAccesses: $("dashboardMapAccesses"),
     mapCode: $("dashboardMapCode"),
     mapFilter: $("dashboardMapFilterButton"),
+    mapClear: $("dashboardMapClearButton"),
     mapLegend: $("dashboardMapLegend"),
     indicatorBody: $("dashboardIndicatorBody"),
     coverageBody: $("dashboardCoverageBody"),
@@ -1134,6 +1160,17 @@ function bindEvents() {
 
     ui.municipality.value = municipality.id;
     loadDashboard();
+  });
+
+  ui.mapClear.addEventListener("click", () => {
+    if (ui.municipality.value) {
+      ui.municipality.value = "";
+      selectedMapCode = null;
+      loadDashboard();
+      return;
+    }
+
+    if (lastPayload) clearMapSelection(lastPayload);
   });
 }
 
