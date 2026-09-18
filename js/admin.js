@@ -321,6 +321,10 @@ async function sendInvitation(event) {
     const message = error?.name === "AbortError"
       ? "La solicitud tardó demasiado. Revisa los Logs de la función invite-user; no reintentes hasta identificar el paso detenido."
       : error;
+    // Un <dialog> nativo se muestra en la capa superior del navegador. Si
+    // permanece abierto, SweetAlert queda detrás y el usuario sólo ve
+    // "Enviando…". Cerramos el diálogo antes de presentar el resultado.
+    if (ui.inviteDialog.open) ui.inviteDialog.close();
     await showError("No se pudo enviar la invitación", message);
   }
   finally { ui.sendInvite.disabled = false; ui.sendInvite.textContent = "Enviar invitación"; }
