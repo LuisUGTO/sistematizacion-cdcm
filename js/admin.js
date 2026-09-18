@@ -290,16 +290,27 @@ async function sendInvitation(event) {
   ui.sendInvite.disabled = true;
   ui.sendInvite.textContent = "Enviando…";
   try {
-    const { data, error } = await supabase.functions.invoke("invite-user", { body: {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 35000);
+    let result;
+    try {
+      result = await supabase.functions.invoke("invite-user", { body: {
       email: $("inviteEmail").value.trim(),
       name: $("inviteName").value.trim(), role, unitIds, municipalityIds,
-    }});
+      }, signal: controller.signal });
+    } finally { window.clearTimeout(timeoutId); }
+    const { data, error } = result;
     if (error) throw error;
     if (!data?.ok) throw new Error(data?.error || "No se confirmó la invitación.");
     ui.inviteDialog.close();
     await loadUsers();
     await Swal.fire("Invitación enviada", "La persona recibirá un correo para activar su acceso.", "success");
-  } catch (error) { await showError("No se pudo enviar la invitación", error); }
+  } catch (error) {
+    const message = error?.name === "AbortError"
+      ? "La solicitud tardó demasiado. Revisa los Logs de la función invite-user; no reintentes hasta identificar el paso detenido."
+      : error;
+    await showError("No se pudo enviar la invitación", message);
+  }
   finally { ui.sendInvite.disabled = false; ui.sendInvite.textContent = "Enviar invitación"; }
 }
 
