@@ -8,6 +8,7 @@
  */
 
 export const ROLES = Object.freeze({
+  SUPERADMIN: "SUPERADMIN",
   ADMIN: "ADMIN",
   SUPERVISOR: "SUPERVISOR",
   DIRECTIVO: "DIRECTIVO",
@@ -40,6 +41,7 @@ export const PERMISSIONS = Object.freeze({
 const ALL = Object.freeze(Object.values(PERMISSIONS));
 
 const ROLE_PERMISSIONS = Object.freeze({
+  [ROLES.SUPERADMIN]: ALL,
   [ROLES.ADMIN]: ALL,
 
   // 06_rls.sql permite al SUPERVISOR revisar/actualizar dentro de alcance,
@@ -102,7 +104,12 @@ export function canAll(profileOrContext, permissions = []) {
 
 export function isAdmin(profileOrContext) {
   const profile = profileOrContext?.profile ?? profileOrContext;
-  return normalizeRole(profile?.rol) === ROLES.ADMIN;
+  return [ROLES.ADMIN, ROLES.SUPERADMIN].includes(normalizeRole(profile?.rol));
+}
+
+export function isSuperAdmin(profileOrContext) {
+  const profile = profileOrContext?.profile ?? profileOrContext;
+  return normalizeRole(profile?.rol) === ROLES.SUPERADMIN;
 }
 
 export function isSupervisor(profileOrContext) {

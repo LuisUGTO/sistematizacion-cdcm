@@ -114,7 +114,7 @@
     <section class="hero"><h1>Administración institucional</h1><p>Configura usuarios, alcances y catálogos operativos sin perder la trazabilidad de los registros históricos.</p><div class="hero-tags"><span class="hero-tag">Acceso restringido</span><span class="hero-tag">Cambios auditables</span><span class="hero-tag">Sin borrado histórico</span></div></section>
     <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos</button><button class="tab" type="button" data-tab="catalogs" aria-selected="false">Catálogos operativos</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button></nav>
     <section id="panel-users" class="panel active"><article class="card">
-      <div class="card-heading"><div><h2>Control de usuarios</h2><p>Los usuarios aparecen después de iniciar sesión por primera vez. Configura su rol y alcance antes de que comiencen a trabajar.</p></div><button id="refreshUsers" class="button button-secondary" type="button">Actualizar</button></div>
+      <div class="card-heading"><div><h2>Control de usuarios</h2><p>Invita por correo y configura el rol y alcance institucional.</p></div><div><button id="inviteUserButton" class="button button-primary" type="button" hidden>Invitar usuario</button> <button id="refreshUsers" class="button button-secondary" type="button">Actualizar</button></div></div>
       <div class="stats"><div class="stat"><span>Total</span><strong id="statTotal">—</strong></div><div class="stat"><span>Listos</span><strong id="statReady">—</strong></div><div class="stat"><span>Incompletos</span><strong id="statIncomplete">—</strong></div><div class="stat"><span>Inactivos</span><strong id="statInactive">—</strong></div></div>
       <div class="toolbar"><input id="userSearch" class="control" type="search" placeholder="Buscar por correo o nombre…" /><select id="userFilter" class="control" aria-label="Filtrar usuarios"><option value="ALL">Todos los usuarios</option><option value="INCOMPLETE">Configuración incompleta</option><option value="READY">Listos para trabajar</option><option value="INACTIVE">Inactivos</option></select><button id="showIncomplete" class="button button-quiet" type="button">Ver pendientes</button></div>
       <div id="userList" class="user-list"><div class="empty">Cargando usuarios…</div></div>
@@ -239,7 +239,15 @@
       <p id="dialogGuidance" class="dialog-note">Un capturista activo necesita al menos una unidad y un municipio. La primera selección se guarda como principal.</p></div>
     <div class="dialog-actions"><button id="cancelAccess" class="button button-secondary" type="button">Cancelar</button><button id="saveAccess" class="button button-primary" type="submit">Guardar acceso</button></div>
   </form></dialog>
-  <script type="module" src="./js/admin.js?v=7.3"></script>
+  <dialog id="inviteDialog" aria-labelledby="inviteDialogTitle"><form id="inviteForm" method="dialog">
+    <div class="dialog-head"><div><h2 id="inviteDialogTitle">Invitar usuario</h2><div class="dialog-email">Recibirá un correo para establecer su acceso.</div></div><button id="closeInviteX" class="icon-button" type="button" aria-label="Cerrar">×</button></div>
+    <div class="dialog-body"><div class="dialog-grid"><div><label for="inviteEmail">Correo electrónico</label><input id="inviteEmail" class="control" type="email" required /></div><div><label for="inviteName">Nombre</label><input id="inviteName" class="control" maxlength="180" /></div><div><label for="inviteRole">Rol inicial</label><select id="inviteRole" class="control" required><option value="CAPTURISTA">Capturista</option><option value="SUPERVISOR">Supervisor</option><option value="DIRECTIVO">Directivo</option><option value="ADMIN">Administrador</option></select></div></div>
+      <section class="scope-section"><div class="scope-head"><h3>Unidades operativas</h3></div><div id="inviteUnitChecks" class="check-grid"></div></section>
+      <section class="scope-section"><div class="scope-head"><h3>Municipios</h3></div><div id="inviteMunicipalityChecks" class="check-grid"></div></section>
+      <p class="dialog-note">No se genera ni se almacena una contraseña. Supabase enviará una invitación segura al correo indicado.</p></div>
+    <div class="dialog-actions"><button id="cancelInvite" class="button button-secondary" type="button">Cancelar</button><button id="sendInvite" class="button button-primary" type="submit">Enviar invitación</button></div>
+  </form></dialog>
+  <script type="module" src="./js/admin.js?v=7.4"></script>
   <script type="module" src="./js/catalog-admin.js?v=7.2.1"></script>
   <script type="module" src="./js/library-admin.js?v=7.3"></script>
 </body>

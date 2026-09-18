@@ -6,7 +6,7 @@
 
 import { supabase, dbV2 } from "./supabase-client.js";
 import { loadAuthContext } from "./auth.js";
-import { isAdmin } from "./permissions.js";
+import { isAdmin, isSuperAdmin } from "./permissions.js";
 
 const publicDb = supabase.schema("public");
 const ADMIN_SAVE_TIMEOUT_MS = 20000;
@@ -41,6 +41,11 @@ const ui = {
   municipalitySearch: $("municipalitySearch"),
   guidance: $("dialogGuidance"),
   saveAccess: $("saveAccess"),
+  inviteDialog: $("inviteDialog"),
+  inviteForm: $("inviteForm"),
+  inviteUnitChecks: $("inviteUnitChecks"),
+  inviteMunicipalityChecks: $("inviteMunicipalityChecks"),
+  sendInvite: $("sendInvite"),
 };
 
 function normalize(value) {
@@ -61,7 +66,7 @@ function scopeIds(user, kind) {
 
 function accessStatus(user) {
   if (!user.activo) return "INACTIVE";
-  if (user.rol === "ADMIN") return "READY";
+  if (["ADMIN", "SUPERADMIN"].includes(user.rol)) return "READY";
 
   const hasUnit = (user.unidad_ids?.length ?? 0) > 0;
   const hasMunicipality =
@@ -190,6 +195,10 @@ function renderUsers() {
     configure.type = "button";
     configure.textContent = "Configurar";
     configure.addEventListener("click", () => openAccessDialog(user));
+    if (["ADMIN", "SUPERADMIN"].includes(user.rol) && !isSuperAdmin(state.context)) {
+      configure.disabled = true;
+      configure.textContent = "Protegido";
+    }
 
     row.append(identity, badges, scopes, configure);
     ui.userList.appendChild(row);
@@ -202,7 +211,7 @@ function renderCheckList(container, items, selectedIds, prefix) {
   items.forEach((item) => {
     const wrapper = document.createElement("div");
     wrapper.className = "check-item";
-    if (prefix === "municipality") {
+    if (prefix.includes("municipality")) {
       wrapper.dataset.search = normalize(item.nombre_oficial);
     }
 
@@ -215,7 +224,7 @@ function renderCheckList(container, items, selectedIds, prefix) {
     const label = document.createElement("label");
     label.htmlFor = input.id;
     label.textContent =
-      prefix === "unit" ? item.nombre : item.nombre_oficial;
+      prefix.includes("unit") ? item.nombre : item.nombre_oficial;
 
     wrapper.append(input, label);
     container.appendChild(wrapper);
@@ -237,6 +246,10 @@ function updateGuidance() {
 }
 
 function openAccessDialog(user) {
+  if (user.rol === "SUPERADMIN") {
+    Swal.fire("Cuenta protegida", "El SUPERADMIN principal no puede modificarse desde este panel.", "info");
+    return;
+  }
   state.selectedUser = user;
   ui.dialogEmail.textContent = user.email;
   ui.dialogRole.value = user.rol;
@@ -257,6 +270,37 @@ function openAccessDialog(user) {
   );
   updateGuidance();
   ui.dialog.showModal();
+}
+
+function openInviteDialog() {
+  ui.inviteForm.reset();
+  renderCheckList(ui.inviteUnitChecks, state.units, new Set(), "invite-unit");
+  renderCheckList(ui.inviteMunicipalityChecks, state.municipalities, new Set(), "invite-municipality");
+  ui.inviteDialog.showModal();
+}
+
+async function sendInvitation(event) {
+  event.preventDefault();
+  const unitIds = checkedValues(ui.inviteUnitChecks);
+  const municipalityIds = checkedValues(ui.inviteMunicipalityChecks);
+  const role = $("inviteRole").value;
+  if (role === "CAPTURISTA" && (!unitIds.length || !municipalityIds.length)) {
+    return Swal.fire("Falta alcance", "Un capturista necesita al menos una unidad y un municipio.", "warning");
+  }
+  ui.sendInvite.disabled = true;
+  ui.sendInvite.textContent = "Enviando…";
+  try {
+    const { data, error } = await supabase.functions.invoke("invite-user", { body: {
+      email: $("inviteEmail").value.trim(),
+      name: $("inviteName").value.trim(), role, unitIds, municipalityIds,
+    }});
+    if (error) throw error;
+    if (!data?.ok) throw new Error(data?.error || "No se confirmó la invitación.");
+    ui.inviteDialog.close();
+    await loadUsers();
+    await Swal.fire("Invitación enviada", "La persona recibirá un correo para activar su acceso.", "success");
+  } catch (error) { await showError("No se pudo enviar la invitación", error); }
+  finally { ui.sendInvite.disabled = false; ui.sendInvite.textContent = "Enviar invitación"; }
 }
 
 function checkedValues(container) {
@@ -410,6 +454,10 @@ function installUserEvents() {
   ui.accessForm.addEventListener("submit", saveAccess);
   $("cancelAccess").addEventListener("click", () => ui.dialog.close());
   $("closeDialogX").addEventListener("click", () => ui.dialog.close());
+  $("inviteUserButton").addEventListener("click", openInviteDialog);
+  ui.inviteForm.addEventListener("submit", sendInvitation);
+  $("cancelInvite").addEventListener("click", () => ui.inviteDialog.close());
+  $("closeInviteX").addEventListener("click", () => ui.inviteDialog.close());
 
   document.querySelectorAll("[data-select]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -493,6 +541,8 @@ async function initialize() {
     }
 
     ui.adminIdentity.textContent = `${state.context.user.email} · ADMIN`;
+    ui.adminIdentity.textContent = `${state.context.user.email} · ${state.context.profile.rol}`;
+    $("inviteUserButton").hidden = !isSuperAdmin(state.context);
     await loadCatalogs();
     installLegacyEvents();
     await Promise.all([loadUsers(), loadTeachers()]);
