@@ -101,6 +101,7 @@ async function initialize() {
       return;
     }
 
+    tab.hidden = false;
     panel.hidden = false;
 
     const { content } = await getHomeContent();
