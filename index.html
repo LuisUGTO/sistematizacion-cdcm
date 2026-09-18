@@ -4869,17 +4869,17 @@
       <section id="panel-inicio" class="panel active">
         <section class="home-hero" aria-labelledby="homeHeroTitle">
           <div class="home-hero-copy">
-            <div class="hero-kicker">Vinculación Cultural · Guanajuato</div>
-            <h1 id="homeHeroTitle">La cultura del territorio, en un solo sistema</h1>
-            <p>
+            <div class="hero-kicker" data-home-content="heroKicker">Vinculación Cultural · Guanajuato</div>
+            <h1 id="homeHeroTitle" data-home-content="heroTitle">La cultura del territorio, en un solo sistema</h1>
+            <p data-home-content="heroDescription">
               Registra, valida y consulta la actividad cultural de los municipios
               con información confiable, ordenada y trazable.
             </p>
             <div class="home-hero-actions">
-              <button class="home-hero-button home-hero-button-primary" type="button" data-home-target="captura">
+              <button class="home-hero-button home-hero-button-primary" type="button" data-home-target="captura" data-home-content="primaryActionLabel">
                 Registrar una actividad
               </button>
-              <button class="home-hero-button home-hero-button-secondary" type="button" data-home-target="bitacora">
+              <button class="home-hero-button home-hero-button-secondary" type="button" data-home-target="bitacora" data-home-content="secondaryActionLabel">
                 Consultar bitácora
               </button>
             </div>
@@ -4888,8 +4888,10 @@
             <img
               src="assets/identidad-institucional/inicio/portada/inicio-portada-guanajuato.jpg"
               alt="Arquitectura y patrimonio cultural de Guanajuato"
+              data-home-image="heroImagePath"
+              data-home-alt="heroImageAlt"
             />
-            <div class="home-photo-caption">
+          <div class="home-photo-caption" data-home-content="heroCaption">
               Patrimonio cultural de Guanajuato · fotografía institucional
             </div>
           </div>
@@ -4981,8 +4983,8 @@
 
         <section class="home-section" aria-labelledby="homeTerritoryTitle">
           <div class="home-section-heading">
-            <h2 id="homeTerritoryTitle">Cultura que sucede en el territorio</h2>
-            <p>Espacios, patrimonio y servicios culturales de Guanajuato.</p>
+            <h2 id="homeTerritoryTitle" data-home-content="galleryTitle">Cultura que sucede en el territorio</h2>
+            <p data-home-content="galleryDescription">Espacios, patrimonio y servicios culturales de Guanajuato.</p>
           </div>
 
           <div class="home-gallery">
@@ -4990,10 +4992,12 @@
               <img
                 src="assets/identidad-institucional/inicio/destacados/inicio-patrimonio-cultural.jpg"
                 alt="Patio de un recinto histórico y cultural de Guanajuato"
+                data-home-image="galleryOneImagePath"
+                data-home-alt="galleryOneImageAlt"
               />
               <div class="home-gallery-copy">
-                <strong>Patrimonio e infraestructura cultural</strong>
-                <span>Espacios que resguardan y acercan la cultura.</span>
+                <strong data-home-content="galleryOneTitle">Patrimonio e infraestructura cultural</strong>
+                <span data-home-content="galleryOneDescription">Espacios que resguardan y acercan la cultura.</span>
               </div>
             </article>
 
@@ -5001,10 +5005,12 @@
               <img
                 src="assets/identidad-institucional/inicio/destacados/inicio-bibliotecas-lectura.jpg"
                 alt="Biblioteca con acervo y mobiliario de consulta"
+                data-home-image="galleryTwoImagePath"
+                data-home-alt="galleryTwoImageAlt"
               />
               <div class="home-gallery-copy">
-                <strong>Bibliotecas y espacios de lectura</strong>
-                <span>Conocimiento, memoria y encuentro comunitario.</span>
+                <strong data-home-content="galleryTwoTitle">Bibliotecas y espacios de lectura</strong>
+                <span data-home-content="galleryTwoDescription">Conocimiento, memoria y encuentro comunitario.</span>
               </div>
             </article>
           </div>
@@ -6867,6 +6873,11 @@
       initDashboardV2,
     } from "./js/dashboard.js";
 
+    import {
+      getHomeContent,
+      applyHomeContent,
+    } from "./js/home-content.js?v=7.5";
+
 
     const ui = {
       loginView: document.getElementById("loginView"),
@@ -7076,6 +7087,17 @@
         });
     }
 
+    async function renderInstitutionalHome() {
+      try {
+        const { content } = await getHomeContent();
+        applyHomeContent(content);
+      } catch (error) {
+        // El Inicio conserva su contenido institucional predeterminado si el
+        // servicio aún no está configurado o si una consulta temporal falla.
+        console.warn("No se pudo cargar el contenido institucional:", error);
+      }
+    }
+
 
     async function renderContext(context) {
       currentContext = context;
@@ -7167,6 +7189,7 @@
 
       configureTabs(context);
       showApp();
+      await renderInstitutionalHome();
 
       if (can(context, PERMISSIONS.CAPTURE_CREATE)) {
         try {
