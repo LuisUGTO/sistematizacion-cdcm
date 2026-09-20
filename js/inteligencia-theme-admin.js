@@ -129,7 +129,7 @@ async function saveTheme(event) {
     const content = contentFromForm();
     await uploadImage(content, id);
     const payload = { nombre: $("themeName").value.trim(), activo: $("themeActive").checked, fecha_inicio:start, fecha_fin:end, prioridad:Number($("themePriority").value || 0), contenido:content };
-    if (!payload.nombre || !payload.title) throw new Error("Indica al menos el nombre del tema y su título principal.");
+    if (!payload.nombre || !content.title) throw new Error("Indica al menos el nombre del tema y su título principal.");
     const request = id ? dbV2().from("temas_inteligencia").update(payload).eq("id", id) : dbV2().from("temas_inteligencia").insert(payload);
     const { error } = await request;
     if (error) throw error;
