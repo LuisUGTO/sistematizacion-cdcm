@@ -434,7 +434,19 @@ function populationValidation(universe, { strict = false } = {}) {
     label: currentDemography.find((dimension) => dimension.clave === key)?.nombre || key,
     sum,
     expected: total,
+    kind: "EXCLUSIVA",
   }));
+
+  for (const [key, sum] of byDimension.entries()) {
+    if (isExclusiveDimension(key)) continue;
+    details.push({
+      key,
+      label: currentDemography.find((dimension) => dimension.clave === key)?.nombre || key,
+      sum,
+      expected: null,
+      kind: "COMPLEMENTARIA",
+    });
+  }
 
   for (const [key, sum] of exclusive) {
     if (total !== null && sum > total) {
@@ -499,9 +511,12 @@ function updatePopulationStatus(universe) {
     list.className = "population-progress";
     for (const detail of preview.details) {
       const item = document.createElement("span");
-      const complete = detail.sum === detail.expected;
+      const complete = detail.expected === null || detail.sum === detail.expected;
       item.dataset.complete = String(complete);
-      item.textContent = `${detail.label}: ${detail.sum} / ${detail.expected}`;
+      item.dataset.kind = detail.kind;
+      item.textContent = detail.expected === null
+        ? `${detail.label}: ${detail.sum} · dato complementario`
+        : `${detail.label}: ${detail.sum} / ${detail.expected}`;
       list.appendChild(item);
     }
     status.appendChild(list);

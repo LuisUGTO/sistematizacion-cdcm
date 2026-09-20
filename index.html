@@ -1802,6 +1802,27 @@
       color: #166534;
     }
 
+    .population-progress span[data-kind="COMPLEMENTARIA"] {
+      background: #E0F2FE;
+      color: #075985;
+    }
+
+    .capture-population-guide {
+      display: grid;
+      gap: 4px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid #BFDBFE;
+      border-radius: 10px;
+      background: #F0F9FF;
+      color: #334155;
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .capture-population-guide strong { color: var(--gto-azul); font-size: 11px; }
+    .capture-population-guide em { color: #475569; font-style: normal; }
+
     .population-general .demographic-dimension {
       opacity: .45;
     }
@@ -5256,6 +5277,14 @@
               </div>
             </div>
 
+            <div class="capture-population-guide">
+              <strong>Cómo se leen estas cifras</strong>
+              <span><b>Beneficiarios:</b> personas únicas atendidas directamente.</span>
+              <span><b>Participantes:</b> personas que participaron activamente.</span>
+              <span><b>Accesos:</b> asistencias, entradas o participaciones; pueden repetirse.</span>
+              <em>No se dividen ni se suman entre sí. Grupo prioritario es un dato complementario y puede coincidir con género o edad.</em>
+            </div>
+
             <section id="captureDemographySection" class="capture-demography" hidden>
               <div class="capture-subheading">
                 <h3>Desagregación demográfica</h3>
@@ -6922,7 +6951,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js?v=7.7.1.1";
+    } from "./js/capture.js?v=7.7.2";
 
     import {
       initBitacoraV2,
