@@ -77,6 +77,17 @@ function moneyOrNull(value) {
     : null;
 }
 
+function operationalClassification() {
+  return {
+    tipo_actividad: ui.activityType.value.trim() || null,
+    formato: ui.format.value || null,
+    temporalidad: ui.temporality.value || null,
+    total_sesiones: numberOrNull(ui.sessions.value),
+    disciplina: ui.generalDiscipline.value.trim() || null,
+    subdisciplina: ui.subdiscipline.value.trim() || null,
+  };
+}
+
 function fillSelect(
   element,
   rows,
@@ -661,6 +672,15 @@ async function renderEditor(data) {
     data.record.fecha_inicio ??
     "";
 
+  const operational =
+    data.record.metadata?.clasificacion_operativa ?? {};
+  ui.activityType.value = operational.tipo_actividad ?? "";
+  ui.format.value = operational.formato ?? "";
+  ui.temporality.value = operational.temporalidad ?? "";
+  ui.sessions.value = operational.total_sesiones ?? "";
+  ui.generalDiscipline.value = operational.disciplina ?? "";
+  ui.subdiscipline.value = operational.subdisciplina ?? "";
+
   ui.totalBeneficiaries.value =
     data.record.total_beneficiarios ??
     "";
@@ -940,6 +960,11 @@ function buildPayload(
       numberOrNull(
         ui.totalAccess.value
       ),
+
+    metadata: {
+      clasificacion_operativa:
+        operationalClassification(),
+    },
 
     responsable: {
       nombre:
@@ -1422,6 +1447,18 @@ export async function initDraftEditor(
       $("draftEditorStartDate"),
     endDate:
       $("draftEditorEndDate"),
+    activityType:
+      $("draftEditorActivityType"),
+    format:
+      $("draftEditorFormat"),
+    temporality:
+      $("draftEditorTemporality"),
+    sessions:
+      $("draftEditorSessions"),
+    generalDiscipline:
+      $("draftEditorGeneralDiscipline"),
+    subdiscipline:
+      $("draftEditorSubdiscipline"),
 
     municipality:
       $("draftEditorMunicipality"),

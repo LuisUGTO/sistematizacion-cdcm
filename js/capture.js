@@ -90,6 +90,17 @@ function moneyOrNull(value) {
     : null;
 }
 
+function operationalClassification() {
+  return {
+    tipo_actividad: ui.activityType.value.trim() || null,
+    formato: ui.format.value || null,
+    temporalidad: ui.temporality.value || null,
+    total_sesiones: numberOrNull(ui.sessions.value),
+    disciplina: ui.generalDiscipline.value.trim() || null,
+    subdisciplina: ui.subdiscipline.value.trim() || null,
+  };
+}
+
 function selectedText(select) {
   return select?.selectedOptions?.[0]?.textContent?.trim() || "";
 }
@@ -1219,6 +1230,8 @@ async function saveDraft(event) {
       },
       captura_poblacion:
         collectPopulationMetadata(),
+      clasificacion_operativa:
+        operationalClassification(),
       location_text: {
         sede:
           ui.spaceText.value.trim() || null,
@@ -1471,6 +1484,12 @@ export async function initCaptureV2(authContext) {
     description: $("captureDescription"),
     startDate: $("captureStartDate"),
     endDate: $("captureEndDate"),
+    activityType: $("captureActivityType"),
+    format: $("captureFormat"),
+    temporality: $("captureTemporality"),
+    sessions: $("captureSessions"),
+    generalDiscipline: $("captureGeneralDiscipline"),
+    subdiscipline: $("captureSubdiscipline"),
 
     totalBeneficiaries: $("captureTotalBeneficiaries"),
     totalParticipants: $("captureTotalParticipants"),

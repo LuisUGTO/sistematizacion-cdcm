@@ -5119,6 +5119,31 @@
                 <label for="captureEndDate">Fecha de término</label>
                 <input id="captureEndDate" type="date" />
               </div>
+
+              <div class="capture-field">
+                <label for="captureActivityType">Tipo de actividad <span class="capture-optional">opcional</span></label>
+                <input id="captureActivityType" type="text" maxlength="160" placeholder="Ej. Taller, exposición, encuentro" />
+              </div>
+              <div class="capture-field">
+                <label for="captureFormat">Formato <span class="capture-optional">opcional</span></label>
+                <select id="captureFormat"><option value="">No especificado</option><option value="PRESENCIAL">Presencial</option><option value="VIRTUAL">Virtual</option><option value="HIBRIDO">Híbrido</option></select>
+              </div>
+              <div class="capture-field">
+                <label for="captureTemporality">Temporalidad <span class="capture-optional">opcional</span></label>
+                <select id="captureTemporality"><option value="">No especificada</option><option value="UNICA">Única</option><option value="SEMANAL">Semanal</option><option value="MENSUAL">Mensual</option><option value="TEMPORAL">Temporal</option><option value="PERMANENTE">Permanente</option><option value="OTRA">Otra</option></select>
+              </div>
+              <div class="capture-field">
+                <label for="captureSessions">Número de sesiones <span class="capture-optional">opcional</span></label>
+                <input id="captureSessions" type="number" min="1" max="1000" step="1" placeholder="Ej. 12" />
+              </div>
+              <div class="capture-field">
+                <label for="captureGeneralDiscipline">Disciplina <span class="capture-optional">opcional</span></label>
+                <input id="captureGeneralDiscipline" type="text" maxlength="160" placeholder="Ej. Danza, lectura, artes visuales" />
+              </div>
+              <div class="capture-field">
+                <label for="captureSubdiscipline">Subdisciplina <span class="capture-optional">opcional</span></label>
+                <input id="captureSubdiscipline" type="text" maxlength="160" placeholder="Ej. Danza folclórica" />
+              </div>
             </div>
           </article>
 
@@ -6595,6 +6620,13 @@
               <input id="draftEditorEndDate" type="date" />
             </div>
 
+            <div class="draft-field"><label for="draftEditorActivityType">Tipo de actividad <span class="capture-optional">opcional</span></label><input id="draftEditorActivityType" type="text" maxlength="160" /></div>
+            <div class="draft-field"><label for="draftEditorFormat">Formato <span class="capture-optional">opcional</span></label><select id="draftEditorFormat"><option value="">No especificado</option><option value="PRESENCIAL">Presencial</option><option value="VIRTUAL">Virtual</option><option value="HIBRIDO">Híbrido</option></select></div>
+            <div class="draft-field"><label for="draftEditorTemporality">Temporalidad <span class="capture-optional">opcional</span></label><select id="draftEditorTemporality"><option value="">No especificada</option><option value="UNICA">Única</option><option value="SEMANAL">Semanal</option><option value="MENSUAL">Mensual</option><option value="TEMPORAL">Temporal</option><option value="PERMANENTE">Permanente</option><option value="OTRA">Otra</option></select></div>
+            <div class="draft-field"><label for="draftEditorSessions">Número de sesiones <span class="capture-optional">opcional</span></label><input id="draftEditorSessions" type="number" min="1" max="1000" step="1" /></div>
+            <div class="draft-field"><label for="draftEditorGeneralDiscipline">Disciplina <span class="capture-optional">opcional</span></label><input id="draftEditorGeneralDiscipline" type="text" maxlength="160" /></div>
+            <div class="draft-field"><label for="draftEditorSubdiscipline">Subdisciplina <span class="capture-optional">opcional</span></label><input id="draftEditorSubdiscipline" type="text" maxlength="160" /></div>
+
             <div class="draft-field">
               <label for="draftEditorMunicipality">Municipio</label>
               <select id="draftEditorMunicipality"></select>
@@ -6864,7 +6896,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js?v=7.2.3";
+    } from "./js/capture.js?v=7.7.1";
 
     import {
       initBitacoraV2,
@@ -6872,7 +6904,7 @@
 
     import {
       initDraftEditor,
-    } from "./js/draft-editor.js?v=7.2.2";
+    } from "./js/draft-editor.js?v=7.7.1";
 
     import {
       initValidationV2,
