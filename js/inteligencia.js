@@ -10,6 +10,7 @@ const AXES = [
   ["temporalidad", "Temporalidad"],
   ["disciplina", "Disciplina"],
 ];
+const VIEWS = new Set(["panorama", "territorio", "oferta", "poblacion", "indicadores"]);
 
 let context = null;
 let payload = null;
@@ -17,6 +18,30 @@ let mapPayload = null;
 let selectedAxis = "tipo_actividad";
 let selectedMapCode = null;
 let catalogs = { units: [], programs: [], municipalities: [] };
+let activeView = "panorama";
+
+function viewFromHash() {
+  const value = window.location.hash.replace(/^#\/?/, "").toLowerCase();
+  return VIEWS.has(value) ? value : "panorama";
+}
+
+function setActiveView(view, { updateUrl = true, focus = false } = {}) {
+  activeView = VIEWS.has(view) ? view : "panorama";
+  document.querySelectorAll("[data-view-panel]").forEach((panel) => {
+    panel.hidden = panel.dataset.viewPanel !== activeView;
+  });
+  document.querySelectorAll("[data-view-intro]").forEach((intro) => {
+    intro.classList.toggle("active", intro.dataset.viewIntro === activeView);
+  });
+  document.querySelectorAll("#viewNav [data-view]").forEach((button) => {
+    const selected = button.dataset.view === activeView;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-current", selected ? "page" : "false");
+  });
+  if (updateUrl) history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${activeView}`);
+  if (activeView === "territorio" && mapPayload) renderMap(mapPayload).catch((error) => console.error("Mapa estratégico:", error));
+  if (focus) $("viewNav").scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 function number(value) {
   const parsed = Number(value ?? 0);
@@ -353,10 +378,16 @@ async function init() {
   $("year").value = "2026";
   await loadCatalogs();
   $("app").hidden = false;
+  setActiveView(viewFromHash(), { updateUrl: true });
   await load();
 }
 
 $("unit").addEventListener("change", renderPrograms);
+$("viewNav").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-view]");
+  if (button) setActiveView(button.dataset.view, { updateUrl: true, focus: true });
+});
+window.addEventListener("hashchange", () => setActiveView(viewFromHash(), { updateUrl: false }));
 $("apply").addEventListener("click", load);
 $("clear").addEventListener("click", () => { $("unit").value = ""; renderPrograms(); $("program").value = ""; $("municipality").value = ""; $("year").value = "2026"; selectedMapCode = null; load(); });
 $("mapClear").addEventListener("click", async () => { $("municipality").value = ""; selectedMapCode = null; await load(); });
