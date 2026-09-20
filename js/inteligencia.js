@@ -11,7 +11,7 @@ const AXES = [
   ["temporalidad", "Temporalidad"],
   ["disciplina", "Disciplina"],
 ];
-const VIEWS = new Set(["panorama", "territorio", "oferta", "poblacion", "indicadores"]);
+const VIEWS = new Set(["panorama", "territorio", "oferta", "poblacion", "indicadores", "calidad"]);
 
 let context = null;
 let payload = null;
@@ -20,6 +20,7 @@ let selectedAxis = "tipo_actividad";
 let selectedMapCode = null;
 let catalogs = { units: [], programs: [], municipalities: [] };
 let activeView = "panorama";
+let qualityPayload = null;
 
 function viewFromHash() {
   const value = window.location.hash.replace(/^#\/?/, "").toLowerCase();
@@ -27,7 +28,7 @@ function viewFromHash() {
 }
 
 function setActiveView(view, { updateUrl = true, focus = false } = {}) {
-  activeView = VIEWS.has(view) ? view : "panorama";
+  activeView = VIEWS.has(view) && (view !== "calidad" || can(context, PERMISSIONS.VALIDATION_REVIEW)) ? view : "panorama";
   document.querySelectorAll("[data-view-panel]").forEach((panel) => {
     panel.hidden = panel.dataset.viewPanel !== activeView;
   });
@@ -281,6 +282,32 @@ function renderIndicators(data) {
   });
 }
 
+function qualityLabel(priority) {
+  return ({ LISTO_PARA_VALIDAR: "Listo para validar", BLOQUEADO: "Con incidencias", PENDIENTE_CORRECCION: "En corrección", PENDIENTE_RE_REVISION: "Revisión posterior", PENDIENTE_ENVIO: "Pendiente de envío" })[priority] ?? "En proceso";
+}
+
+function renderQuality(data) {
+  if (!can(context, PERMISSIONS.VALIDATION_REVIEW)) return;
+  qualityPayload = data ?? {};
+  const summary = qualityPayload.resumen ?? {};
+  const summaryBox = $("qualitySummary"); summaryBox.replaceChildren();
+  const cards = [
+    ["Listos para validar", summary.listos_para_validar, "Sin incidencias estructurales.", "#07875d"],
+    ["Con incidencias", summary.bloqueados, "Requieren completar o corregir información.", "#be123c"],
+    ["Observados", summary.observados, "Devueltos para corrección institucional.", "#d97706"],
+    ["En revisión", summary.en_revision, "Expedientes dentro de la bandeja.", "#075a98"],
+  ];
+  cards.forEach(([label, value, note, accent]) => { const card = document.createElement("article"); card.className = "quality-kpi"; card.style.setProperty("--accent", accent); const title = document.createElement("span"); title.textContent = label; const amount = document.createElement("strong"); amount.textContent = fmt(value); const detail = document.createElement("small"); detail.textContent = note; card.append(title, amount, detail); summaryBox.appendChild(card); });
+  const issues = $("qualityIssues"); issues.replaceChildren();
+  const issueRows = qualityPayload.incidencias ?? [];
+  if (!issueRows.length) { const empty = document.createElement("div"); empty.className = "empty"; empty.textContent = "No hay incidencias estructurales en los filtros seleccionados."; issues.appendChild(empty); }
+  issueRows.slice(0, 8).forEach((row) => { const item = document.createElement("div"); item.className = "issue-row"; const label = document.createElement("strong"); label.textContent = String(row.incidencia ?? "INCIDENCIA").replaceAll("_", " "); const amount = document.createElement("span"); amount.textContent = fmt(row.registros); item.append(label, amount); issues.appendChild(item); });
+  const body = $("qualityPriorities"); body.replaceChildren();
+  const priorities = qualityPayload.prioridades ?? [];
+  if (!priorities.length) { const tr = document.createElement("tr"); const td = document.createElement("td"); td.colSpan = 4; td.className = "empty"; td.textContent = "No hay expedientes pendientes para los filtros seleccionados."; tr.appendChild(td); body.appendChild(tr); return; }
+  priorities.forEach((row) => { const tr = document.createElement("tr"); const priority = document.createElement("td"); const pill = document.createElement("span"); pill.className = `quality-status ${row.prioridad === "LISTO_PARA_VALIDAR" ? "ready" : row.prioridad === "EN_REVISION" ? "review" : ""}`; pill.textContent = qualityLabel(row.prioridad); priority.appendChild(pill); const folio = document.createElement("td"); const folioTitle = document.createElement("strong"); folioTitle.textContent = row.folio ?? "Sin folio"; const folioDetail = document.createElement("small"); folioDetail.textContent = row.nombre ?? "Sin nombre de actividad"; folio.append(folioTitle, folioDetail); const scope = document.createElement("td"); scope.textContent = row.municipio_nombre ?? "Sin municipio"; const scopeDetail = document.createElement("small"); scopeDetail.textContent = row.programa_nombre ?? row.unidad_nombre ?? "Sin programa"; scope.appendChild(scopeDetail); const issuesCell = document.createElement("td"); const issuesNumber = document.createElement("strong"); issuesNumber.textContent = fmt(row.total_incidencias); const issuesDetail = document.createElement("small"); issuesDetail.textContent = row.total_incidencias ? (row.incidencias ?? []).join(", ").replaceAll("_", " ") : "Sin incidencias"; issuesCell.append(issuesNumber, issuesDetail); tr.append(priority, folio, scope, issuesCell); body.appendChild(tr); });
+}
+
 function mapCode(value) {
   const digits = String(value ?? "").replace(/\D/g, "");
   return digits ? digits.padStart(5, "0").slice(-5) : "";
@@ -371,12 +398,13 @@ async function renderMap(data) {
   mapDetail(selectedMapCode);
 }
 
-function render(data, mapData = data, operationalData = data) {
+function render(data, mapData = data, operationalData = data, qualityData = null) {
   payload = data;
   mapPayload = mapData;
   setText("heroYear", `Ejercicio ${data.ejercicio ?? $("year").value}`);
   renderTrust(data, operationalData); renderKpis(data); renderMonths(data); renderProgramRanking(data); renderClassificationTabs(); renderClassification(data); renderActions(data); renderPopulation(data); renderIndicators(data);
   renderMap(mapData).catch((error) => console.error("Mapa estratégico:", error));
+  renderQuality(qualityData);
 }
 
 async function load() {
@@ -390,17 +418,22 @@ async function load() {
     const operationalRequest = currentFilters.p_modo === "OFICIAL"
       ? dbV2().rpc("rpc_inteligencia_cultural", { ...currentFilters, p_modo: "OPERATIVO" })
       : Promise.resolve(null);
-    const [currentResponse, overviewResponse, operationalResponse] = await Promise.all([currentRequest, overviewRequest, operationalRequest]);
+    const qualityRequest = can(context, PERMISSIONS.VALIDATION_REVIEW)
+      ? dbV2().rpc("rpc_inteligencia_calidad", currentFilters)
+      : Promise.resolve(null);
+    const [currentResponse, overviewResponse, operationalResponse, qualityResponse] = await Promise.all([currentRequest, overviewRequest, operationalRequest, qualityRequest]);
     if (currentResponse.error) throw currentResponse.error;
     if (overviewResponse?.error) throw overviewResponse.error;
     if (operationalResponse?.error) throw operationalResponse.error;
+    if (qualityResponse?.error) throw qualityResponse.error;
     const result = Array.isArray(currentResponse.data) ? currentResponse.data[0] : currentResponse.data;
     const overview = overviewResponse ? (Array.isArray(overviewResponse.data) ? overviewResponse.data[0] : overviewResponse.data) : result;
     const operational = operationalResponse ? (Array.isArray(operationalResponse.data) ? operationalResponse.data[0] : operationalResponse.data) : result;
     if (!result || typeof result !== "object") throw new Error("INTELLIGENCE_EMPTY_RESPONSE");
     const selected = catalogs.municipalities.find((row) => row.id === currentFilters.p_municipio);
     selectedMapCode = selected ? mapCode(selected.clave_inegi) : null;
-    render(result, overview, operational);
+    const quality = qualityResponse ? (Array.isArray(qualityResponse.data) ? qualityResponse.data[0] : qualityResponse.data) : null;
+    render(result, overview, operational, quality);
     setLoading(false, `${result.modo === "OFICIAL" ? "Información oficial" : "Seguimiento operativo"} · ejercicio ${result.ejercicio ?? $("year").value}${selected ? ` · ${selected.nombre_oficial}` : " · vista estatal"}`);
   } catch (error) {
     console.error("Inteligencia Cultural:", error);
@@ -417,6 +450,7 @@ async function init() {
   const identity = getDisplayIdentity(context);
   setText("identity", `${identity.name} · ${context.profile.rol}`);
   setText("heroRole", `Rol ${context.profile.rol}`);
+  document.querySelectorAll("[data-permission]").forEach((element) => { element.hidden = !can(context, element.dataset.permission); });
   try {
     const theme = await getActiveIntelligenceTheme();
     applyIntelligenceTheme(theme);
