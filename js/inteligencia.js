@@ -327,6 +327,9 @@ function mapDetail(code) {
   const recordShare = pct(records, number(summary.total_registros));
   const beneficiaryShare = pct(beneficiaries, number(summary.total_beneficiarios));
   const validationRate = pct(validated, records);
+  const activeTerritories = [...rows.values()].filter((item) => number(item.total_registros) > 0).sort((a, b) => number(b.total_registros) - number(a.total_registros));
+  const rank = code && records ? activeTerritories.findIndex((item) => mapCode(item.clave_inegi) === code) + 1 : 0;
+  const average = activeTerritories.length ? number(summary.total_registros) / activeTerritories.length : 0;
   setText("mapName", row?.municipio_nombre || catalog?.nombre_oficial || "Vista estatal");
   setText("mapContext", code ? (records ? "Resultados municipales dentro del universo estatal visible." : "Sin actividad registrada para los filtros actuales.") : "Resumen del alcance visible con los filtros actuales.");
   setText("mapRecords", fmt(records));
@@ -340,9 +343,29 @@ function mapDetail(code) {
   if (code && !records) insight = "Este municipio está dentro de tu alcance, pero no tiene registros para los filtros aplicados.";
   else if (code && recordShare >= 75) insight = `Concentración muy alta: este municipio reúne ${fmt(recordShare, 1)}% de los registros visibles.`;
   else if (code && recordShare >= 40) insight = `Concentración alta: este municipio reúne ${fmt(recordShare, 1)}% de los registros visibles.`;
-  else if (code) insight = `Participación territorial: ${fmt(recordShare, 1)}% de los registros visibles.`;
+  else if (code) insight = `Participación territorial: ${fmt(recordShare, 1)}% de los registros visibles. Posición ${fmt(rank)} de ${fmt(activeTerritories.length)} municipios con actividad; promedio: ${fmt(average)} registros.`;
   setText("mapInsight", insight);
   $("mapClear").hidden = !code;
+}
+
+function renderTerritoryBrief(data) {
+  const container = $("territoryBrief");
+  const rows = [...(data?.municipios ?? [])].filter((row) => number(row.total_registros) > 0).sort((a, b) => number(b.total_registros) - number(a.total_registros));
+  const summary = data?.resumen ?? {};
+  const top = rows[0];
+  const average = rows.length ? number(summary.total_registros) / rows.length : 0;
+  const strongestValidation = [...rows].filter((row) => number(row.total_registros) > 0).sort((a, b) => pct(b.validados, b.total_registros) - pct(a.validados, a.total_registros))[0];
+  const cards = [
+    ["Municipios con actividad", `${fmt(rows.length)} / 46`, "Cobertura efectiva dentro de los filtros actuales."],
+    ["Mayor concentración", top ? top.municipio_nombre : "—", top ? `${fmt(top.total_registros)} registros · ${fmt(pct(top.total_registros, summary.total_registros), 1)}% del total.` : "Sin actividad territorial."],
+    ["Mejor validación", strongestValidation ? strongestValidation.municipio_nombre : "—", strongestValidation ? `${fmt(pct(strongestValidation.validados, strongestValidation.total_registros), 1)}% de sus registros validados. Promedio: ${fmt(average)} registros.` : "Sin expedientes para comparar."],
+  ];
+  container.replaceChildren();
+  cards.forEach(([label, value, note]) => { const card = document.createElement("article"); const title = document.createElement("span"); title.textContent = label; const amount = document.createElement("strong"); amount.textContent = value; const detail = document.createElement("small"); detail.textContent = note; card.append(title, amount, detail); container.appendChild(card); });
+  const rank = $("territoryRanking"); rank.replaceChildren();
+  if (!rows.length) { const empty = document.createElement("div"); empty.className = "empty"; empty.textContent = "No hay municipios con actividad para estos filtros."; rank.appendChild(empty); return; }
+  const max = Math.max(1, ...rows.slice(0, 6).map((row) => number(row.total_registros)));
+  rows.slice(0, 6).forEach((row, index) => { const item = document.createElement("div"); item.className = "rank-item"; const indexBox = document.createElement("span"); indexBox.className = "rank-index"; indexBox.textContent = index + 1; const label = document.createElement("div"); label.className = "rank-label"; const title = document.createElement("strong"); title.textContent = row.municipio_nombre ?? "Municipio"; const detail = document.createElement("small"); detail.textContent = `${fmt(row.validados)} validados · ${fmt(row.beneficiarios)} beneficiarios`; label.append(title, detail); const track = document.createElement("div"); track.className = "track"; const bar = document.createElement("i"); bar.style.width = `${number(row.total_registros) / max * 100}%`; track.appendChild(bar); const value = document.createElement("div"); value.className = "rank-value"; value.textContent = fmt(row.total_registros); item.append(indexBox, label, track, value); rank.appendChild(item); });
 }
 
 function showMapTooltip(event, feature, row) {
@@ -404,6 +427,7 @@ function render(data, mapData = data, operationalData = data, qualityData = null
   setText("heroYear", `Ejercicio ${data.ejercicio ?? $("year").value}`);
   renderTrust(data, operationalData); renderKpis(data); renderMonths(data); renderProgramRanking(data); renderClassificationTabs(); renderClassification(data); renderActions(data); renderPopulation(data); renderIndicators(data);
   renderMap(mapData).catch((error) => console.error("Mapa estratégico:", error));
+  renderTerritoryBrief(mapData);
   renderQuality(qualityData);
 }
 
