@@ -113,14 +113,50 @@ function filters() {
     p_unidad: $("unit").value || null,
     p_programa: $("program").value || null,
     p_municipio: $("municipality").value || null,
+    p_modo: $("universe").value || "OFICIAL",
   };
 }
 
 function setLoading(active, message = "Actualizando información estratégica…") {
   $("apply").disabled = active;
   $("clear").disabled = active;
+  $("universe").disabled = active;
   $("state").dataset.kind = active ? "loading" : "ok";
   $("state").textContent = message;
+}
+
+function renderTrust(data, operationalData = data) {
+  const mode = data.modo === "OFICIAL" ? "OFICIAL" : "OPERATIVO";
+  const current = data.resumen ?? {};
+  const operational = operationalData?.resumen ?? current;
+  const totalOperational = number(operational.total_registros);
+  const validatedOperational = number(operational.validados);
+  const validationRate = pct(validatedOperational, totalOperational);
+  const quality = data.calidad_clasificacion ?? {};
+  const qualityBase = number(quality.registros_activos);
+  const classificationRate = qualityBase
+    ? (pct(quality.con_tipo_actividad, qualityBase) + pct(quality.con_formato, qualityBase) + pct(quality.con_disciplina, qualityBase)) / 3
+    : 0;
+  const generated = data.generado_at ? new Date(data.generado_at) : new Date();
+  $("trust").dataset.mode = mode;
+  setText("heroMode", mode === "OFICIAL" ? "Información oficial" : "Seguimiento operativo");
+  setText("trustTitle", mode === "OFICIAL" ? "Información oficial" : "Seguimiento operativo");
+  setText("trustDescription", mode === "OFICIAL"
+    ? "Sólo expedientes validados institucionalmente; aptos para lectura directiva."
+    : "Incluye borradores y expedientes en proceso; sus cifras todavía pueden cambiar.");
+  setText("trustUniverse", fmt(current.total_registros));
+  setText("trustUniverseNote", mode === "OFICIAL" ? `de ${fmt(totalOperational)} expedientes operativos` : "expedientes dentro del seguimiento");
+  setText("trustValidation", `${fmt(validationRate, 1)}%`);
+  setText("trustValidationNote", `${fmt(validatedOperational)} de ${fmt(totalOperational)} expedientes validados`);
+  setText("trustCoverage", `${fmt(current.municipios_con_actividad)} / 46`);
+  setText("trustUpdated", generated.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }));
+  const alerts = [];
+  if (totalOperational && validationRate < 25) alerts.push(`Validación baja: sólo ${fmt(validatedOperational)} de ${fmt(totalOperational)} expedientes cuentan como información oficial.`);
+  if (qualityBase && classificationRate < 70) alerts.push(`Clasificación operativa incompleta: el promedio de cobertura en tipo, formato y disciplina es ${fmt(classificationRate, 1)}%.`);
+  if (!number(current.municipios_con_actividad)) alerts.push("No hay cobertura territorial para los filtros seleccionados.");
+  const alert = $("trustAlert");
+  alert.textContent = alerts.join(" ");
+  alert.classList.toggle("visible", alerts.length > 0);
 }
 
 function renderKpis(data) {
@@ -334,11 +370,11 @@ async function renderMap(data) {
   mapDetail(selectedMapCode);
 }
 
-function render(data, mapData = data) {
+function render(data, mapData = data, operationalData = data) {
   payload = data;
   mapPayload = mapData;
   setText("heroYear", `Ejercicio ${data.ejercicio ?? $("year").value}`);
-  renderKpis(data); renderMonths(data); renderProgramRanking(data); renderClassificationTabs(); renderClassification(data); renderActions(data); renderPopulation(data); renderIndicators(data);
+  renderTrust(data, operationalData); renderKpis(data); renderMonths(data); renderProgramRanking(data); renderClassificationTabs(); renderClassification(data); renderActions(data); renderPopulation(data); renderIndicators(data);
   renderMap(mapData).catch((error) => console.error("Mapa estratégico:", error));
 }
 
@@ -346,23 +382,30 @@ async function load() {
   setLoading(true);
   try {
     const currentFilters = filters();
-    const requests = [dbV2().rpc("rpc_inteligencia_cultural", currentFilters)];
-    if (currentFilters.p_municipio) requests.push(dbV2().rpc("rpc_inteligencia_cultural", { ...currentFilters, p_municipio: null }));
-    const [currentResponse, overviewResponse] = await Promise.all(requests);
+    const currentRequest = dbV2().rpc("rpc_inteligencia_cultural", currentFilters);
+    const overviewRequest = currentFilters.p_municipio
+      ? dbV2().rpc("rpc_inteligencia_cultural", { ...currentFilters, p_municipio: null })
+      : Promise.resolve(null);
+    const operationalRequest = currentFilters.p_modo === "OFICIAL"
+      ? dbV2().rpc("rpc_inteligencia_cultural", { ...currentFilters, p_modo: "OPERATIVO" })
+      : Promise.resolve(null);
+    const [currentResponse, overviewResponse, operationalResponse] = await Promise.all([currentRequest, overviewRequest, operationalRequest]);
     if (currentResponse.error) throw currentResponse.error;
     if (overviewResponse?.error) throw overviewResponse.error;
+    if (operationalResponse?.error) throw operationalResponse.error;
     const result = Array.isArray(currentResponse.data) ? currentResponse.data[0] : currentResponse.data;
     const overview = overviewResponse ? (Array.isArray(overviewResponse.data) ? overviewResponse.data[0] : overviewResponse.data) : result;
+    const operational = operationalResponse ? (Array.isArray(operationalResponse.data) ? operationalResponse.data[0] : operationalResponse.data) : result;
     if (!result || typeof result !== "object") throw new Error("INTELLIGENCE_EMPTY_RESPONSE");
     const selected = catalogs.municipalities.find((row) => row.id === currentFilters.p_municipio);
     selectedMapCode = selected ? mapCode(selected.clave_inegi) : null;
-    render(result, overview);
-    setLoading(false, `Datos actualizados · ejercicio ${result.ejercicio ?? $("year").value}${selected ? ` · ${selected.nombre_oficial}` : " · vista estatal"}`);
+    render(result, overview, operational);
+    setLoading(false, `${result.modo === "OFICIAL" ? "Información oficial" : "Seguimiento operativo"} · ejercicio ${result.ejercicio ?? $("year").value}${selected ? ` · ${selected.nombre_oficial}` : " · vista estatal"}`);
   } catch (error) {
     console.error("Inteligencia Cultural:", error);
     $("state").dataset.kind = "error";
     $("state").textContent = `No se pudo cargar Inteligencia Cultural: ${error?.message ?? "error desconocido"}`;
-    $("apply").disabled = false; $("clear").disabled = false;
+    $("apply").disabled = false; $("clear").disabled = false; $("universe").disabled = false;
   }
 }
 
@@ -376,6 +419,7 @@ async function init() {
   const current = new Date().getFullYear();
   [current, 2026, 2025].filter((year, index, all) => all.indexOf(year) === index).sort((a,b) => b-a).forEach((year) => $("year").appendChild(option(year, year)));
   $("year").value = "2026";
+  $("universe").value = "OFICIAL";
   await loadCatalogs();
   $("app").hidden = false;
   setActiveView(viewFromHash(), { updateUrl: true });
@@ -383,6 +427,7 @@ async function init() {
 }
 
 $("unit").addEventListener("change", renderPrograms);
+$("universe").addEventListener("change", load);
 $("viewNav").addEventListener("click", (event) => {
   const button = event.target.closest("[data-view]");
   if (button) setActiveView(button.dataset.view, { updateUrl: true, focus: true });
