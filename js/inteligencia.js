@@ -13,6 +13,7 @@ const AXES = [
 
 let context = null;
 let payload = null;
+let mapPayload = null;
 let selectedAxis = "tipo_actividad";
 let selectedMapCode = null;
 let catalogs = { units: [], programs: [], municipalities: [] };
@@ -24,6 +25,10 @@ function number(value) {
 
 function fmt(value, digits = 0) {
   return new Intl.NumberFormat("es-MX", { maximumFractionDigits: digits }).format(number(value));
+}
+
+function pct(value, total) {
+  return total > 0 ? number(value) / number(total) * 100 : 0;
 }
 
 function setText(id, value, fallback = "—") {
@@ -220,53 +225,114 @@ function mapCode(value) {
 }
 
 function mapDetail(code) {
-  const rows = new Map((payload?.municipios ?? []).map((row) => [mapCode(row.clave_inegi), row]));
+  const source = mapPayload ?? payload ?? {};
+  const rows = new Map((source.municipios ?? []).map((row) => [mapCode(row.clave_inegi), row]));
   const row = code ? rows.get(code) : null;
-  const summary = payload?.resumen ?? {};
-  setText("mapName", row?.municipio_nombre || "Vista estatal");
-  setText("mapRecords", fmt(row?.total_registros ?? summary.total_registros));
-  setText("mapValidated", fmt(row?.validados ?? summary.validados));
-  setText("mapBeneficiaries", fmt(row?.beneficiarios ?? summary.total_beneficiarios));
-  setText("mapPopulation", `${fmt(row?.participantes ?? summary.total_participantes)} / ${fmt(row?.accesos ?? summary.total_accesos)}`);
+  const summary = source.resumen ?? {};
+  const catalog = catalogs.municipalities.find((item) => mapCode(item.clave_inegi) === code);
+  const records = code ? number(row?.total_registros) : number(summary.total_registros);
+  const validated = code ? number(row?.validados) : number(summary.validados);
+  const beneficiaries = code ? number(row?.beneficiarios) : number(summary.total_beneficiarios);
+  const participants = code ? number(row?.participantes) : number(summary.total_participantes);
+  const accesses = code ? number(row?.accesos) : number(summary.total_accesos);
+  const recordShare = pct(records, number(summary.total_registros));
+  const beneficiaryShare = pct(beneficiaries, number(summary.total_beneficiarios));
+  const validationRate = pct(validated, records);
+  setText("mapName", row?.municipio_nombre || catalog?.nombre_oficial || "Vista estatal");
+  setText("mapContext", code ? (records ? "Resultados municipales dentro del universo estatal visible." : "Sin actividad registrada para los filtros actuales.") : "Resumen del alcance visible con los filtros actuales.");
+  setText("mapRecords", fmt(records));
+  setText("mapValidated", fmt(validated));
+  setText("mapBeneficiaries", fmt(beneficiaries));
+  setText("mapPopulation", `${fmt(participants)} / ${fmt(accesses)}`);
+  setText("mapShare", code ? `${fmt(recordShare, 1)}% de los registros estatales` : `${fmt(summary.municipios_con_actividad)} de 46 municipios con actividad`);
+  setText("mapValidation", records ? `${fmt(validationRate, 1)}% de validación` : "Sin expedientes para validar");
+  setText("mapBeneficiaryShare", code ? `${fmt(beneficiaryShare, 1)}% del total estatal reportado` : "Total del alcance visible");
+  let insight = "Selecciona un territorio para conocer su peso dentro del estado.";
+  if (code && !records) insight = "Este municipio está dentro de tu alcance, pero no tiene registros para los filtros aplicados.";
+  else if (code && recordShare >= 75) insight = `Concentración muy alta: este municipio reúne ${fmt(recordShare, 1)}% de los registros visibles.`;
+  else if (code && recordShare >= 40) insight = `Concentración alta: este municipio reúne ${fmt(recordShare, 1)}% de los registros visibles.`;
+  else if (code) insight = `Participación territorial: ${fmt(recordShare, 1)}% de los registros visibles.`;
+  setText("mapInsight", insight);
   $("mapClear").hidden = !code;
+}
+
+function showMapTooltip(event, feature, row) {
+  const tooltip = $("mapTooltip");
+  const title = document.createElement("strong");
+  title.textContent = row?.municipio_nombre || feature.properties?.nombre || "Municipio";
+  const records = document.createElement("span");
+  records.textContent = `${fmt(row?.total_registros)} registros · ${fmt(row?.validados)} validados`;
+  const people = document.createElement("span");
+  people.textContent = `${fmt(row?.beneficiarios)} beneficiarios`;
+  tooltip.replaceChildren(title, records, people);
+  tooltip.style.left = `${event.clientX + 14}px`;
+  tooltip.style.top = `${event.clientY + 14}px`;
+  tooltip.hidden = false;
+}
+
+function hideMapTooltip() {
+  $("mapTooltip").hidden = true;
+}
+
+async function selectMunicipalityFromMap(code) {
+  const municipality = catalogs.municipalities.find((row) => mapCode(row.clave_inegi) === code);
+  if (!municipality) return;
+  selectedMapCode = code;
+  $("municipality").value = municipality.id;
+  mapDetail(code);
+  await load();
 }
 
 async function renderMap(data) {
   if (!window.d3) return;
-  const response = await fetch("./assets/geo/guanajuato-municipios.geojson?v=7.7.2", { cache: "force-cache" });
+  const response = await fetch("./assets/geo/guanajuato-municipios.geojson?v=7.7.3a", { cache: "force-cache" });
   if (!response.ok) throw new Error(`MAP_HTTP_${response.status}`);
   const geometry = await response.json();
   const rows = new Map((data.municipios ?? []).map((row) => [mapCode(row.clave_inegi), row]));
   const visible = new Set(catalogs.municipalities.map((row) => mapCode(row.clave_inegi)));
   const max = Math.max(1, ...[...rows.values()].map((row) => number(row.total_registros)));
+  setText("mapLegendMax", fmt(max));
   const d3 = window.d3;
   const scale = d3.scaleSequentialSqrt(d3.interpolateRgbBasis(["#dff5f2","#61d2ca","#087c91","#082e4e"])).domain([0, max]);
   const projection = d3.geoMercator().fitExtent([[24,20],[736,410]], geometry);
   const path = d3.geoPath(projection); const svg = d3.select($("map")); svg.selectAll("*").remove();
   svg.append("g").selectAll("path").data(geometry.features).join("path")
     .attr("class", (feature) => `municipality${visible.has(mapCode(feature.properties?.cvegeo)) ? "" : " out"}${selectedMapCode === mapCode(feature.properties?.cvegeo) ? " selected" : ""}`)
-    .attr("d", path).attr("fill", (feature) => { const code = mapCode(feature.properties?.cvegeo); const value = number(rows.get(code)?.total_registros); return !visible.has(code) ? "#eef2f6" : value ? scale(value) : "#dbe4ed"; })
-    .on("click", (_event, feature) => { const code = mapCode(feature.properties?.cvegeo); if (!visible.has(code)) return; selectedMapCode = code; renderMap(payload); mapDetail(code); })
+    .attr("d", path)
+    .classed("no-data", (feature) => !number(rows.get(mapCode(feature.properties?.cvegeo))?.total_registros))
+    .style("fill", (feature) => { const code = mapCode(feature.properties?.cvegeo); const value = number(rows.get(code)?.total_registros); return !visible.has(code) ? "#eef2f6" : value ? scale(value) : "#dbe4ed"; })
+    .on("mouseenter", (event, feature) => { const code = mapCode(feature.properties?.cvegeo); if (visible.has(code)) showMapTooltip(event, feature, rows.get(code)); })
+    .on("mousemove", (event) => { const tooltip = $("mapTooltip"); tooltip.style.left = `${event.clientX + 14}px`; tooltip.style.top = `${event.clientY + 14}px`; })
+    .on("mouseleave", hideMapTooltip)
+    .on("click", (_event, feature) => { const code = mapCode(feature.properties?.cvegeo); if (visible.has(code)) selectMunicipalityFromMap(code); })
     .append("title").text((feature) => { const code = mapCode(feature.properties?.cvegeo); return `${feature.properties?.nombre ?? code}: ${fmt(rows.get(code)?.total_registros)} registros`; });
   mapDetail(selectedMapCode);
 }
 
-function render(data) {
+function render(data, mapData = data) {
   payload = data;
+  mapPayload = mapData;
   setText("heroYear", `Ejercicio ${data.ejercicio ?? $("year").value}`);
   renderKpis(data); renderMonths(data); renderProgramRanking(data); renderClassificationTabs(); renderClassification(data); renderActions(data); renderPopulation(data); renderIndicators(data);
-  renderMap(data).catch((error) => console.error("Mapa estratégico:", error));
+  renderMap(mapData).catch((error) => console.error("Mapa estratégico:", error));
 }
 
 async function load() {
   setLoading(true);
   try {
-    const { data, error } = await dbV2().rpc("rpc_inteligencia_cultural", filters());
-    if (error) throw error;
-    const result = Array.isArray(data) ? data[0] : data;
+    const currentFilters = filters();
+    const requests = [dbV2().rpc("rpc_inteligencia_cultural", currentFilters)];
+    if (currentFilters.p_municipio) requests.push(dbV2().rpc("rpc_inteligencia_cultural", { ...currentFilters, p_municipio: null }));
+    const [currentResponse, overviewResponse] = await Promise.all(requests);
+    if (currentResponse.error) throw currentResponse.error;
+    if (overviewResponse?.error) throw overviewResponse.error;
+    const result = Array.isArray(currentResponse.data) ? currentResponse.data[0] : currentResponse.data;
+    const overview = overviewResponse ? (Array.isArray(overviewResponse.data) ? overviewResponse.data[0] : overviewResponse.data) : result;
     if (!result || typeof result !== "object") throw new Error("INTELLIGENCE_EMPTY_RESPONSE");
-    render(result);
-    setLoading(false, `Datos actualizados · ejercicio ${result.ejercicio ?? $("year").value}`);
+    const selected = catalogs.municipalities.find((row) => row.id === currentFilters.p_municipio);
+    selectedMapCode = selected ? mapCode(selected.clave_inegi) : null;
+    render(result, overview);
+    setLoading(false, `Datos actualizados · ejercicio ${result.ejercicio ?? $("year").value}${selected ? ` · ${selected.nombre_oficial}` : " · vista estatal"}`);
   } catch (error) {
     console.error("Inteligencia Cultural:", error);
     $("state").dataset.kind = "error";
@@ -293,7 +359,7 @@ async function init() {
 $("unit").addEventListener("change", renderPrograms);
 $("apply").addEventListener("click", load);
 $("clear").addEventListener("click", () => { $("unit").value = ""; renderPrograms(); $("program").value = ""; $("municipality").value = ""; $("year").value = "2026"; selectedMapCode = null; load(); });
-$("mapClear").addEventListener("click", () => { selectedMapCode = null; renderMap(payload); mapDetail(null); });
+$("mapClear").addEventListener("click", async () => { $("municipality").value = ""; selectedMapCode = null; await load(); });
 $("back").addEventListener("click", () => window.location.href = "index.html");
 $("logout").addEventListener("click", async () => { await signOut(); window.location.replace("index.html"); });
 
