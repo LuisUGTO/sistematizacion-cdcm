@@ -292,6 +292,7 @@ function renderDemography(groups) {
     for (const dimension of groups) {
       const section = document.createElement("section");
       section.className = "demographic-dimension";
+      section.dataset.dimensionKey = dimension.clave;
 
       const heading = document.createElement("h5");
       heading.textContent = dimension.nombre;
@@ -500,6 +501,7 @@ function updatePopulationStatus(universe) {
 
   const preview = populationValidation(universe);
   const strict = populationValidation(universe, { strict: true });
+  updateDimensionTrafficLights(universe);
   status.replaceChildren();
 
   const message = document.createElement("strong");
@@ -523,6 +525,45 @@ function updatePopulationStatus(universe) {
   }
 
   status.dataset.valid = String(strict.valid);
+}
+
+function updateDimensionTrafficLights(universe) {
+  const card = ui.demographyContainer.querySelector(
+    `[data-universe="${universe}"]`
+  );
+  if (!card) return;
+
+  const total = totalForUniverse(universe);
+  const general = populationMode(universe) === "GENERAL";
+
+  card.querySelectorAll(".demographic-dimension").forEach((section) => {
+    const key = section.dataset.dimensionKey || "";
+    const inputs = [...section.querySelectorAll("input[data-option-id]")];
+    const values = inputs.map((input) => numberOrNull(input.value) ?? 0);
+    const sum = values.reduce((acc, value) => acc + value, 0);
+    const hasValueOverTotal = total !== null && values.some((value) => value > total);
+
+    let state = "NEUTRAL";
+    if (general) {
+      state = "NEUTRAL";
+    } else if (hasValueOverTotal) {
+      state = "ERROR";
+    } else if (!isExclusiveDimension(key)) {
+      // Grupo prioritario y demás dimensiones transversales no se suman.
+      state = "COMPLEMENTARY";
+    } else if (total === null) {
+      state = "NEUTRAL";
+    } else if (sum < total) {
+      state = "PENDING";
+    } else if (sum === total) {
+      state = "COMPLETE";
+    } else {
+      state = "ERROR";
+    }
+
+    section.dataset.state = state;
+    inputs.forEach((input) => { input.dataset.populationState = state; });
+  });
 }
 
 function updateAllPopulationStatuses() {

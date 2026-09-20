@@ -1719,6 +1719,16 @@
       border-radius: 13px;
     }
 
+    .demographic-universe[data-universe="PARTICIPANTES"] {
+      background: linear-gradient(135deg, #EFF6FF, #F8FBFF);
+      border-color: #93C5FD;
+    }
+
+    .demographic-universe[data-universe="ACCESOS"] {
+      background: linear-gradient(135deg, #F0FDFA, #F8FFFD);
+      border-color: #99F6E4;
+    }
+
     .demographic-universe > h4 {
       color: var(--gto-azul);
       font-family: "Vollkorn", serif;
@@ -1856,7 +1866,20 @@
 
     .demographic-dimension {
       margin-top: 16px;
+      padding: 10px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      transition: border-color .18s ease, background .18s ease;
     }
+
+    .demographic-dimension[data-state="PENDING"] { background: #FFFBEB; border-color: #FCD34D; }
+    .demographic-dimension[data-state="COMPLETE"] { background: #F0FDF4; border-color: #86EFAC; }
+    .demographic-dimension[data-state="ERROR"] { background: #FEF2F2; border-color: #FCA5A5; }
+    .demographic-dimension[data-state="COMPLEMENTARY"] { background: #F0F9FF; border-color: #BAE6FD; }
+    .demographic-dimension[data-state="PENDING"] .demographic-input input { border-color: #EAB308; background: #FFFEF5; }
+    .demographic-dimension[data-state="COMPLETE"] .demographic-input input { border-color: #22C55E; background: #F7FFF8; }
+    .demographic-dimension[data-state="ERROR"] .demographic-input input { border-color: #EF4444; background: #FFF8F8; }
+    .demographic-dimension[data-state="COMPLEMENTARY"] .demographic-input input { border-color: #38BDF8; background: #F7FCFF; }
 
     .demographic-dimension h5 {
       margin-bottom: 8px;
@@ -6951,7 +6974,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js?v=7.7.2";
+    } from "./js/capture.js?v=7.7.2.1";
 
     import {
       initBitacoraV2,

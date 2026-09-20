@@ -1,7 +1,7 @@
 -- ============================================================================
--- HOTFIX 7.7.2 - SUPERADMIN PUEDE CAPTURAR Y EDITAR
+-- HOTFIX 7.7.2.1 - SUPERADMIN PUEDE CAPTURAR Y EDITAR (CORREGIDO)
 -- Ejecutar una sola vez en Supabase SQL Editor.
--- Corrige reglas V2 heredadas que todavía reconocían sólo ADMIN.
+-- El intento anterior no aplicó cambios: su transacción se revirtió completa.
 -- ============================================================================
 
 BEGIN;
@@ -11,8 +11,6 @@ DECLARE
   v_name TEXT;
   v_definition TEXT;
 BEGIN
-  -- La función transaccional de captura conserva todas sus validaciones;
-  -- sólo incorpora SUPERADMIN a los roles autorizados.
   SELECT pg_get_functiondef('v2.rpc_create_borrador(jsonb)'::regprocedure)
   INTO v_definition;
 
@@ -27,8 +25,6 @@ BEGIN
   );
   EXECUTE v_definition;
 
-  -- Alinea los permisos de lectura, edición, creación, gestión y cargas
-  -- para que SUPERADMIN tenga el mismo alcance institucional que ADMIN.
   FOREACH v_name IN ARRAY ARRAY[
     'v2_private.can_read_record(uuid)',
     'v2_private.can_edit_record(uuid)',
@@ -38,11 +34,9 @@ BEGIN
   ]
   LOOP
     SELECT pg_get_functiondef(v_name::regprocedure) INTO v_definition;
-
     IF position('IF v_role = ''ADMIN'' THEN' IN v_definition) = 0 THEN
       RAISE EXCEPTION 'PRECONDICION: no se reconoció la regla ADMIN en %.', v_name;
     END IF;
-
     v_definition := replace(
       v_definition,
       'IF v_role = ''ADMIN'' THEN',
@@ -64,16 +58,7 @@ COMMIT;
 
 -- Resultado esperado: true | true | true | 1
 SELECT
-  position(
-    'SUPERADMIN''',
-    pg_get_functiondef('v2.rpc_create_borrador(jsonb)'::regprocedure)
-  ) > 0 AS superadmin_puede_capturar,
-  position(
-    'SUPERADMIN''',
-    pg_get_functiondef('v2_private.can_edit_record(uuid)'::regprocedure)
-  ) > 0 AS superadmin_puede_editar,
-  position(
-    'SUPERADMIN''',
-    pg_get_functiondef('v2_private.can_read_record(uuid)'::regprocedure)
-  ) > 0 AS superadmin_puede_consultar,
+  position('SUPERADMIN' IN pg_get_functiondef('v2.rpc_create_borrador(jsonb)'::regprocedure)) > 0 AS superadmin_puede_capturar,
+  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_edit_record(uuid)'::regprocedure)) > 0 AS superadmin_puede_editar,
+  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_read_record(uuid)'::regprocedure)) > 0 AS superadmin_puede_consultar,
   (SELECT count(*) FROM v2.schema_migrations WHERE version = '2.1.12aa') AS migracion_registrada;
