@@ -1,6 +1,7 @@
 import { dbV2 } from "./supabase-client.js";
 import { loadAuthContext, signOut, getDisplayIdentity } from "./auth.js?v=7.4.3";
 import { PERMISSIONS, can, isAdmin } from "./permissions.js";
+import { getActiveIntelligenceTheme, applyIntelligenceTheme } from "./inteligencia-theme.js";
 
 const $ = (id) => document.getElementById(id);
 const MONTHS = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -416,6 +417,12 @@ async function init() {
   const identity = getDisplayIdentity(context);
   setText("identity", `${identity.name} · ${context.profile.rol}`);
   setText("heroRole", `Rol ${context.profile.rol}`);
+  try {
+    const theme = await getActiveIntelligenceTheme();
+    applyIntelligenceTheme(theme);
+  } catch (error) {
+    console.warn("Tema cultural no disponible; se usa identidad institucional.", error);
+  }
   const current = new Date().getFullYear();
   [current, 2026, 2025].filter((year, index, all) => all.indexOf(year) === index).sort((a,b) => b-a).forEach((year) => $("year").appendChild(option(year, year)));
   $("year").value = "2026";

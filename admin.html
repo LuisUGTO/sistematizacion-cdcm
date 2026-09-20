@@ -98,6 +98,16 @@
     .content-image-grid { display:grid; grid-template-columns:160px minmax(0,1fr); gap:16px; align-items:start; padding:13px; background:#f8fafc; border:1px solid var(--line); border-radius:14px; }
     .content-image-preview { width:160px; height:106px; border-radius:10px; object-fit:cover; background:#e7eef5; border:1px solid #cbd8e6; }
     .content-form-actions { grid-column:1/-1; display:flex; justify-content:flex-end; gap:10px; padding-top:16px; border-top:1px solid var(--line); }
+    .theme-form { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .theme-form .full { grid-column:1/-1; } .theme-form textarea { min-height:88px; resize:vertical; }
+    .theme-form .theme-image-grid { grid-column:1/-1; display:grid; grid-template-columns:160px minmax(0,1fr); gap:16px; align-items:start; padding:13px; background:#f8fafc; border:1px solid var(--line); border-radius:14px; }
+    .theme-note { margin:0 0 16px; padding:12px 14px; border-left:4px solid var(--sky); border-radius:10px; background:#edf7ff; color:#31536d; font-size:12px; line-height:1.5; }
+    .theme-preview { position:relative; isolation:isolate; overflow:hidden; grid-column:1/-1; min-height:210px; padding:28px; border-radius:18px; background:linear-gradient(120deg,var(--preview-primary,#043b68),var(--preview-secondary,#0870b7)); color:#fff; }
+    .theme-preview:after { content:""; position:absolute; z-index:-1; width:220px; height:220px; right:-50px; top:-110px; border:38px solid color-mix(in srgb,var(--preview-accent,#55d5d4) 35%,transparent); border-radius:50%; }
+    .theme-preview img { position:absolute; z-index:-2; inset:0; width:100%; height:100%; object-fit:cover; opacity:.28; }
+    .theme-preview small { color:var(--preview-accent,#55d5d4); font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+    .theme-preview h3 { max-width:800px; margin:9px 0; color:#fff; font:700 34px Vollkorn,Georgia,serif; }
+    .theme-preview p { max-width:760px; margin:0; color:#eaf7ff; line-height:1.5; }
     dialog { width:min(900px,calc(100vw - 28px)); max-height:calc(100vh - 28px); padding:0; border:0; border-radius:22px; box-shadow:0 28px 80px rgba(0,0,0,.28); }
     dialog::backdrop { background:rgba(5,23,39,.62); backdrop-filter:blur(3px); } .dialog-head { display:flex; justify-content:space-between; align-items:flex-start; gap:15px; padding:22px 24px 17px; border-bottom:1px solid var(--line); }
     .dialog-head h2 { margin-bottom:4px; } .dialog-email { color:var(--muted); font-size:13px; overflow-wrap:anywhere; } .icon-button { border:0; background:#edf3f7; width:38px; height:38px; border-radius:50%; color:#3c4d61; font-size:20px; }
@@ -112,7 +122,7 @@
     .dialog-actions { position:sticky; bottom:0; display:flex; justify-content:flex-end; gap:9px; padding:16px 24px; background:#fff; border-top:1px solid var(--line); }
     .loading { position:fixed; inset:0; z-index:100; display:grid; place-content:center; text-align:center; background:rgba(255,255,255,.94); } .spinner { width:46px; height:46px; margin:0 auto 14px; border:4px solid #dce7f0; border-top-color:var(--blue); border-radius:50%; animation:spin .8s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } .user-row { grid-template-columns:1fr auto; } .scope-summary { grid-column:1/-1; } .legacy-grid.three { grid-template-columns:1fr 1fr; } .mapping-grid,.import-config-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form,.library-form { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form .span-4,.library-form .span-4 { grid-column:span 2; } .requirements { grid-template-columns:repeat(2,minmax(0,1fr)); } .content-form { grid-template-columns:1fr; } }
+    @media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } .user-row { grid-template-columns:1fr auto; } .scope-summary { grid-column:1/-1; } .legacy-grid.three { grid-template-columns:1fr 1fr; } .mapping-grid,.import-config-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form,.library-form { grid-template-columns:repeat(2,minmax(0,1fr)); } .catalog-form .span-4,.library-form .span-4 { grid-column:span 2; } .requirements { grid-template-columns:repeat(2,minmax(0,1fr)); } .content-form,.theme-form { grid-template-columns:1fr; } }
     @media (max-width:640px) { .topbar-inner { padding:10px 14px; } .brand img { width:58px; } .brand small,.admin-identity { display:none; } .brand strong { font-size:17px; } .top-actions .button { padding:9px 11px; font-size:12px; } main { padding:0 12px; margin-top:16px; } .hero,.card { border-radius:17px; padding:18px; } .toolbar,.dialog-grid,.legacy-grid,.legacy-grid.three,.mapping-grid,.import-config-grid,.import-lead,.catalog-form,.library-form,.library-summary,.requirements { grid-template-columns:1fr; } .catalog-form .span-2,.catalog-form .span-4,.library-form .span-2,.library-form .span-4 { grid-column:auto; } .import-config-grid .wide { grid-column:auto; } .import-lead-actions,.import-actions { display:grid; } .toolbar .button,.import-actions .button,.import-lead-actions .button { width:100%; } .user-row { display:block; } .badges,.scope-summary { margin-top:10px; } .user-row>.button { width:100%; margin-top:13px; } .check-grid { grid-template-columns:1fr; } .dialog-head,.dialog-body,.dialog-actions { padding-left:16px; padding-right:16px; } .dialog-actions .button { flex:1; } .content-image-grid { grid-template-columns:1fr; } .content-image-preview { width:100%; height:180px; } .content-form-actions { display:grid; } }
   </style>
 </head>
@@ -121,7 +131,7 @@
   <header class="topbar"><div class="topbar-inner"><div class="brand"><img src="assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png" alt="Gobierno de Guanajuato" /><div><small>Secretaría de Cultura de Guanajuato</small><strong>Administración</strong></div></div><div class="top-actions"><span id="adminIdentity" class="admin-identity">Validando…</span><a href="index.html" class="button button-secondary" style="text-decoration:none">← Volver</a></div></div></header>
   <main>
     <section class="hero"><h1>Administración institucional</h1><p>Configura usuarios, alcances y catálogos operativos sin perder la trazabilidad de los registros históricos.</p><div class="hero-tags"><span class="hero-tag">Acceso restringido</span><span class="hero-tag">Cambios auditables</span><span class="hero-tag">Sin borrado histórico</span></div></section>
-    <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos</button><button class="tab" type="button" data-tab="catalogs" aria-selected="false">Catálogos operativos</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button><button id="contentTab" class="tab" type="button" data-tab="content" aria-selected="false" hidden>Contenido del Inicio</button></nav>
+    <nav class="tabs" aria-label="Módulos administrativos"><button class="tab" type="button" data-tab="users" aria-selected="true">Usuarios y accesos</button><button class="tab" type="button" data-tab="catalogs" aria-selected="false">Catálogos operativos</button><button class="tab" type="button" data-tab="teachers" aria-selected="false">Docentes CDCM</button><button class="tab" type="button" data-tab="libraries" aria-selected="false">Bibliotecas</button><button id="contentTab" class="tab" type="button" data-tab="content" aria-selected="false" hidden>Contenido del Inicio</button><button id="themeTab" class="tab" type="button" data-tab="themes" aria-selected="false" hidden>Temas de Inteligencia</button></nav>
     <section id="panel-users" class="panel active"><article class="card">
       <div class="card-heading"><div><h2>Control de usuarios</h2><p>Invita por correo y configura el rol y alcance institucional.</p></div><div><button id="inviteUserButton" class="button button-primary" type="button" hidden>Invitar usuario</button> <button id="refreshUsers" class="button button-secondary" type="button">Actualizar</button></div></div>
       <div class="stats"><div class="stat"><span>Total</span><strong id="statTotal">—</strong></div><div class="stat"><span>Listos</span><strong id="statReady">—</strong></div><div class="stat"><span>Incompletos</span><strong id="statIncomplete">—</strong></div><div class="stat"><span>Inactivos</span><strong id="statInactive">—</strong></div></div>
@@ -255,6 +265,27 @@
         <div class="content-form-actions"><button id="resetHomeContent" class="button button-secondary" type="button">Restablecer valores predeterminados</button><button id="saveHomeContent" class="button button-primary" type="submit">Publicar cambios</button></div>
       </form>
     </article></section>
+    <section id="panel-themes" class="panel" hidden><article class="card">
+      <div class="card-heading"><div><h2>Temas de Inteligencia Cultural</h2><p>Programa campañas visuales y editoriales sin modificar la información, los semáforos ni los indicadores.</p></div></div>
+      <p class="theme-note">El sistema elige automáticamente el tema activo que corresponda a la fecha actual. Si coinciden varios, aplica el de mayor prioridad. Los temas se pueden desactivar, pero no se borran, para mantener el historial.</p>
+      <form id="themeForm" class="theme-form">
+        <input id="themeId" type="hidden" />
+        <div class="full"><h3 id="themeFormTitle">Crear tema cultural</h3></div>
+        <div><label for="themeName">Nombre del tema</label><input id="themeName" class="control" maxlength="120" placeholder="Ej. Festival Internacional Cervantino" required /></div>
+        <div><label for="themeStart">Inicio de vigencia</label><input id="themeStart" class="control" type="date" /></div>
+        <div><label for="themeEnd">Fin de vigencia</label><input id="themeEnd" class="control" type="date" /></div>
+        <div><label for="themePriority">Prioridad</label><input id="themePriority" class="control" type="number" min="0" max="100" step="1" value="0" /><small>Mayor número = preferencia si coinciden fechas.</small></div>
+        <div><label for="themePalette">Paleta institucional</label><select id="themePalette" class="control" required></select></div>
+        <div><label class="switch-row" for="themeActive">Tema activo <input id="themeActive" type="checkbox" checked /></label></div>
+        <div class="full"><label for="themeKicker">Antetítulo</label><input id="themeKicker" class="control" maxlength="110" required /></div>
+        <div class="full"><label for="themeTitle">Título del panorama</label><input id="themeTitle" class="control" maxlength="170" required /></div>
+        <div class="full"><label for="themeDescription">Mensaje editorial</label><textarea id="themeDescription" class="control" maxlength="420" required></textarea></div>
+        <div class="theme-image-grid"><img id="themeImagePreview" class="content-image-preview" alt="Vista previa del tema" /><div><label for="themeImageFile">Imagen temática opcional</label><input id="themeImageFile" class="control" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG o WEBP; máximo 5 MB. La imagen se muestra con una capa de contraste para conservar la lectura.</small><label for="themeImageAlt" style="margin-top:12px">Texto alternativo</label><input id="themeImageAlt" class="control" maxlength="180" /><label for="themeImageCredit" style="margin-top:12px">Crédito de imagen</label><input id="themeImageCredit" class="control" maxlength="180" /></div></div>
+        <div id="themeLivePreview" class="theme-preview" aria-label="Vista previa del tema"><img id="themeLiveImage" alt="" hidden /><small id="themeLiveKicker">Decisiones basadas en evidencia</small><h3 id="themeLiveTitle">Panorama estratégico de Vinculación Cultural</h3><p id="themeLiveDescription">Lectura ejecutiva de la operación, territorio, población y resultados institucionales.</p></div>
+        <div class="content-form-actions"><button id="resetTheme" class="button button-secondary" type="button">Nuevo tema</button><button id="saveTheme" class="button button-primary" type="submit">Programar tema</button></div>
+      </form>
+      <section class="content-group"><h3>Temas programados</h3><p>Revisa fechas, prioridad y vigencia. Desactivar un tema evita su aplicación sin eliminar su evidencia administrativa.</p><div class="table-wrap"><table><thead><tr><th>Tema</th><th>Vigencia</th><th>Paleta</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="themeTable"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div></section>
+    </article></section>
   </main>
   <dialog id="accessDialog" aria-labelledby="accessDialogTitle"><form id="accessForm" method="dialog">
     <div class="dialog-head"><div><h2 id="accessDialogTitle">Configurar acceso</h2><div id="dialogEmail" class="dialog-email"></div></div><button id="closeDialogX" class="icon-button" type="button" aria-label="Cerrar">×</button></div>
@@ -276,5 +307,6 @@
   <script type="module" src="./js/catalog-admin.js?v=7.2.1"></script>
   <script type="module" src="./js/library-admin.js?v=7.3"></script>
   <script type="module" src="./js/home-content-admin.js?v=7.5.1"></script>
+  <script type="module" src="./js/inteligencia-theme-admin.js?v=7.7.4"></script>
 </body>
 </html>
