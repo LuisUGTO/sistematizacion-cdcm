@@ -1,7 +1,6 @@
 -- ============================================================================
--- HOTFIX 7.7.2.1 - SUPERADMIN PUEDE CAPTURAR Y EDITAR (CORREGIDO)
--- Ejecutar una sola vez en Supabase SQL Editor.
--- El intento anterior no aplicó cambios: su transacción se revirtió completa.
+-- HOTFIX 7.7.2.2 - PERMISOS SUPERADMIN (IDEMPOTENTE)
+-- Puede ejecutarse aunque algunas funciones ya reconozcan SUPERADMIN.
 -- ============================================================================
 
 BEGIN;
@@ -10,21 +9,28 @@ DO $$
 DECLARE
   v_name TEXT;
   v_definition TEXT;
+  v_updated TEXT;
 BEGIN
+  -- RPC principal de creación.
   SELECT pg_get_functiondef('v2.rpc_create_borrador(jsonb)'::regprocedure)
   INTO v_definition;
 
-  IF position('v_role NOT IN (''ADMIN'', ''CAPTURISTA'')' IN v_definition) = 0 THEN
-    RAISE EXCEPTION 'PRECONDICION: no se reconoció la regla de roles esperada en rpc_create_borrador.';
+  IF position('SUPERADMIN' IN v_definition) = 0 THEN
+    v_updated := pg_catalog.regexp_replace(
+      v_definition,
+      'v_role[[:space:]]+NOT[[:space:]]+IN[[:space:]]*\([[:space:]]*''ADMIN''(::text)?[[:space:]]*,[[:space:]]*''CAPTURISTA''(::text)?[[:space:]]*\)',
+      'v_role NOT IN (''SUPERADMIN'', ''ADMIN'', ''CAPTURISTA'')',
+      'g'
+    );
+
+    IF v_updated = v_definition THEN
+      RAISE EXCEPTION 'PRECONDICION: no se reconoció la regla de creación en rpc_create_borrador.';
+    END IF;
+
+    EXECUTE v_updated;
   END IF;
 
-  v_definition := replace(
-    v_definition,
-    'v_role NOT IN (''ADMIN'', ''CAPTURISTA'')',
-    'v_role NOT IN (''SUPERADMIN'', ''ADMIN'', ''CAPTURISTA'')'
-  );
-  EXECUTE v_definition;
-
+  -- Helpers: conserva los ya corregidos y actualiza únicamente los antiguos.
   FOREACH v_name IN ARRAY ARRAY[
     'v2_private.can_read_record(uuid)',
     'v2_private.can_edit_record(uuid)',
@@ -34,15 +40,23 @@ BEGIN
   ]
   LOOP
     SELECT pg_get_functiondef(v_name::regprocedure) INTO v_definition;
-    IF position('IF v_role = ''ADMIN'' THEN' IN v_definition) = 0 THEN
-      RAISE EXCEPTION 'PRECONDICION: no se reconoció la regla ADMIN en %.', v_name;
+
+    IF position('SUPERADMIN' IN v_definition) > 0 THEN
+      CONTINUE;
     END IF;
-    v_definition := replace(
+
+    v_updated := pg_catalog.regexp_replace(
       v_definition,
-      'IF v_role = ''ADMIN'' THEN',
-      'IF v_role IN (''SUPERADMIN'', ''ADMIN'') THEN'
+      'v_role[[:space:]]*=[[:space:]]*''ADMIN''(::text)?',
+      'v_role IN (''SUPERADMIN'', ''ADMIN'')',
+      'g'
     );
-    EXECUTE v_definition;
+
+    IF v_updated = v_definition THEN
+      RAISE EXCEPTION 'PRECONDICION: no se reconoció la regla administrativa en %.', v_name;
+    END IF;
+
+    EXECUTE v_updated;
   END LOOP;
 END;
 $$;
@@ -56,9 +70,10 @@ ON CONFLICT (version) DO NOTHING;
 
 COMMIT;
 
--- Resultado esperado: true | true | true | 1
+-- Resultado esperado: true | true | true | true | 1
 SELECT
-  position('SUPERADMIN' IN pg_get_functiondef('v2.rpc_create_borrador(jsonb)'::regprocedure)) > 0 AS superadmin_puede_capturar,
-  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_edit_record(uuid)'::regprocedure)) > 0 AS superadmin_puede_editar,
-  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_read_record(uuid)'::regprocedure)) > 0 AS superadmin_puede_consultar,
-  (SELECT count(*) FROM v2.schema_migrations WHERE version = '2.1.12aa') AS migracion_registrada;
+  position('SUPERADMIN' IN pg_get_functiondef('v2.rpc_create_borrador(jsonb)'::regprocedure)) > 0 AS puede_capturar,
+  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_read_record(uuid)'::regprocedure)) > 0 AS puede_consultar,
+  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_edit_record(uuid)'::regprocedure)) > 0 AS puede_editar,
+  position('SUPERADMIN' IN pg_get_functiondef('v2_private.can_create_record(uuid,uuid)'::regprocedure)) > 0 AS helper_creacion,
+  (SELECT count(*) FROM v2.schema_migrations WHERE version = '2.1.12aa') AS migracion;

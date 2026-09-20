@@ -4921,6 +4921,15 @@
         </button>
 
         <button
+          id="intelligenceButton"
+          class="tab-button"
+          type="button"
+          hidden
+        >
+          Inteligencia Cultural ↗
+        </button>
+
+        <button
           id="adminTabButton"
           class="tab-button"
           type="button"
@@ -7058,6 +7067,8 @@
 
       dashboardTabButton:
         document.getElementById("dashboardTabButton"),
+      intelligenceButton:
+        document.getElementById("intelligenceButton"),
       adminTabButton:
         document.getElementById("adminTabButton"),
       adminManageRecords:
@@ -7191,6 +7202,8 @@
       ui.validationTabButton.disabled = !canValidate;
 
       ui.dashboardTabButton.disabled = !canDashboard;
+      ui.intelligenceButton.hidden = !canDashboard;
+      ui.intelligenceButton.disabled = !canDashboard;
       ui.adminTabButton.hidden = !canAdminister;
       ui.adminTabButton.disabled = !canAdminister;
 
@@ -7595,6 +7608,13 @@
       () => {
         closeProfileMenu();
         window.location.href = "admin.html";
+      }
+    );
+
+    ui.intelligenceButton.addEventListener(
+      "click",
+      () => {
+        window.location.href = "inteligencia.html";
       }
     );
 
