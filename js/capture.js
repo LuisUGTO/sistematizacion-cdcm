@@ -254,8 +254,8 @@ function renderDemography(groups) {
 
     const help = document.createElement("p");
     help.textContent =
-      "Cada dimensión se interpreta por separado. " +
-      "No se suman Género + Grupo etario + Grupo prioritario.";
+      "Elige población general si sólo cuentas con el total. " +
+      "Usa el desglose completo sólo cuando cuentes con cifras por cada grupo.";
 
     const modeWrap = document.createElement("div");
     modeWrap.className = "population-mode";
@@ -268,9 +268,9 @@ function renderDemography(groups) {
     mode.id = `capturePopulationMode_${universe.key}`;
     mode.dataset.populationMode = universe.key;
     mode.innerHTML = `
+      <option value="GENERAL">Sólo población general (recomendado)</option>
       <option value="DETALLADO">Desglose completo</option>
       <option value="PARCIAL_ESTIMADO">Desglose parcial o estimado</option>
-      <option value="GENERAL">Sólo población general</option>
     `;
 
     const method = document.createElement("input");
@@ -376,8 +376,8 @@ function updatePopulationMode(universe) {
     });
 
   if (method) {
-    method.hidden = mode === "DETALLADO";
-    method.required = mode !== "DETALLADO";
+    method.hidden = mode !== "PARCIAL_ESTIMADO";
+    method.required = mode === "PARCIAL_ESTIMADO";
   }
 
   card.classList.toggle("population-general", general);
@@ -395,14 +395,12 @@ function populationValidation(universe, { strict = false } = {}) {
     if (strict && total === null) {
       return { valid: false, message: "Captura el total general." };
     }
-    if (strict && !method) {
-      return { valid: false, message: "Indica cómo se obtuvo el total general." };
-    }
     return {
       valid: true,
       message: total === null
-        ? "Pendiente de capturar el total general."
-        : `Se conservará el total general de ${total.toLocaleString("es-MX")} sin inventar un desglose.`,
+        ? "Captura el total general; no necesitas llenar los cuadros de desglose."
+        : `Listo: se conservará el total general de ${total.toLocaleString("es-MX")} sin inventar un desglose.`,
+      details: [],
     };
   }
 
@@ -431,11 +429,19 @@ function populationValidation(universe, { strict = false } = {}) {
   const exclusive = [...byDimension.entries()]
     .filter(([key]) => isExclusiveDimension(key));
 
-  for (const [, sum] of exclusive) {
+  const details = exclusive.map(([key, sum]) => ({
+    key,
+    label: currentDemography.find((dimension) => dimension.clave === key)?.nombre || key,
+    sum,
+    expected: total,
+  }));
+
+  for (const [key, sum] of exclusive) {
     if (total !== null && sum > total) {
       return {
         valid: false,
-        message: `Un desglose suma ${sum} y supera el total de ${total}.`,
+        message: `${currentDemography.find((dimension) => dimension.clave === key)?.nombre || key} suma ${sum} y supera el total de ${total}.`,
+        details,
       };
     }
 
@@ -447,7 +453,8 @@ function populationValidation(universe, { strict = false } = {}) {
     ) {
       return {
         valid: false,
-        message: `En desglose completo, cada dimensión excluyente debe sumar ${total}; actualmente suma ${sum}.`,
+        message: `Falta completar ${currentDemography.find((dimension) => dimension.clave === key)?.nombre || key}: suma ${sum} de ${total}.`,
+        details,
       };
     }
   }
@@ -456,6 +463,7 @@ function populationValidation(universe, { strict = false } = {}) {
     return {
       valid: false,
       message: "Describe el método de conteo o estimación.",
+      details,
     };
   }
 
@@ -466,8 +474,9 @@ function populationValidation(universe, { strict = false } = {}) {
   return {
     valid: true,
     message: total === null
-      ? "Captura el total para comprobar la congruencia."
-      : `Total ${total.toLocaleString("es-MX")}; sumas por dimensión: ${summary}.`,
+      ? "Captura el total para comprobar el desglose."
+      : `Listo: total ${total.toLocaleString("es-MX")}; sumas por dimensión: ${summary}.`,
+    details,
   };
 }
 
@@ -477,9 +486,28 @@ function updatePopulationStatus(universe) {
   );
   if (!status) return;
 
-  const result = populationValidation(universe);
-  status.textContent = result.message;
-  status.dataset.valid = String(result.valid);
+  const preview = populationValidation(universe);
+  const strict = populationValidation(universe, { strict: true });
+  status.replaceChildren();
+
+  const message = document.createElement("strong");
+  message.textContent = strict.valid ? preview.message : strict.message;
+  status.appendChild(message);
+
+  if (preview.details?.length && totalForUniverse(universe) !== null) {
+    const list = document.createElement("div");
+    list.className = "population-progress";
+    for (const detail of preview.details) {
+      const item = document.createElement("span");
+      const complete = detail.sum === detail.expected;
+      item.dataset.complete = String(complete);
+      item.textContent = `${detail.label}: ${detail.sum} / ${detail.expected}`;
+      list.appendChild(item);
+    }
+    status.appendChild(list);
+  }
+
+  status.dataset.valid = String(strict.valid);
 }
 
 function updateAllPopulationStatuses() {

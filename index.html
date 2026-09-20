@@ -1776,6 +1776,32 @@
       font-weight: 800;
     }
 
+    .population-status[data-valid="true"] {
+      color: #047857;
+      font-weight: 800;
+    }
+
+    .population-progress {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .population-progress span {
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #FEF2F2;
+      color: #B91C1C;
+      font-size: 9px;
+      font-weight: 800;
+    }
+
+    .population-progress span[data-complete="true"] {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
     .population-general .demographic-dimension {
       opacity: .45;
     }
@@ -6896,7 +6922,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js?v=7.7.1";
+    } from "./js/capture.js?v=7.7.1.1";
 
     import {
       initBitacoraV2,
