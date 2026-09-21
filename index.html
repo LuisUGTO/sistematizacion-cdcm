@@ -8,6 +8,13 @@
 
   <meta name="theme-color" content="#004B87" />
   <meta name="description" content="Sistema Institucional de Sistematización de Vinculación Cultural" />
+  <meta name="application-name" content="Vinculación Cultural" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Vinculación Cultural" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./assets/pwa/icon-180.png" />
   <link
     rel="icon"
     type="image/png"
@@ -4869,6 +4876,11 @@
                   <span>Ayuda para usar el sistema</span>
                 </button>
 
+                <button id="pwaInstallButton" class="profile-menu-action" type="button" hidden>
+                  <span class="profile-menu-action-icon" aria-hidden="true">↓</span>
+                  <span>Instalar aplicación</span>
+                </button>
+
                 <button
                   id="logoutButton"
                   class="profile-menu-action profile-menu-action-danger"
@@ -7042,6 +7054,7 @@
       logoutButton: document.getElementById("logoutButton"),
       profileHelpButton: document.getElementById("profileHelpButton"),
       profilePulsoButton: document.getElementById("profilePulsoButton"),
+      pwaInstallButton: document.getElementById("pwaInstallButton"),
       profileAdminButton: document.getElementById("profileAdminButton"),
       loginHelpButton: document.getElementById("loginHelpButton"),
       supportOverlay: document.getElementById("supportOverlay"),
@@ -7084,6 +7097,7 @@
     let currentContext = null;
     let authSubscription = null;
     let supportLastFocus = null;
+    let deferredInstallPrompt = null;
 
 
     function sleep(ms) {
@@ -7106,6 +7120,45 @@
       label.textContent = online ? "En línea" : "Sin conexión";
 
       ui.networkStatus.append(dot, label);
+    }
+
+
+    function isInstalledApp() {
+      return window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+    }
+
+
+    function updateInstallAvailability() {
+      ui.pwaInstallButton.hidden = !deferredInstallPrompt || isInstalledApp();
+    }
+
+
+    async function installApplication() {
+      if (!deferredInstallPrompt) return;
+
+      const promptEvent = deferredInstallPrompt;
+      deferredInstallPrompt = null;
+      updateInstallAvailability();
+
+      await promptEvent.prompt();
+      const choice = await promptEvent.userChoice;
+
+      if (choice?.outcome === "accepted") {
+        closeProfileMenu();
+      }
+    }
+
+
+    async function registerApplicationWorker() {
+      if (!("serviceWorker" in navigator) || window.location.protocol === "file:") return;
+
+      try {
+        const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+        registration.update().catch(() => {});
+      } catch (error) {
+        console.error("No se pudo preparar la instalación de la aplicación:", error);
+      }
     }
 
 
@@ -7621,6 +7674,12 @@
     );
 
 
+    ui.pwaInstallButton.addEventListener(
+      "click",
+      installApplication
+    );
+
+
     ui.profilePulsoButton.addEventListener(
       "click",
       openSupport
@@ -7818,15 +7877,22 @@
     );
 
 
-    // V2 todavía no registra Service Worker.
-    // El SW se reconstruirá después con:
-    // assets estáticos cache-first,
-    // HTML network-first,
-    // Supabase/API network-only,
-    // evidencias privadas sin cache inseguro.
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      updateInstallAvailability();
+    });
+
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      updateInstallAvailability();
+    });
 
 
     updateNetworkStatus();
+    updateInstallAvailability();
+    registerApplicationWorker();
     renderHomeTerritoryMap();
 
     authSubscription =

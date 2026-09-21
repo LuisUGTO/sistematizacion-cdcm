@@ -1,0 +1,36 @@
+{
+  "id": "./",
+  "name": "Sistema Integral de Sistematización de Vinculación Cultural",
+  "short_name": "Vinculación Cultural",
+  "description": "Sistema institucional de captura, seguimiento e inteligencia de Vinculación Cultural de la Secretaría de Cultura de Guanajuato.",
+  "lang": "es-MX",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#F3F6F9",
+  "theme_color": "#004B87",
+  "categories": ["government", "productivity", "business"],
+  "icons": [
+    {
+      "src": "./assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/pwa/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

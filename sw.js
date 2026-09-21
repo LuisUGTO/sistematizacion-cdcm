@@ -1,52 +1,79 @@
-const CACHE_NAME = 'cultura-gto-cache-v7-1';
-const RECURSOS_APP = [
-  './',
-  './index.html',
-  './admin.html',
-  './manifest.json.json',
-  './assets/identidad-institucional/logos/Logo-Gobierno-de-la-Gente-de-Guanajuato-v2.001 (1).png',
-  './assets/identidad-institucional/inicio/portada/inicio-portada-guanajuato.jpg',
-  './assets/identidad-institucional/inicio/destacados/inicio-patrimonio-cultural.jpg',
-  './assets/identidad-institucional/inicio/destacados/inicio-bibliotecas-lectura.jpg',
-  './js/draft-editor.js',
-  './js/importer.js',
-  './js/importer-smart.js'
+const CACHE_VERSION = "vinculacion-cultural-7-7-8a-1";
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+
+const REQUIRED_SHELL = [
+  "./offline.html",
+  "./manifest.webmanifest",
+  "./assets/pwa/icon-180.png",
+  "./assets/pwa/icon-192.png",
+  "./assets/pwa/icon-512.png",
+  "./assets/pwa/icon-maskable-512.png"
 ];
 
-// Instalación: Cachear archivos base
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      Promise.allSettled(RECURSOS_APP.map((recurso) => cache.add(recurso)))
-    )
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(REQUIRED_SHELL))
   );
   self.skipWaiting();
 });
 
-// Activación: Limpieza de cachés viejos
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.map((k) => {
-          if (k !== CACHE_NAME) return caches.delete(k);
-        })
+        keys
+          .filter((key) => key.startsWith("vinculacion-cultural-") && ![STATIC_CACHE, RUNTIME_CACHE].includes(key))
+          .map((key) => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Estrategia: Network-first con fallback a caché offline
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const clon = res.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clon));
-        return res;
-      })
-      .catch(() => caches.match(e.request))
+async function networkFirst(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  try {
+    const response = await fetch(request);
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw error;
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cached = await cache.match(request);
+  const fresh = fetch(request)
+    .then((response) => {
+      if (response.ok) cache.put(request, response.clone());
+      return response;
+    })
+    .catch(() => null);
+  return cached || fresh;
+}
+
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() => caches.match("./offline.html"))
+    );
+    return;
+  }
+
+  const isStaticAsset = ["image", "font", "style"].includes(request.destination) ||
+    url.pathname.includes("/assets/") ||
+    url.pathname.endsWith(".webmanifest");
+
+  event.respondWith(
+    isStaticAsset ? staleWhileRevalidate(request) : networkFirst(request)
   );
 });
