@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vinculacion-cultural-7-7-8b-1";
+const CACHE_VERSION = "vinculacion-cultural-7-7-8c-1";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

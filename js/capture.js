@@ -36,6 +36,7 @@ let initialized = false;
 
 const LOCAL_DRAFT_PREFIX =
   "vinculacion-v2:capture-draft:";
+const LOCAL_DRAFT_VERSION = 2;
 
 let restoringLocalDraft = false;
 let autosaveTimer = null;
@@ -729,6 +730,15 @@ function localDraftKey() {
 }
 
 
+function newLocalRevision() {
+  const suffix = window.crypto?.randomUUID
+    ? window.crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
+
+  return `${Date.now()}-${suffix}`;
+}
+
+
 function captureFormSnapshot() {
   const values = {};
 
@@ -753,8 +763,11 @@ function captureFormSnapshot() {
     });
 
   return {
-    version: 1,
+    version: LOCAL_DRAFT_VERSION,
     savedAt: new Date().toISOString(),
+    revision: newLocalRevision(),
+    syncStatus: "PENDIENTE_ENVIO",
+    hasPendingEvidence: selectedEvidenceFiles().length > 0,
     values,
   };
 }
@@ -785,14 +798,21 @@ function updateLocalDraftIndicator(snapshot = null) {
 
   if (!snapshot?.savedAt) {
     indicator.textContent =
-      "Borrador local protegido en este dispositivo.";
+      "No hay un borrador local pendiente de enviar.";
+    indicator.style.color = "#64748B";
     return;
   }
 
   const date = new Date(snapshot.savedAt);
+  const status = navigator.onLine
+    ? "Borrador pendiente de enviar"
+    : "Borrador protegido sin conexión";
+  const evidence = snapshot.hasPendingEvidence
+    ? " · evidencias pendientes con conexión"
+    : "";
 
   indicator.textContent =
-      `Borrador local protegido: ${
+      `${status}: ${
       Number.isNaN(date.getTime())
         ? "guardado"
         : date.toLocaleTimeString(
@@ -802,22 +822,33 @@ function updateLocalDraftIndicator(snapshot = null) {
               minute: "2-digit",
             }
           )
-    }`;
+    }${evidence}`;
+
+  indicator.style.color = navigator.onLine
+    ? "#A16207"
+    : "#0F766E";
 }
 
 
 async function protectDraftWhileOffline() {
   saveLocalDraftNow();
+  const hasEvidence = selectedEvidenceFiles().length > 0;
 
   showNotice(
-    "No hay conexión. La información capturada quedó protegida como borrador local en este dispositivo; no se ha enviado al sistema.",
+    "No hay conexión. La información capturada quedó protegida como borrador local en este dispositivo; no se ha enviado al sistema." +
+      (hasEvidence
+        ? " Las evidencias deberán cargarse cuando haya conexión."
+        : ""),
     "warning"
   );
 
   await Swal.fire({
     icon: "info",
     title: "Borrador protegido",
-    text: "No hay conexión. Puedes continuar llenando el formulario; cuando recuperes internet, guarda el borrador para enviarlo al sistema.",
+    text: "No hay conexión. Puedes continuar llenando el formulario; cuando recuperes internet, revisa la información y guarda el borrador para enviarlo al sistema." +
+      (hasEvidence
+        ? " Los archivos adjuntos no se almacenan en el dispositivo y deberás seleccionarlos de nuevo."
+        : ""),
     confirmButtonText: "Continuar capturando",
   });
 }
@@ -868,14 +899,27 @@ function scheduleLocalDraftSave() {
 }
 
 
-function clearLocalDraft() {
+function clearLocalDraft(expectedRevision = null) {
   const key = localDraftKey();
 
-  if (key) {
-    localStorage.removeItem(key);
+  if (!key) return true;
+
+  const current = readLocalDraft();
+
+  // Si hubo cambios mientras el envío estaba en curso, nunca borramos la
+  // versión más reciente: la persona la revisa y decide qué hacer.
+  if (
+    expectedRevision &&
+    current?.revision &&
+    current.revision !== expectedRevision
+  ) {
+    updateLocalDraftIndicator(current);
+    return false;
   }
 
+  localStorage.removeItem(key);
   updateLocalDraftIndicator(null);
+  return true;
 }
 
 
@@ -1081,9 +1125,29 @@ function installLocalDraftAutosave() {
   window.addEventListener("online", () => {
     if (readLocalDraft()) {
       showNotice(
-        "La conexión se recuperó. Tu borrador local sigue protegido; cuando termines, usa Guardar y continuar después para enviarlo al sistema.",
+        "La conexión se recuperó. Revisa el borrador pendiente y usa Guardar y continuar después para enviarlo al sistema.",
         "success"
       );
+
+      updateLocalDraftIndicator(readLocalDraft());
+    }
+  });
+
+  window.addEventListener("storage", (event) => {
+    if (event.key !== localDraftKey() || !event.newValue) return;
+
+    try {
+      const snapshot = JSON.parse(event.newValue);
+
+      if (!snapshot?.values) return;
+
+      updateLocalDraftIndicator(snapshot);
+      showNotice(
+        "Este borrador también se modificó desde otra pestaña. Revisa la información antes de enviarla para evitar duplicados.",
+        "warning"
+      );
+    } catch (_error) {
+      // Un cambio externo inválido nunca debe bloquear la captura actual.
     }
   });
 }
@@ -1303,6 +1367,15 @@ async function saveDraft(event) {
       return;
     }
 
+    // Fija una revisión exacta antes de iniciar el envío. Así no confundimos
+    // un autoguardado pendiente con un cambio realmente posterior.
+    window.clearTimeout(autosaveTimer);
+    saveLocalDraftNow();
+
+    const localDraftAtStart = readLocalDraft();
+    const expectedLocalRevision =
+      localDraftAtStart?.revision ?? null;
+
     validateBeforeSave();
 
     const date = new Date(
@@ -1478,22 +1551,29 @@ async function saveDraft(event) {
       pending.push("evidencia");
     }
 
+    const localDraftWasCleared =
+      clearLocalDraft(expectedLocalRevision);
+
     showNotice(
-      `Borrador ${created.folio} guardado correctamente.`,
-      "success"
+      localDraftWasCleared
+        ? `Borrador ${created.folio} guardado correctamente.`
+        : `Borrador ${created.folio} guardado. Conservamos una versión local más reciente para que no se pierda ningún cambio.`,
+      localDraftWasCleared ? "success" : "warning"
     );
 
     await Swal.fire({
       icon: "success",
       title: "Borrador guardado en el sistema",
-      text: pending.length
-        ? `${created.folio} quedó pausado. Podrás retomarlo en Bitácora; falta completar: ${pending.join(", ")}.`
-        : `${created.folio} quedó completo como BORRADOR y puede retomarse o enviarse a revisión desde Bitácora.`,
+      text: !localDraftWasCleared
+        ? `${created.folio} se guardó en el sistema. Detectamos cambios posteriores durante el envío y los conservamos en este dispositivo para que los revises antes de crear otro borrador.`
+        : pending.length
+          ? `${created.folio} quedó pausado. Podrás retomarlo en Bitácora; falta completar: ${pending.join(", ")}.`
+          : `${created.folio} quedó completo como BORRADOR y puede retomarse o enviarse a revisión desde Bitácora.`,
     });
 
-    // Ya existe un BORRADOR oficial en PostgreSQL:
-    // eliminar la copia temporal local.
-    clearLocalDraft();
+    if (!localDraftWasCleared) {
+      return;
+    }
 
     ui.form.reset();
     setDefaultDates();
