@@ -6997,7 +6997,7 @@
 
     import {
       initCaptureV2,
-    } from "./js/capture.js?v=7.7.8C";
+    } from "./js/capture.js?v=7.7.8B";
 
     import {
       initBitacoraV2,
@@ -7552,6 +7552,25 @@
       } catch (error) {
         console.error("Inicialización Auth V2:", error);
 
+        // Una captura ya abierta no debe expulsar a la persona cuando se va
+        // la señal. Conservamos la sesión visual y el borrador local; al
+        // recuperar internet se vuelve a validar normalmente.
+        if (!navigator.onLine && currentContext) {
+          updateNetworkStatus();
+
+          const captureNotice =
+            document.getElementById("captureNotice");
+
+          if (captureNotice) {
+            captureNotice.hidden = false;
+            captureNotice.dataset.type = "warning";
+            captureNotice.textContent =
+              "Sin conexión. Tu sesión permanece abierta en este dispositivo y la captura sigue protegida como borrador local.";
+          }
+
+          return;
+        }
+
         showLogin();
 
         const message =
@@ -7898,6 +7917,11 @@
     authSubscription =
       onAuthStateChange(async (_event, session) => {
         if (!session) {
+          if (!navigator.onLine && currentContext) {
+            updateNetworkStatus();
+            return;
+          }
+
           showLogin();
           return;
         }
