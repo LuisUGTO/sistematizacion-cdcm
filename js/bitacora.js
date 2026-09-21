@@ -758,7 +758,50 @@ async function retireRecords(rows) {
   }
 }
 
-function showDetail(row) {
+function formatAuditAction(value) {
+  return ({ INSERT: "Registro creado", UPDATE: "Información actualizada", STATUS_CHANGE: "Cambio de estatus", VALIDATE: "Expediente validado", OBSERVE: "Expediente observado", ANNUL: "Expediente retirado", IMPORT: "Importación" })[value] ?? text(value, "Movimiento registrado");
+}
+
+function appendTraceability(container, trace) {
+  const section = document.createElement("section");
+  section.style.gridColumn = "1 / -1";
+  section.style.marginTop = "8px";
+  section.style.paddingTop = "16px";
+  section.style.borderTop = "1px solid #dbe6ef";
+  const title = document.createElement("h3");
+  title.textContent = "Huella digital del expediente";
+  title.style.margin = "0 0 10px";
+  title.style.color = "#004985";
+  section.appendChild(title);
+  const summary = document.createElement("div");
+  summary.className = "bitacora-detail-grid";
+  [["Creado por", trace.creado_por], ["Creado el", formatDateTime(trace.creado_en)], ["Última actualización por", trace.actualizado_por], ["Actualizado el", formatDateTime(trace.actualizado_en)]].forEach(([label, value]) => {
+    const item = document.createElement("div"); item.className = "bitacora-detail-item";
+    const key = document.createElement("strong"); key.textContent = label;
+    const detail = document.createElement("span"); detail.textContent = text(value);
+    item.append(key, detail); summary.appendChild(item);
+  });
+  section.appendChild(summary);
+  const eventsTitle = document.createElement("strong");
+  eventsTitle.textContent = "Últimos movimientos";
+  eventsTitle.style.display = "block";
+  eventsTitle.style.margin = "15px 0 8px";
+  section.appendChild(eventsTitle);
+  const events = trace.eventos ?? [];
+  if (!events.length) { const empty = document.createElement("p"); empty.textContent = "No hay eventos históricos disponibles para este expediente."; empty.style.color = "#64748b"; section.appendChild(empty); }
+  events.forEach((event) => {
+    const line = document.createElement("div");
+    line.style.padding = "9px 0"; line.style.borderTop = "1px solid #edf2f7";
+    const action = document.createElement("strong"); action.textContent = formatAuditAction(event.accion);
+    const meta = document.createElement("small"); meta.style.display = "block"; meta.style.marginTop = "3px"; meta.style.color = "#64748b";
+    const fields = (event.campos ?? []).map((field) => String(field).replaceAll("_", " ")).join(", ");
+    meta.textContent = `${text(event.correo, "Usuario no disponible")} · ${formatDateTime(event.fecha)}${fields ? ` · Campos: ${fields}` : ""}`;
+    line.append(action, meta); section.appendChild(line);
+  });
+  container.appendChild(section);
+}
+
+async function showDetail(row) {
   const content = document.createElement("div");
   content.className =
     "bitacora-detail-grid";
@@ -812,7 +855,24 @@ function showDetail(row) {
     html: content,
     width: 820,
     confirmButtonText: "Cerrar",
+    didOpen: () => Swal.showLoading(),
   });
+
+  try {
+    const result = await dbV2().rpc("rpc_get_registro_trazabilidad", { p_registro_id: row.id });
+    if (result.error) throw result.error;
+    const trace = Array.isArray(result.data) ? result.data[0] : result.data;
+    appendTraceability(content, trace ?? {});
+  } catch (error) {
+    const notice = document.createElement("p");
+    notice.textContent = "La información de trazabilidad no está disponible para este expediente.";
+    notice.style.gridColumn = "1 / -1";
+    notice.style.color = "#9a3412";
+    content.appendChild(notice);
+    console.warn("Trazabilidad de Bitácora:", error);
+  } finally {
+    Swal.hideLoading();
+  }
 }
 
 async function populateFilters() {

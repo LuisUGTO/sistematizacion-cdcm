@@ -34,6 +34,9 @@ const ui = {
   dialog: $("accessDialog"),
   accessForm: $("accessForm"),
   dialogEmail: $("dialogEmail"),
+  dialogNameField: $("dialogNameField"),
+  dialogName: $("dialogName"),
+  saveUserName: $("saveUserName"),
   dialogRole: $("dialogRole"),
   dialogActive: $("dialogActive"),
   unitChecks: $("unitChecks"),
@@ -252,6 +255,8 @@ function openAccessDialog(user) {
   }
   state.selectedUser = user;
   ui.dialogEmail.textContent = user.email;
+  ui.dialogNameField.hidden = !isSuperAdmin(state.context);
+  ui.dialogName.value = user.nombre ?? "";
   ui.dialogRole.value = user.rol;
   ui.dialogActive.checked = user.activo;
   ui.municipalitySearch.value = "";
@@ -270,6 +275,34 @@ function openAccessDialog(user) {
   );
   updateGuidance();
   ui.dialog.showModal();
+}
+
+async function saveUserName() {
+  if (!state.selectedUser || !isSuperAdmin(state.context)) return;
+  const name = ui.dialogName.value.trim();
+  if (name.length < 2) {
+    return Swal.fire("Nombre incompleto", "Indica al menos dos caracteres para el nombre visible.", "warning");
+  }
+  ui.saveUserName.disabled = true;
+  ui.saveUserName.textContent = "Guardando…";
+  try {
+    const { data, error } = await dbV2().rpc("rpc_superadmin_actualizar_nombre_usuario", {
+      p_user_id: state.selectedUser.user_id,
+      p_nombre: name,
+    });
+    if (error) throw error;
+    const saved = Array.isArray(data) ? data[0] : data;
+    state.selectedUser.nombre = saved?.nombre ?? name;
+    const local = state.users.find((user) => user.user_id === state.selectedUser.user_id);
+    if (local) local.nombre = state.selectedUser.nombre;
+    renderUsers();
+    await Swal.fire({ icon: "success", title: "Nombre actualizado", text: "El nombre visible quedó guardado y el cambio fue auditado.", timer: 1500, showConfirmButton: false });
+  } catch (error) {
+    await showError("No se pudo actualizar el nombre", error);
+  } finally {
+    ui.saveUserName.disabled = false;
+    ui.saveUserName.textContent = "Guardar nombre";
+  }
 }
 
 function openInviteDialog() {
@@ -478,6 +511,7 @@ function installUserEvents() {
     try { await loadUsers(); } catch (error) { await showError("No se pudieron actualizar los usuarios", error); }
   });
   ui.dialogRole.addEventListener("change", updateGuidance);
+  ui.saveUserName.addEventListener("click", saveUserName);
   ui.accessForm.addEventListener("submit", saveAccess);
   $("cancelAccess").addEventListener("click", () => ui.dialog.close());
   $("closeDialogX").addEventListener("click", () => ui.dialog.close());
