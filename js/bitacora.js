@@ -762,6 +762,27 @@ function formatAuditAction(value) {
   return ({ INSERT: "Registro creado", UPDATE: "Información actualizada", STATUS_CHANGE: "Cambio de estatus", VALIDATE: "Expediente validado", OBSERVE: "Expediente observado", ANNUL: "Expediente retirado", IMPORT: "Importación" })[value] ?? text(value, "Movimiento registrado");
 }
 
+const AUDIT_FIELD_LABELS = Object.freeze({
+  accion_id: "Acción o proceso", comunidad_id: "Comunidad o localidad",
+  configuracion_accion_id: "Configuración de la acción", descripcion: "Descripción",
+  esquema_demografico_id: "Desglose de población", espacio_id: "Espacio",
+  estatus: "Estado del expediente", fecha_fin: "Fecha de término",
+  fecha_inicio: "Fecha de inicio", folio: "Folio", metadata: "Clasificación operativa",
+  municipio_id: "Municipio", nombre: "Nombre de la actividad", origen: "Origen",
+  periodo_anio: "Ejercicio", periodo_mes: "Mes de registro", programa_id: "Programa",
+  responsable_id: "Persona responsable", tipo_registro_id: "Tipo de registro",
+  total_accesos: "Personas que acceden", total_beneficiarios: "Beneficiarios",
+  total_participantes: "Personas que participan", unidad_operativa_id: "Unidad operativa",
+});
+
+function readableAuditFields(action, fields) {
+  if (action === "INSERT") return "";
+  const labels = (fields ?? [])
+    .filter((field) => AUDIT_FIELD_LABELS[field])
+    .map((field) => AUDIT_FIELD_LABELS[field]);
+  return [...new Set(labels)].join(", ");
+}
+
 function appendTraceability(container, trace) {
   const section = document.createElement("section");
   section.style.gridColumn = "1 / -1";
@@ -794,8 +815,8 @@ function appendTraceability(container, trace) {
     line.style.padding = "9px 0"; line.style.borderTop = "1px solid #edf2f7";
     const action = document.createElement("strong"); action.textContent = formatAuditAction(event.accion);
     const meta = document.createElement("small"); meta.style.display = "block"; meta.style.marginTop = "3px"; meta.style.color = "#64748b";
-    const fields = (event.campos ?? []).map((field) => String(field).replaceAll("_", " ")).join(", ");
-    meta.textContent = `${text(event.correo, "Usuario no disponible")} · ${formatDateTime(event.fecha)}${fields ? ` · Campos: ${fields}` : ""}`;
+    const fields = readableAuditFields(event.accion, event.campos);
+    meta.textContent = `${text(event.correo, "Usuario no disponible")} · ${formatDateTime(event.fecha)}${fields ? ` · Actualizó: ${fields}` : ""}`;
     line.append(action, meta); section.appendChild(line);
   });
   container.appendChild(section);
