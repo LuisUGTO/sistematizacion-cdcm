@@ -772,8 +772,9 @@ function updateLocalDraftIndicator(snapshot = null) {
       "captureLocalDraftIndicator";
 
     indicator.style.marginTop = "10px";
-    indicator.style.fontSize = "11px";
-    indicator.style.color = "#64748B";
+    indicator.style.fontSize = "12px";
+    indicator.style.fontWeight = "700";
+    indicator.style.color = "#0F766E";
 
     ui.saveDraftButton
       .parentElement
@@ -784,14 +785,14 @@ function updateLocalDraftIndicator(snapshot = null) {
 
   if (!snapshot?.savedAt) {
     indicator.textContent =
-      "Autoguardado local listo.";
+      "Borrador local protegido en este dispositivo.";
     return;
   }
 
   const date = new Date(snapshot.savedAt);
 
   indicator.textContent =
-    `Autoguardado local: ${
+      `Borrador local protegido: ${
       Number.isNaN(date.getTime())
         ? "guardado"
         : date.toLocaleTimeString(
@@ -802,6 +803,23 @@ function updateLocalDraftIndicator(snapshot = null) {
             }
           )
     }`;
+}
+
+
+async function protectDraftWhileOffline() {
+  saveLocalDraftNow();
+
+  showNotice(
+    "No hay conexión. La información capturada quedó protegida como borrador local en este dispositivo; no se ha enviado al sistema.",
+    "warning"
+  );
+
+  await Swal.fire({
+    icon: "info",
+    title: "Borrador protegido",
+    text: "No hay conexión. Puedes continuar llenando el formulario; cuando recuperes internet, guarda el borrador para enviarlo al sistema.",
+    confirmButtonText: "Continuar capturando",
+  });
 }
 
 
@@ -1051,6 +1069,23 @@ function installLocalDraftAutosave() {
       }
     }
   );
+
+  window.addEventListener("offline", () => {
+    saveLocalDraftNow();
+    showNotice(
+      "Se perdió la conexión. Tu captura seguirá protegida como borrador local en este dispositivo.",
+      "warning"
+    );
+  });
+
+  window.addEventListener("online", () => {
+    if (readLocalDraft()) {
+      showNotice(
+        "La conexión se recuperó. Tu borrador local sigue protegido; cuando termines, usa Guardar y continuar después para enviarlo al sistema.",
+        "success"
+      );
+    }
+  });
 }
 
 
@@ -1263,6 +1298,11 @@ async function saveDraft(event) {
   let created = null;
 
   try {
+    if (!navigator.onLine) {
+      await protectDraftWhileOffline();
+      return;
+    }
+
     validateBeforeSave();
 
     const date = new Date(
