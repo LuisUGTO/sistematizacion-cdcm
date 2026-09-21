@@ -351,9 +351,14 @@ async function sendInvitation(event) {
     await loadUsers();
     await Swal.fire("Invitación enviada", "La persona recibirá un correo para activar su acceso.", "success");
   } catch (error) {
+    const rawMessage = String(error?.message ?? error ?? "").toLowerCase();
     const message = error?.name === "AbortError"
-      ? "La solicitud tardó demasiado. Revisa los Logs de la función invite-user; no reintentes hasta identificar el paso detenido."
-      : error;
+      ? "La solicitud tardó más de lo esperado. Espera un momento y verifica la lista de usuarios antes de volver a intentarlo."
+      : rawMessage.includes("rate limit")
+        ? "Se alcanzó temporalmente el límite de correos de invitación. Espera antes de enviar otra o solicita ampliar la capacidad de envío institucional."
+        : rawMessage.includes("already") || rawMessage.includes("registered")
+          ? "Este correo ya cuenta con un acceso o una invitación previa. Revisa la lista de usuarios antes de intentarlo nuevamente."
+          : "No fue posible completar la invitación. Verifica el correo y vuelve a intentarlo; si continúa, repórtalo mediante PULSO Q.";
     // Un <dialog> nativo se muestra en la capa superior del navegador. Si
     // permanece abierto, SweetAlert queda detrás y el usuario sólo ve
     // "Enviando…". Cerramos el diálogo antes de presentar el resultado.

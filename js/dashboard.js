@@ -1063,16 +1063,15 @@ async function loadDashboard() {
     console.error("Dashboard Directivo V2:", error);
     ui.status.dataset.type = "error";
     ui.status.textContent =
-      "No se pudo cargar el Dashboard Directivo: " +
-      (error?.message ?? "error desconocido");
+      "No fue posible consultar los indicadores. Actualiza el panel o inténtalo nuevamente.";
 
     await Swal.fire({
       icon: "error",
-      title: "Dashboard no disponible",
+      title: "Panel no disponible",
       text:
         error?.message === "DASHBOARD_EMPTY_RESPONSE"
-          ? "La RPC no devolvio un resultado valido."
-          : error?.message ?? "No se pudieron consultar los indicadores.",
+          ? "No se recibió información válida para mostrar."
+          : "No se pudieron consultar los indicadores. Inténtalo nuevamente y, si continúa, repórtalo mediante PULSO Q.",
     });
   } finally {
     if (sequence === loadSequence) {

@@ -627,11 +627,13 @@
     }
 
     .profile-menu {
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
+      position: fixed;
+      z-index: 6500;
 
       width: min(370px, calc(100vw - 24px));
+      max-height: calc(100dvh - 24px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
       padding: 9px;
 
       background: #EDF2F7;
@@ -764,15 +766,27 @@
     }
 
     .profile-pulso-card {
+      width: 100%;
       display: grid;
       grid-template-columns: 48px minmax(0, 1fr);
       align-items: center;
       gap: 11px;
       margin-top: 8px;
       padding: 11px 13px;
+      border: 0;
       border-radius: 15px;
       background: var(--pulso-azul);
       color: white;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+    }
+
+    .profile-pulso-card:hover,
+    .profile-pulso-card:focus-visible {
+      background: #0B314F;
+      outline: 3px solid rgba(16, 194, 200, .28);
+      outline-offset: 2px;
     }
 
     .profile-pulso-card img {
@@ -4827,6 +4841,18 @@
                 </div>
               </div>
 
+              <button id="profilePulsoButton" class="profile-pulso-card" type="button">
+                <img
+                  src="assets/brand/pulso-q-logo.png"
+                  alt=""
+                  aria-hidden="true"
+                />
+                <div>
+                  <strong>PULSO Q · Enviar retroalimentación</strong>
+                  <small>Reporta dudas, errores o propuestas de mejora.</small>
+                </div>
+              </button>
+
               <div class="profile-menu-actions">
                 <button
                   id="profileAdminButton"
@@ -4840,7 +4866,7 @@
 
                 <button id="profileHelpButton" class="profile-menu-action" type="button">
                   <span class="profile-menu-action-icon" aria-hidden="true">?</span>
-                  <span>Ayuda y soporte</span>
+                  <span>Ayuda para usar el sistema</span>
                 </button>
 
                 <button
@@ -4853,19 +4879,6 @@
                 </button>
               </div>
 
-              <div class="profile-pulso-card">
-                <img
-                  src="assets/brand/pulso-q-logo.png"
-                  alt="Logotipo de PULSO Q"
-                />
-                <div>
-                  <strong>PULSO Q</strong>
-                  <small>
-                    Procesos claros. Datos que deciden.<br />
-                    Soporte de experiencia y mejora digital.
-                  </small>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -4917,7 +4930,7 @@
           type="button"
           data-tab-target="dashboard"
         >
-          Dashboard
+          Panel directivo
         </button>
 
         <button
@@ -5917,7 +5930,7 @@
           <article class="card dashboard-card">
             <div class="dashboard-heading">
               <div>
-                <h2>Dashboard directivo</h2>
+                <h2>Panel directivo</h2>
                 <p>
                   Seguimiento operativo, validación, cobertura territorial y
                   cumplimiento de metas institucionales dentro del alcance
@@ -5983,7 +5996,7 @@
               data-type="loading"
               aria-live="polite"
             >
-              Preparando Dashboard Directivo...
+              Preparando información institucional...
             </div>
 
             <small id="dashboardUpdated" class="dashboard-updated">
@@ -6441,39 +6454,28 @@
         </div>
 
         <p id="supportDescription" class="support-intro">
-          Para dudas de acceso, permisos, captura, validación o lectura del
-          Dashboard Directivo, escribe a cualquiera de estos contactos e
-          incluye una descripción breve del problema.
+          Para reportar una duda, un error o una propuesta de mejora, envía tu
+          comentario a PULSO Q. El mensaje se abrirá con una guía breve para que
+          podamos atenderlo con mayor rapidez.
         </p>
 
         <div class="support-contact-list">
           <a
             class="support-contact"
-            href="mailto:planeacionscul@guanajuato.gob.mx?subject=Soporte%20de%20Sistematizaci%C3%B3n%20de%20Vinculaci%C3%B3n"
-          >
-            <span class="support-contact-icon" aria-hidden="true">✉</span>
-            <span>
-              <strong>Coordinación de Planeación y Evaluación Cultural</strong>
-              <small>planeacionscul@guanajuato.gob.mx</small>
-            </span>
-          </a>
-
-          <a
-            class="support-contact"
-            href="mailto:la.duranalvarez@ugto.mx?subject=Soporte%20de%20Sistematizaci%C3%B3n%20de%20Vinculaci%C3%B3n%20%7C%20PULSO%20Q"
+            href="mailto:la.duranalvarez@ugto.mx?subject=Retroalimentaci%C3%B3n%20%C2%B7%20Sistema%20de%20Vinculaci%C3%B3n%20Cultural&amp;body=Nombre%3A%0A%0AM%C3%B3dulo%20o%20pantalla%3A%0A%0A%C2%BFQu%C3%A9%20intentabas%20hacer%3F%3A%0A%0A%C2%BFQu%C3%A9%20ocurri%C3%B3%3F%3A%0A%0AFolio%20%28si%20aplica%29%3A%0A%0AAdjunta%20una%20captura%20de%20pantalla%20si%20es%20posible."
           >
             <span class="support-contact-icon" aria-hidden="true">Q</span>
             <span>
-              <strong>Soporte de experiencia digital · PULSO Q</strong>
-              <small>la.duranalvarez@ugto.mx</small>
+              <strong>Enviar retroalimentación a PULSO Q</strong>
+              <small>Se abrirá un correo con los datos necesarios para el reporte.</small>
             </span>
           </a>
         </div>
 
         <div class="support-note">
-          No envíes contraseñas, enlaces mágicos de acceso ni información
-          personal sensible por correo. Para agilizar la atención, indica el
-          módulo, la acción realizada y el mensaje visible en pantalla.
+          No envíes contraseñas, enlaces de acceso ni información personal
+          sensible. Si hubo un error, adjunta una captura e indica el módulo,
+          la acción realizada y el mensaje que apareció en pantalla.
         </div>
       </div>
     </section>
@@ -6999,7 +7001,7 @@
 
     import {
       initDashboardV2,
-    } from "./js/dashboard.js?v=7.6.0";
+    } from "./js/dashboard.js?v=7.7.7.3";
 
     import {
       getHomeContent,
@@ -7039,6 +7041,7 @@
 
       logoutButton: document.getElementById("logoutButton"),
       profileHelpButton: document.getElementById("profileHelpButton"),
+      profilePulsoButton: document.getElementById("profilePulsoButton"),
       profileAdminButton: document.getElementById("profileAdminButton"),
       loginHelpButton: document.getElementById("loginHelpButton"),
       supportOverlay: document.getElementById("supportOverlay"),
@@ -7132,6 +7135,22 @@
         "aria-expanded",
         nextHidden ? "false" : "true"
       );
+
+      if (!nextHidden) positionProfileMenu();
+    }
+
+
+    function positionProfileMenu() {
+      if (ui.profileMenu.hidden) return;
+
+      const buttonRect = ui.profileButton.getBoundingClientRect();
+      const margin = 12;
+      const top = Math.max(margin, buttonRect.bottom + 10);
+      const right = Math.max(margin, window.innerWidth - buttonRect.right);
+
+      ui.profileMenu.style.top = `${top}px`;
+      ui.profileMenu.style.right = `${right}px`;
+      ui.profileMenu.style.maxHeight = `${Math.max(220, window.innerHeight - top - margin)}px`;
     }
 
 
@@ -7399,8 +7418,7 @@
           if (dashboardStatus) {
             dashboardStatus.dataset.type = "error";
             dashboardStatus.textContent =
-              "No se pudo inicializar el Dashboard Directivo: " +
-              (error?.message ?? "error desconocido");
+              "No fue posible preparar el panel. Actualiza la página o inténtalo nuevamente.";
           }
         }
       }
@@ -7601,6 +7619,15 @@
       "click",
       openSupport
     );
+
+
+    ui.profilePulsoButton.addEventListener(
+      "click",
+      openSupport
+    );
+
+
+    window.addEventListener("resize", positionProfileMenu);
 
 
     ui.profileAdminButton.addEventListener(
