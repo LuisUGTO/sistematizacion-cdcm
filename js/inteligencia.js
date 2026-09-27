@@ -184,6 +184,9 @@ function renderMonths(data) {
     const bars = document.createElement("div"); bars.className = "month-bars";
     const total = document.createElement("i"); total.style.height = `${Math.max(2, number(row.total_registros) / max * 100)}%`;
     const valid = document.createElement("i"); valid.className = "valid"; valid.style.height = `${Math.max(1, number(row.validados) / max * 100)}%`;
+    total.title = `${MONTHS[month - 1]}: ${fmt(row.total_registros)} registros`;
+    valid.title = `${MONTHS[month - 1]}: ${fmt(row.validados)} validados`;
+    bars.setAttribute("aria-label", `${MONTHS[month - 1]}: ${fmt(row.total_registros)} registros y ${fmt(row.validados)} validados`);
     const label = document.createElement("small"); label.textContent = MONTHS[month - 1];
     bars.append(total, valid); item.append(value, bars, label); container.appendChild(item);
   }
@@ -405,7 +408,7 @@ async function renderMap(data) {
   const max = Math.max(1, ...[...rows.values()].map((row) => number(row.total_registros)));
   setText("mapLegendMax", fmt(max));
   const d3 = window.d3;
-  const scale = d3.scaleSequentialSqrt(d3.interpolateRgbBasis(["#dff5f2","#61d2ca","#087c91","#082e4e"])).domain([0, max]);
+  const scale = d3.scaleSequentialSqrt(d3.interpolateRgbBasis(["#dff4fb","#8fd8e7","#38b8c5","#177eb4","#075a98","#003663"])).domain([0, max]);
   const projection = d3.geoMercator().fitExtent([[24,20],[736,410]], geometry);
   const path = d3.geoPath(projection); const svg = d3.select($("map")); svg.selectAll("*").remove();
   svg.append("g").selectAll("path").data(geometry.features).join("path")

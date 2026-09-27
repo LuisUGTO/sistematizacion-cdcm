@@ -36,6 +36,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/css/identidad-gto.css?v=7.7.9A" />
+  <link rel="stylesheet" href="./assets/css/inteligencia-directiva.css?v=7.7.9B" />
+  <link rel="stylesheet" href="./assets/css/inteligencia-visual.css?v=7.7.9D" />
 </head>
 <body>
   <header class="top"><div class="top-inner">
@@ -45,16 +47,21 @@
   </div></header>
 
   <main id="app" hidden>
+    <div class="intelligence-layout">
+    <aside class="director-sidebar">
+      <div class="director-sidebar-head"><small>Lectura estratégica</small><strong>Tablero directivo</strong><p>Navega por cada dimensión sin perder los filtros ni el contexto institucional.</p></div>
+      <nav id="viewNav" class="view-nav" aria-label="Secciones de Inteligencia Cultural">
+        <button type="button" data-view="panorama" class="active"><span>01</span>Panorama</button>
+        <button type="button" data-view="territorio"><span>02</span>Territorio</button>
+        <button type="button" data-view="oferta"><span>03</span>Oferta cultural</button>
+        <button type="button" data-view="poblacion"><span>04</span>Población</button>
+        <button type="button" data-view="indicadores"><span>05</span>Indicadores</button>
+        <button type="button" data-view="calidad" data-permission="VALIDATION_REVIEW" hidden><span>06</span>Centro de calidad</button>
+      </nav>
+      <div class="director-sidebar-note"><strong>Lectura confiable</strong><span>Información oficial muestra expedientes validados. Seguimiento operativo permite anticipar avances sin confundirlos con resultados oficiales.</span></div>
+    </aside>
+    <div class="director-workspace">
     <section class="hero"><img id="themeImage" class="hero-theme-image" alt="" hidden /><div id="themeKicker" class="eyebrow">DECISIONES BASADAS EN EVIDENCIA</div><h1 id="themeTitle">Panorama estratégico de Vinculación Cultural</h1><p id="themeDescription">Lectura ejecutiva de la operación, territorio, población y resultados institucionales. Cada cifra respeta el alcance y los filtros de la cuenta autenticada.</p><small id="themeCredit" class="theme-credit" hidden></small><div class="hero-meta"><span id="heroYear">Ejercicio —</span><span id="heroRole">Rol —</span><span id="heroMode">Universo —</span><span id="themeName">Identidad institucional</span><span>Fuente: registros V2</span><span>Sin duplicar capturas</span></div></section>
-
-    <nav id="viewNav" class="view-nav" aria-label="Secciones de Inteligencia Cultural">
-      <button type="button" data-view="panorama" class="active"><span>01</span>Panorama</button>
-      <button type="button" data-view="territorio"><span>02</span>Territorio</button>
-      <button type="button" data-view="oferta"><span>03</span>Oferta cultural</button>
-      <button type="button" data-view="poblacion"><span>04</span>Población</button>
-      <button type="button" data-view="indicadores"><span>05</span>Indicadores</button>
-      <button type="button" data-view="calidad" data-permission="VALIDATION_REVIEW" hidden><span>06</span>Centro de calidad</button>
-    </nav>
     <div class="view-intro active" data-view-intro="panorama"><strong>Panorama estatal</strong>Lectura inmediata del volumen, validación, personas reportadas y comportamiento durante el ejercicio.</div>
     <div class="view-intro" data-view-intro="territorio"><strong>Cobertura territorial</strong>Explora la distribución municipal y selecciona un territorio para actualizar toda la información.</div>
     <div class="view-intro" data-view-intro="oferta"><strong>Oferta cultural</strong>Identifica programas, acciones y clasificaciones con mayor presencia dentro del alcance visible.</div>
@@ -82,19 +89,19 @@
     </section>
 
     <section class="kpis" data-view-panel="panorama">
-      <article class="kpi" style="--accent:#075a98"><span>Registros visibles</span><strong id="kRecords">—</strong><small>Expedientes dentro del alcance actual.</small></article>
-      <article class="kpi" style="--accent:#07875d"><span>Validados</span><strong id="kValidated">—</strong><small id="kValidationRate">Avance de validación.</small></article>
-      <article class="kpi" style="--accent:#2563eb"><span>Beneficiarios</span><strong id="kBeneficiaries">—</strong><small>Personas únicas reportadas.</small></article>
-      <article class="kpi" style="--accent:#7c3aed"><span>Participantes</span><strong id="kParticipants">—</strong><small>Participación activa reportada.</small></article>
-      <article class="kpi" style="--accent:#0891b2"><span>Accesos</span><strong id="kAccesses">—</strong><small>Asistencias o entradas reportadas.</small></article>
-      <article class="kpi" style="--accent:#d97706"><span>Cobertura municipal</span><strong id="kMunicipalities">—</strong><small>Municipios con actividad visible.</small></article>
+      <article class="kpi kpi-records" style="--accent:#075a98;--soft:#e7f2fb"><div class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 12h6M10 16h6"/></svg></div><div class="kpi-copy"><span>Registros visibles</span><strong id="kRecords">—</strong><small>Expedientes dentro del alcance actual.</small></div></article>
+      <article class="kpi kpi-validated" style="--accent:#07875d;--soft:#e5f6ef"><div class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-2.9 8.1-7 10-4.1-1.9-7-5.5-7-10V6z"/><path d="M8.8 12.2l2 2 4.5-4.6"/></svg></div><div class="kpi-copy"><span>Validados</span><strong id="kValidated">—</strong><small id="kValidationRate">Avance de validación.</small></div></article>
+      <article class="kpi kpi-beneficiaries" style="--accent:#2563eb;--soft:#e9efff"><div class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M6.5 20v-2.5a5.5 5.5 0 0111 0V20M5 10a2.5 2.5 0 100-5M19 10a2.5 2.5 0 100-5M2 18v-1a4 4 0 014-4M22 18v-1a4 4 0 00-4-4"/></svg></div><div class="kpi-copy"><span>Beneficiarios</span><strong id="kBeneficiaries">—</strong><small>Personas únicas reportadas.</small></div></article>
+      <article class="kpi kpi-participants" style="--accent:#7c3aed;--soft:#f1eaff"><div class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="6.5" r="3"/><path d="M7 21v-4.5a5 5 0 0110 0V21M4 11l2.5 2.5M20 11l-2.5 2.5M12 1v2"/></svg></div><div class="kpi-copy"><span>Participantes</span><strong id="kParticipants">—</strong><small>Participación activa reportada.</small></div></article>
+      <article class="kpi kpi-accesses" style="--accent:#0891b2;--soft:#e3f7fa"><div class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h12v14H4zM16 8h4v8h-4M8 12h5M11 9l3 3-3 3"/></svg></div><div class="kpi-copy"><span>Accesos</span><strong id="kAccesses">—</strong><small>Asistencias o entradas reportadas.</small></div></article>
+      <article class="kpi kpi-coverage" style="--accent:#d97706;--soft:#fff2df"><div class="kpi-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6l5-3 6 3 5-3v15l-5 3-6-3-5 3zM9 3v15M15 6v15"/><circle cx="12" cy="11" r="2"/></svg></div><div class="kpi-copy"><span>Cobertura municipal</span><strong id="kMunicipalities">—</strong><small>Municipios con actividad visible.</small></div></article>
     </section>
 
     <section class="grid">
       <article class="card" data-view-panel="panorama"><div class="card-head"><div><h2>Comportamiento mensual</h2><p>Registros capturados y expedientes validados durante el ejercicio.</p></div><span class="badge">Tendencia</span></div><div id="months" class="months"></div><div class="legend"><span><i></i>Registros</span><span><i class="green"></i>Validados</span></div></article>
       <article class="card" data-view-panel="panorama"><div class="card-head"><div><h2>Actividad por programa</h2><p>Concentración de registros dentro de los filtros actuales.</p></div><span class="badge">Top 8</span></div><div id="programRanking" class="rank-list"></div></article>
 
-      <article class="card wide" data-view-panel="territorio"><div class="card-head"><div><h2>Cobertura territorial</h2><p>Haz clic en un municipio: todos los indicadores y gráficos se actualizarán con su información.</p></div><span class="badge">46 municipios</span></div><div class="map-layout"><div class="map-stage"><svg id="map" class="map-svg" viewBox="0 0 760 430" role="img" aria-label="Mapa interactivo de cobertura municipal"></svg><div class="map-legend"><strong>Intensidad por registros</strong><div class="map-gradient"></div><div class="map-legend-labels"><span>Sin actividad</span><span id="mapLegendMax">Mayor</span></div></div></div><aside class="map-side"><small>Territorio seleccionado</small><h3 id="mapName">Vista estatal</h3><p id="mapContext" class="map-context">Resumen del alcance visible con los filtros actuales.</p><div class="map-stat"><span>Registros</span><strong id="mapRecords">—</strong><em id="mapShare">Cobertura estatal</em></div><div class="map-stat"><span>Validados</span><strong id="mapValidated">—</strong><em id="mapValidation">Avance de validación</em></div><div class="map-stat"><span>Beneficiarios</span><strong id="mapBeneficiaries">—</strong><em id="mapBeneficiaryShare">Total reportado</em></div><div class="map-stat"><span>Participantes / Accesos</span><strong id="mapPopulation">—</strong></div><div id="mapInsight" class="map-insight">Selecciona un territorio para conocer su peso dentro del estado.</div><button id="mapClear" class="btn" style="width:100%;margin-top:13px" hidden>← Volver a vista estatal</button></aside></div><div class="territory-brief" id="territoryBrief"></div><section class="territory-rank"><div class="card-head"><div><h2>Municipios con mayor actividad</h2><p>Comparativo dentro del alcance y filtros seleccionados.</p></div><span class="badge">Top 6</span></div><div id="territoryRanking" class="rank-list"></div></section><div id="mapTooltip" class="map-tooltip" hidden></div></article>
+      <article class="card wide territory-card" data-view-panel="territorio"><div class="card-head"><div><h2>Cobertura territorial</h2><p>Haz clic en un municipio: todos los indicadores y gráficos se actualizarán con su información.</p></div><span class="badge">46 municipios</span></div><div class="map-layout"><div class="map-stage"><svg id="map" class="map-svg" viewBox="0 0 760 430" role="img" aria-label="Mapa interactivo de cobertura municipal"></svg><div class="map-legend"><strong>Intensidad por registros</strong><div class="map-gradient"></div><div class="map-legend-labels"><span>Menor actividad</span><span id="mapLegendMax">Mayor</span></div><div class="map-no-data"><i></i>Sin actividad registrada</div></div></div><aside class="map-side"><small>Territorio seleccionado</small><h3 id="mapName">Vista estatal</h3><p id="mapContext" class="map-context">Resumen del alcance visible con los filtros actuales.</p><div class="map-stat map-stat-records"><span>Registros</span><strong id="mapRecords">—</strong><em id="mapShare">Cobertura estatal</em></div><div class="map-stat map-stat-valid"><span>Validados</span><strong id="mapValidated">—</strong><em id="mapValidation">Avance de validación</em></div><div class="map-stat map-stat-people"><span>Beneficiarios</span><strong id="mapBeneficiaries">—</strong><em id="mapBeneficiaryShare">Total reportado</em></div><div class="map-stat map-stat-access"><span>Participantes / Accesos</span><strong id="mapPopulation">—</strong></div><div id="mapInsight" class="map-insight">Selecciona un territorio para conocer su peso dentro del estado.</div><button id="mapClear" class="btn" style="width:100%;margin-top:13px" hidden>← Volver a vista estatal</button></aside></div><div class="territory-brief" id="territoryBrief"></div><section class="territory-rank"><div class="card-head"><div><h2>Municipios con mayor actividad</h2><p>Comparativo dentro del alcance y filtros seleccionados.</p></div><span class="badge">Top 6</span></div><div id="territoryRanking" class="rank-list"></div></section><div id="mapTooltip" class="map-tooltip" hidden></div></article>
 
       <article class="card" data-view-panel="oferta"><div class="card-head"><div><h2>Actividad cultural</h2><p>Clasificación declarada en los nuevos registros.</p></div><span class="badge">Operación</span></div><div id="classificationTabs" class="tabs"></div><div id="classificationRanking" class="rank-list"></div></article>
       <article class="card" data-view-panel="oferta"><div class="card-head"><div><h2>Acciones con mayor actividad</h2><p>Resultados acumulados por acción o proceso.</p></div><span class="badge">Top 8</span></div><div id="actionRanking" class="rank-list"></div></article>
@@ -113,8 +120,10 @@
       </section>
     </section>
     <footer class="footer">Secretaría de Cultura de Guanajuato · Sistema Integral de Sistematización de Vinculación Cultural</footer>
+    </div>
+    </div>
   </main>
 
-  <script type="module" src="./js/inteligencia.js?v=7.7.6"></script>
+  <script type="module" src="./js/inteligencia.js?v=7.7.9D"></script>
 </body>
 </html>

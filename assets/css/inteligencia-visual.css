@@ -1,0 +1,184 @@
+/* Etapa 7.7.9D — visualización ejecutiva de Inteligencia Cultural */
+
+.kpis .kpi {
+  display: grid;
+  grid-template-columns: 46px minmax(0,1fr);
+  gap: 13px;
+  align-items: start;
+  min-height: 142px;
+  padding: 17px 15px;
+  background:
+    radial-gradient(circle at 105% -5%, color-mix(in srgb,var(--accent) 18%,transparent) 0 72px,transparent 73px),
+    linear-gradient(145deg,#fff 55%,var(--soft));
+  box-shadow: 0 10px 26px color-mix(in srgb,var(--accent) 10%,transparent);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.kpis .kpi:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb,var(--accent) 35%,#d8e4ee);
+  box-shadow: 0 16px 34px color-mix(in srgb,var(--accent) 17%,transparent);
+}
+
+.kpis .kpi::after { display:none; }
+
+.kpi-icon {
+  display:grid;
+  place-items:center;
+  width:46px;
+  height:46px;
+  border:1px solid color-mix(in srgb,var(--accent) 18%,#fff);
+  border-radius:15px;
+  color:var(--accent);
+  background:color-mix(in srgb,var(--soft) 78%,#fff);
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.38);
+}
+
+.kpi-icon svg {
+  width:25px;
+  height:25px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.kpi-copy { min-width:0; }
+.kpis .kpi span { color:color-mix(in srgb,var(--accent) 76%,#24364a); }
+.kpis .kpi strong { margin-top:9px;font-size:32px;color:#052f54; }
+.kpis .kpi small { margin-top:6px; }
+
+.months {
+  gap:9px;
+  padding-inline:8px;
+  border-bottom-color:#b9cfe0;
+  background:linear-gradient(180deg,rgba(237,245,251,.6),transparent 65%);
+  border-radius:12px 12px 0 0;
+}
+
+.month-bars { gap:4px; }
+.month-bars i {
+  width:14px;
+  background:linear-gradient(180deg,var(--month-top,#69b3e7),var(--month-bottom,#075a98));
+  box-shadow:0 4px 9px color-mix(in srgb,var(--month-bottom,#075a98) 20%,transparent);
+}
+.month-bars i.valid {
+  background:linear-gradient(180deg,#42c796,#07875d);
+  box-shadow:0 4px 9px rgba(7,135,93,.18);
+}
+.month:nth-child(3n+1){--month-top:#69b3e7;--month-bottom:#075a98}
+.month:nth-child(3n+2){--month-top:#58ced1;--month-bottom:#087c91}
+.month:nth-child(3n){--month-top:#8caef4;--month-bottom:#315aa9}
+.month-value { color:#173b5d; }
+
+.rank-list .rank-item {
+  padding:7px 8px;
+  border-radius:10px;
+  transition:background-color .16s ease;
+}
+.rank-list .rank-item:hover { background:#f3f8fc; }
+.rank-list .track { height:11px;background:#e8eff5;box-shadow:inset 0 1px 2px rgba(0,54,99,.08); }
+.rank-list .track i { background:linear-gradient(90deg,#42c9c8,#0870b7); }
+.rank-list .rank-item:nth-child(4n+2) .track i { background:linear-gradient(90deg,#72b7f2,#315aa9); }
+.rank-list .rank-item:nth-child(4n+3) .track i { background:linear-gradient(90deg,#9a8bea,#6d3db6); }
+.rank-list .rank-item:nth-child(4n) .track i { background:linear-gradient(90deg,#f1b34b,#d97706); }
+.rank-value { color:#063b69; }
+
+.territory-card {
+  background:
+    radial-gradient(circle at 92% 2%,rgba(105,179,231,.11),transparent 25rem),
+    #fff;
+}
+
+.map-stage {
+  overflow:hidden;
+  border-color:#bcd6e8;
+  background:
+    radial-gradient(circle at 50% 44%,#fff 0 8rem,transparent 25rem),
+    linear-gradient(145deg,#f4fafc,#e7f2f7);
+  box-shadow:inset 0 0 45px rgba(0,75,135,.05);
+}
+
+.map-svg { filter:drop-shadow(0 10px 12px rgba(0,54,99,.14)); }
+.municipality {
+  stroke:#fff;
+  stroke-width:1.45;
+  transition:opacity .15s,stroke-width .15s,filter .15s;
+}
+.municipality:hover {
+  stroke:#f5a000;
+  stroke-width:3;
+  filter:brightness(1.06) drop-shadow(0 2px 3px rgba(0,54,99,.28));
+}
+.municipality.selected {
+  stroke:#f59e0b;
+  stroke-width:4;
+  filter:brightness(1.06) drop-shadow(0 0 5px rgba(245,158,11,.72));
+}
+.municipality.no-data { fill:#d8e2eb!important; }
+.municipality.out { fill:#edf1f5!important;opacity:.62; }
+
+.map-legend {
+  min-width:205px;
+  padding:11px 13px;
+  border-color:#c5d9e8;
+  box-shadow:0 9px 24px rgba(0,54,99,.12);
+}
+.map-gradient {
+  width:100%;
+  height:10px;
+  border:1px solid rgba(0,54,99,.08);
+  background:linear-gradient(90deg,#dff4fb,#8fd8e7,#38b8c5,#177eb4,#075a98,#003663);
+}
+.map-no-data { display:flex;align-items:center;gap:6px;margin-top:8px;color:#64748b;font-size:8px; }
+.map-no-data i { width:11px;height:11px;border:1px solid #c5d1db;border-radius:3px;background:#d8e2eb; }
+
+.map-side {
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 110% -10%,rgba(105,179,231,.32),transparent 13rem),
+    linear-gradient(155deg,#052b48,#063f6a);
+  box-shadow:0 16px 34px rgba(5,43,72,.18);
+}
+.map-side::after {
+  content:"";
+  position:absolute;
+  right:-48px;
+  bottom:-62px;
+  width:150px;
+  height:150px;
+  border:25px solid rgba(105,179,231,.08);
+  border-radius:50%;
+  pointer-events:none;
+}
+.map-stat {
+  position:relative;
+  overflow:hidden;
+  border-left:4px solid var(--stat-color,#69b3e7);
+  background:linear-gradient(100deg,color-mix(in srgb,var(--stat-color) 16%,transparent),rgba(255,255,255,.05));
+}
+.map-stat-records{--stat-color:#69b3e7}
+.map-stat-valid{--stat-color:#3cc88e}
+.map-stat-people{--stat-color:#9b8afb}
+.map-stat-access{--stat-color:#48d0d1}
+.map-insight { border:1px solid rgba(125,225,222,.18);background:rgba(10,82,125,.8); }
+
+.territory-brief article:nth-child(3n+1){border-top:4px solid #075a98;background:linear-gradient(145deg,#fff,#ebf5fc)}
+.territory-brief article:nth-child(3n+2){border-top:4px solid #0891b2;background:linear-gradient(145deg,#fff,#e8f9fa)}
+.territory-brief article:nth-child(3n){border-top:4px solid #7c3aed;background:linear-gradient(145deg,#fff,#f3edff)}
+
+.map-tooltip { border:1px solid rgba(105,179,231,.35);box-shadow:0 14px 34px rgba(5,43,72,.34); }
+
+@media(max-width:760px){
+  .kpis .kpi { grid-template-columns:40px minmax(0,1fr);min-height:132px;padding:14px 12px; }
+  .kpi-icon { width:40px;height:40px;border-radius:13px; }
+  .kpi-icon svg { width:22px;height:22px; }
+  .kpis .kpi strong { font-size:27px; }
+  .map-legend { left:9px;bottom:9px;min-width:180px; }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .kpis .kpi:hover { transform:none; }
+}
