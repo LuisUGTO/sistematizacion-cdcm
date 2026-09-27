@@ -1,0 +1,203 @@
+/*
+ * Gobierno de la Gente 2024-2030
+ * Sistema visual digital para Vinculación Cultural - Etapa 7.7.9A
+ *
+ * Protest Strike se reserva para la construcción del logotipo, tal como
+ * indica el Manual de Identidad. La interfaz utiliza Vollkorn para títulos y
+ * Helvetica Neue LT Std para lectura funcional.
+ */
+
+.gto-institutional {
+  --gto-blue-900: #003663;
+  --gto-blue-800: #004b87;
+  --gto-blue-700: #075a98;
+  --gto-sky-500: #69b3e7;
+  --gto-ice-300: #c8d8eb;
+  --gto-ice-100: #edf5fb;
+  --gto-gray-900: #172033;
+  --gto-gray-700: #475569;
+  --gto-gray-500: #64748b;
+  --gto-gray-300: #c8c9c7;
+  --gto-gray-200: #d9e3ee;
+  --gto-gray-100: #f4f7fb;
+  --gto-white: #ffffff;
+
+  --gto-success: #087f5b;
+  --gto-warning: #b45309;
+  --gto-danger: #c2413b;
+  --gto-info: #075a98;
+
+  --gto-font-display: "Vollkorn", Georgia, "Times New Roman", serif;
+  --gto-font-text: "Helvetica Neue LT Std", "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
+
+  --gto-radius-sm: 8px;
+  --gto-radius-md: 12px;
+  --gto-radius-lg: 18px;
+  --gto-radius-xl: 24px;
+  --gto-shadow-sm: 0 4px 14px rgba(0, 75, 135, 0.08);
+  --gto-shadow-md: 0 14px 36px rgba(0, 75, 135, 0.12);
+  --gto-focus: 0 0 0 4px rgba(105, 179, 231, 0.28);
+
+  /* Compatibilidad con las variables de los módulos existentes. */
+  --blue: var(--gto-blue-800);
+  --blue-dark: var(--gto-blue-900);
+  --navy: var(--gto-blue-900);
+  --sky: var(--gto-sky-500);
+  --pale: var(--gto-ice-100);
+  --paper: var(--gto-gray-100);
+  --background: var(--gto-gray-100);
+  --ink: var(--gto-gray-900);
+  --muted: var(--gto-gray-500);
+  --line: var(--gto-gray-200);
+  --surface: var(--gto-white);
+  --success: var(--gto-success);
+  --warning: var(--gto-warning);
+  --danger: var(--gto-danger);
+
+  color-scheme: light;
+  accent-color: var(--gto-blue-800);
+}
+
+.gto-institutional body,
+.gto-institutional button,
+.gto-institutional input,
+.gto-institutional select,
+.gto-institutional textarea {
+  font-family: var(--gto-font-text);
+}
+
+.gto-institutional body {
+  color: var(--gto-gray-900);
+  background: var(--gto-gray-100);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.gto-institutional h1,
+.gto-institutional h2,
+.gto-institutional h3,
+.gto-institutional .font-identidad,
+.gto-institutional .kpi-number,
+.gto-institutional .brand strong,
+.gto-institutional .kpi strong,
+.gto-institutional .trust-metric strong,
+.gto-institutional .quality-kpi strong,
+.gto-institutional .territory-brief strong,
+.gto-institutional .map-side h3 {
+  font-family: var(--gto-font-display);
+  font-weight: 700;
+  letter-spacing: -0.012em;
+}
+
+.gto-institutional :where(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid var(--gto-blue-800);
+  outline-offset: 2px;
+  box-shadow: var(--gto-focus);
+}
+
+.gto-institutional :where(input, select, textarea) {
+  border-color: var(--gto-ice-300);
+  color: var(--gto-gray-900);
+  background-color: var(--gto-white);
+}
+
+.gto-institutional :where(input, select, textarea):hover {
+  border-color: var(--gto-sky-500);
+}
+
+.gto-institutional :where(input, select, textarea):focus {
+  border-color: var(--gto-blue-800);
+}
+
+.gto-institutional :where(button, .btn, .button) {
+  border-radius: var(--gto-radius-md);
+  transition: background-color 0.18s ease, border-color 0.18s ease,
+    color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.gto-institutional :where(button, .btn, .button):not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.gto-institutional :where(.btn.primary, .button.primary, .btn-primary) {
+  color: var(--gto-white);
+  border-color: var(--gto-blue-800);
+  background: var(--gto-blue-800);
+  box-shadow: 0 7px 16px rgba(0, 75, 135, 0.18);
+}
+
+.gto-institutional :where(.btn.primary, .button.primary, .btn-primary):hover:not(:disabled) {
+  border-color: var(--gto-blue-900);
+  background: var(--gto-blue-900);
+}
+
+.gto-institutional :where(.card, .panel, .kpi, .quality-kpi) {
+  border-color: var(--gto-gray-200);
+  background-color: var(--gto-white);
+}
+
+.gto-institutional :where(.top, .topbar, .app-header) {
+  border-top-color: var(--gto-blue-900) !important;
+  border-bottom-color: var(--gto-sky-500) !important;
+}
+
+.gto-institutional :where(.top, .topbar, .app-header)::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--gto-blue-800),
+    var(--gto-sky-500),
+    var(--gto-ice-300)
+  );
+}
+
+.gto-institutional :where(.state, .notice, .quality-note)[data-kind="error"],
+.gto-institutional :where(.capture-notice)[data-type="error"] {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+.gto-institutional :where(.capture-notice)[data-type="warning"] {
+  color: #92400e;
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.gto-institutional :where(.capture-notice)[data-type="success"] {
+  color: #065f46;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+.gto-institutional table th,
+.gto-institutional .table th {
+  color: var(--gto-blue-900);
+  background: var(--gto-ice-100);
+}
+
+.gto-institutional table tbody tr:hover,
+.gto-institutional .table tbody tr:hover {
+  background: #f8fbfe;
+}
+
+.gto-institutional ::selection {
+  color: var(--gto-white);
+  background: var(--gto-blue-800);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gto-institutional *,
+  .gto-institutional *::before,
+  .gto-institutional *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
