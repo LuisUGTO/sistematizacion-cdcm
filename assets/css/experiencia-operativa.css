@@ -1,0 +1,192 @@
+/* Etapa 7.7.9C — experiencia operativa institucional */
+
+.system-app,
+.admin-app,
+.access-app,
+.offline-app {
+  background:
+    radial-gradient(circle at 100% 0, rgba(105,179,231,.13), transparent 30rem),
+    var(--gto-gray-100);
+}
+
+.system-app .topbar,
+.admin-app .topbar {
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 8px 24px rgba(0,54,99,.08);
+  backdrop-filter: blur(14px);
+}
+
+.system-app .topbar-inner,
+.admin-app .topbar-inner {
+  max-width: 1760px;
+}
+
+.system-app .main,
+.admin-app main {
+  width: min(1760px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.system-app .tabs,
+.admin-app .tabs {
+  scrollbar-width: thin;
+  border: 1px solid var(--gto-gray-200);
+  background: rgba(255,255,255,.96);
+  box-shadow: var(--gto-shadow-sm);
+}
+
+.system-app .tabs button,
+.admin-app .tabs .tab {
+  min-height: 44px;
+  font-weight: 750;
+}
+
+.system-app .tabs button[aria-selected="true"],
+.system-app .tabs button.active,
+.admin-app .tabs .tab[aria-selected="true"] {
+  color: #fff;
+  border-color: var(--gto-blue-800);
+  background: linear-gradient(135deg,var(--gto-blue-900),var(--gto-blue-700));
+  box-shadow: 0 8px 18px rgba(0,75,135,.18);
+}
+
+.system-app :where(.card,.section-card,.home-context-card,.home-gallery-card),
+.admin-app :where(.card,.catalog-section) {
+  border-color: var(--gto-gray-200);
+  box-shadow: 0 10px 28px rgba(0,54,99,.065);
+}
+
+.system-app .section-card,
+.admin-app .card {
+  position: relative;
+  overflow: hidden;
+}
+
+.system-app .section-card::before,
+.admin-app .card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(var(--gto-blue-800),var(--gto-sky-500));
+  opacity: .85;
+}
+
+.system-app :where(input,select,textarea),
+.admin-app :where(input,select,textarea) {
+  min-height: 44px;
+  border-radius: 11px;
+}
+
+.system-app textarea,
+.admin-app textarea {
+  min-height: 92px;
+}
+
+.system-app :where(.btn,.button,button),
+.admin-app :where(.btn,.button,button) {
+  min-height: 42px;
+}
+
+.system-app :where(.btn-primary,.button-primary),
+.admin-app :where(.btn-primary,.button-primary) {
+  color: #fff;
+  border-color: var(--gto-blue-800);
+  background: linear-gradient(135deg,var(--gto-blue-900),var(--gto-blue-700));
+  box-shadow: 0 8px 18px rgba(0,75,135,.18);
+}
+
+.system-app .home-hero,
+.admin-app .hero {
+  border: 1px solid rgba(105,179,231,.45);
+  background:
+    radial-gradient(circle at 92% 5%, rgba(105,179,231,.28), transparent 19rem),
+    linear-gradient(125deg,var(--gto-blue-900),var(--gto-blue-700));
+  box-shadow: 0 18px 38px rgba(0,54,99,.17);
+}
+
+.system-app .home-hero :where(h1,h2,.hero-kicker),
+.admin-app .hero :where(h1,p) {
+  color: #fff;
+}
+
+.system-app .home-action-card {
+  border-color: var(--gto-gray-200);
+  background: linear-gradient(180deg,#fff,#f8fbfe);
+  box-shadow: var(--gto-shadow-sm);
+}
+
+.system-app .home-action-card:hover {
+  border-color: var(--gto-sky-500);
+  box-shadow: var(--gto-shadow-md);
+  transform: translateY(-2px);
+}
+
+.system-app :where(.toolbar,.filters),
+.admin-app .toolbar {
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--gto-gray-200);
+  border-radius: var(--gto-radius-lg);
+  background: var(--gto-white);
+}
+
+.system-app :where(.table-wrap,.table-container),
+.admin-app .table-wrap {
+  overflow: auto;
+  border: 1px solid var(--gto-gray-200);
+  border-radius: var(--gto-radius-lg);
+  background: #fff;
+}
+
+.system-app :where(dialog,.modal-content,.swal2-popup),
+.admin-app :where(dialog,.modal-content,.swal2-popup) {
+  border: 1px solid var(--gto-ice-300);
+  border-radius: var(--gto-radius-xl) !important;
+  box-shadow: 0 28px 70px rgba(0,54,99,.24) !important;
+}
+
+.admin-app .panel.active {
+  animation: gto-panel-in .22s ease-out;
+}
+
+.access-app .card,
+.offline-app .card {
+  border: 1px solid var(--gto-ice-300);
+  box-shadow: 0 24px 60px rgba(0,54,99,.16);
+}
+
+.access-app .card::before,
+.offline-app .card::before {
+  content: "";
+  display: block;
+  height: 7px;
+  margin: -1px -1px 24px;
+  border-radius: inherit;
+  background: linear-gradient(90deg,var(--gto-blue-900),var(--gto-sky-500));
+}
+
+@keyframes gto-panel-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 900px) {
+  .system-app .main,
+  .admin-app main { width: min(100% - 22px,1760px); }
+  .system-app .tabs,
+  .admin-app .tabs { overflow-x: auto; flex-wrap: nowrap; }
+  .system-app .tabs button,
+  .admin-app .tabs .tab { flex: 0 0 auto; }
+}
+
+@media (max-width: 600px) {
+  .system-app :where(.toolbar,.filters),
+  .admin-app .toolbar { padding: 10px; }
+  .system-app :where(.btn,.button,button),
+  .admin-app :where(.btn,.button,button) { min-height: 46px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-app .panel.active { animation: none; }
+}
