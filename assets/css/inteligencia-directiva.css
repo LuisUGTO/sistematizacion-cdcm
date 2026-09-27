@@ -1,0 +1,417 @@
+/* Etapa 7.7.9B - arquitectura directiva de Inteligencia Cultural */
+
+.gto-institutional .top {
+  border-top-width: 5px;
+  box-shadow: 0 5px 18px rgba(0, 54, 99, 0.08);
+}
+
+.gto-institutional .top-inner {
+  min-height: 74px;
+  padding: 8px 24px;
+}
+
+.gto-institutional .top .logo {
+  width: 72px;
+  height: 52px;
+}
+
+.gto-institutional .top .brand small {
+  color: var(--gto-gray-700);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+}
+
+.gto-institutional .top .brand strong {
+  font-size: 23px;
+}
+
+.gto-institutional main#app {
+  max-width: 1920px;
+  padding: 18px;
+}
+
+.intelligence-layout {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.director-sidebar {
+  position: sticky;
+  top: 92px;
+  min-height: calc(100vh - 112px);
+  padding: 17px 14px;
+  overflow: hidden;
+  border: 1px solid rgba(105, 179, 231, 0.26);
+  border-radius: 20px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(105, 179, 231, 0.2), transparent 36%),
+    linear-gradient(160deg, #003663 0%, #052b48 62%, #141c2e 100%);
+  box-shadow: 0 18px 36px rgba(0, 54, 99, 0.2);
+}
+
+.director-sidebar-head {
+  padding: 5px 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.director-sidebar-head small {
+  display: block;
+  color: var(--gto-sky-500);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.director-sidebar-head strong {
+  display: block;
+  margin-top: 7px;
+  color: #fff;
+  font-family: var(--gto-font-display);
+  font-size: 23px;
+  line-height: 1.05;
+}
+
+.director-sidebar-head p {
+  margin: 7px 0 0;
+  color: #d8eafb;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.gto-institutional .director-sidebar .view-nav {
+  position: static;
+  display: grid;
+  gap: 8px;
+  margin-top: 13px;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.gto-institutional .director-sidebar .view-nav button {
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr);
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border-color: rgba(200, 216, 235, 0.2);
+  color: #edf6ff;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.gto-institutional .director-sidebar .view-nav button:hover {
+  border-color: rgba(105, 179, 231, 0.72);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.gto-institutional .director-sidebar .view-nav button span {
+  width: 31px;
+  height: 31px;
+  color: var(--gto-sky-500);
+  background: rgba(105, 179, 231, 0.13);
+}
+
+.gto-institutional .director-sidebar .view-nav button.active {
+  border-color: var(--gto-sky-500);
+  border-left: 4px solid var(--gto-sky-500);
+  color: #fff;
+  background: linear-gradient(90deg, rgba(0, 75, 135, 0.96), rgba(7, 90, 152, 0.5));
+  box-shadow: 0 9px 18px rgba(0, 0, 0, 0.18);
+}
+
+.director-sidebar-note {
+  margin: 17px 4px 0;
+  padding: 13px;
+  border: 1px solid rgba(105, 179, 231, 0.22);
+  border-radius: 13px;
+  color: #d8eafb;
+  background: rgba(0, 75, 135, 0.2);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.director-sidebar-note strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #fff;
+  font-size: 10px;
+}
+
+.director-workspace {
+  min-width: 0;
+}
+
+.gto-institutional .hero {
+  min-height: 192px;
+  padding: 25px 30px;
+  border-radius: 20px;
+  box-shadow: 0 14px 30px rgba(0, 54, 99, 0.17);
+}
+
+.gto-institutional .hero h1 {
+  max-width: 1050px;
+  margin: 5px 0;
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.05;
+}
+
+.gto-institutional .hero p {
+  max-width: 950px;
+  font-size: 12px;
+}
+
+.gto-institutional .hero-meta {
+  margin-top: 14px;
+}
+
+.gto-institutional .hero-meta span {
+  padding: 5px 9px;
+}
+
+.gto-institutional .view-intro {
+  margin-top: 12px;
+  padding: 10px 14px;
+}
+
+.gto-institutional .filters {
+  position: sticky;
+  top: 82px;
+  z-index: 12;
+  grid-template-columns: 165px 105px minmax(150px, 1fr) minmax(150px, 1fr) minmax(150px, 1fr) auto;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 15px;
+  box-shadow: 0 8px 22px rgba(0, 54, 99, 0.1);
+}
+
+.gto-institutional .field select {
+  min-height: 39px;
+  padding: 7px 9px;
+  font-size: 11px;
+}
+
+.gto-institutional .filter-actions .btn {
+  min-height: 39px;
+  padding: 8px 12px;
+}
+
+.gto-institutional .state {
+  padding: 7px 10px;
+}
+
+.gto-institutional .trust {
+  grid-template-columns: minmax(250px, 1.35fr) repeat(4, minmax(120px, 0.55fr));
+  margin-top: 12px;
+  border-radius: 13px;
+}
+
+.gto-institutional .trust-main,
+.gto-institutional .trust-metric {
+  padding: 11px 13px;
+}
+
+.gto-institutional .kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 12px;
+}
+
+.gto-institutional .kpi {
+  min-height: 105px;
+  padding: 14px 16px;
+  border-top-width: 0;
+  border-left: 4px solid var(--accent, var(--gto-blue-800));
+  border-radius: 14px;
+  box-shadow: var(--gto-shadow-sm);
+}
+
+.gto-institutional .kpi strong {
+  margin-top: 8px;
+  font-size: 29px;
+}
+
+.gto-institutional .kpi small {
+  margin-top: 4px;
+}
+
+.gto-institutional .grid {
+  gap: 13px;
+  margin-top: 13px;
+}
+
+.gto-institutional .card {
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: var(--gto-shadow-sm);
+}
+
+.gto-institutional .card-head {
+  margin-bottom: 13px;
+}
+
+.gto-institutional .card h2 {
+  font-size: 20px;
+}
+
+.gto-institutional .map-layout {
+  grid-template-columns: minmax(0, 1fr) 310px;
+}
+
+.gto-institutional .map-stage,
+.gto-institutional .map-svg {
+  min-height: 500px;
+  height: 500px;
+}
+
+.gto-institutional .map-side {
+  padding: 18px;
+  border: 1px solid rgba(105, 179, 231, 0.28);
+  background: linear-gradient(165deg, #003663, #052b48);
+  box-shadow: 0 14px 28px rgba(0, 54, 99, 0.2);
+}
+
+.gto-institutional .map-stat {
+  padding: 10px 11px;
+}
+
+.gto-institutional .map-insight {
+  border-left: 3px solid var(--gto-sky-500);
+}
+
+.gto-institutional .footer {
+  padding-bottom: 12px;
+}
+
+@media (min-width: 1600px) {
+  .gto-institutional .kpis {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1200px) {
+  .intelligence-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .director-sidebar {
+    position: static;
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .director-sidebar-head,
+  .director-sidebar-note {
+    display: none;
+  }
+
+  .gto-institutional .director-sidebar .view-nav {
+    display: flex;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .gto-institutional .director-sidebar .view-nav button {
+    display: flex;
+    min-width: max-content;
+  }
+
+  .gto-institutional .filters {
+    top: 80px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .gto-institutional main#app {
+    padding: 10px;
+  }
+
+  .gto-institutional .top-inner {
+    padding: 7px 12px;
+  }
+
+  .gto-institutional .identity {
+    display: none;
+  }
+
+  .gto-institutional .top-actions {
+    gap: 5px;
+  }
+
+  .gto-institutional .top-actions .btn {
+    padding: 8px 9px;
+    font-size: 10px;
+  }
+
+  .intelligence-layout {
+    gap: 10px;
+  }
+
+  .director-sidebar {
+    border-radius: 14px;
+  }
+
+  .gto-institutional .director-sidebar .view-nav button {
+    padding: 8px 10px;
+  }
+
+  .gto-institutional .hero {
+    min-height: 175px;
+    padding: 22px 18px;
+  }
+
+  .gto-institutional .filters {
+    position: static;
+    grid-template-columns: 1fr;
+  }
+
+  .gto-institutional .trust,
+  .gto-institutional .kpis {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gto-institutional .trust-main,
+  .gto-institutional .trust-alert {
+    grid-column: 1 / -1;
+  }
+
+  .gto-institutional .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gto-institutional .map-stage,
+  .gto-institutional .map-svg {
+    min-height: 360px;
+    height: 360px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gto-institutional .top .logo {
+    width: 54px;
+  }
+
+  .gto-institutional .top .brand small {
+    display: none;
+  }
+
+  .gto-institutional .top .brand strong {
+    font-size: 17px;
+  }
+
+  .gto-institutional .trust,
+  .gto-institutional .kpis {
+    grid-template-columns: 1fr;
+  }
+}
