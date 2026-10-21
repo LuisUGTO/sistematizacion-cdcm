@@ -1,0 +1,13 @@
+# GitHub Pages publica sólo la aplicación y sus recursos.
+# Mantener activado el procesamiento Jekyll (no añadir .nojekyll).
+exclude:
+  - docs
+  - auditoria
+  - sql
+  - supabase
+  - tests
+  - scripts
+  - node_modules
+  - package.json
+  - pnpm-lock.yaml
+  - README.md

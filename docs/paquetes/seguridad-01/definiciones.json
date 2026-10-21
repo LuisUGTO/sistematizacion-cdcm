@@ -1,0 +1,47 @@
+[
+  {
+    "firma": "v2.rpc_superadmin_actualizar_nombre_usuario(uuid,text)",
+    "md5_anterior": "369f331f96a1bd08c006428f248dda28",
+    "md5_corregida": "34926bfd6d324ba6db8a5eeb24bc46e3"
+  },
+  {
+    "firma": "v2.rpc_get_registro_validacion(uuid)",
+    "md5_anterior": "559fcc6123f15f7af188c3d7f2f11358",
+    "md5_corregida": "4667f3edb0c3e2493291f808b4c9c0e4"
+  },
+  {
+    "firma": "v2.rpc_decide_validacion(uuid,integer,text,text)",
+    "md5_anterior": "a681d8edb0590925bfe2f78054183106",
+    "md5_corregida": "4f3dd7610634dec7776602e58f84c8d6"
+  },
+  {
+    "firma": "v2.rpc_import_preparar(text,text,jsonb)",
+    "md5_anterior": "4f5b14bbaf50268589d603db5847bde7",
+    "md5_corregida": "9231a79e1c6b92bec1fbadcb921fbd4b"
+  },
+  {
+    "firma": "v2.rpc_import_cargar_lote(uuid,jsonb)",
+    "md5_anterior": "b88b3bc70616a72293944dffed85e328",
+    "md5_corregida": "2bba1df0268a61c220e95028b1d440a8"
+  },
+  {
+    "firma": "v2.rpc_import_confirmar(uuid)",
+    "md5_anterior": "ebbc4b490c2fe5e55c29bba555d5b98e",
+    "md5_corregida": "9da4d13e47e4ae29828251a76c84b2b6"
+  },
+  {
+    "firma": "v2.rpc_import_historial()",
+    "md5_anterior": "ece13393db4e4367871e9fdd4259e3ef",
+    "md5_corregida": "f718f85c974ae91be8b2ba7de784944a"
+  },
+  {
+    "firma": "v2_private.authorize_status_transition()",
+    "md5_anterior": "34cc11892d987662493fc1fb67d1d17e",
+    "md5_corregida": "f7fca46310ba487466093bbece40301e"
+  },
+  {
+    "firma": "v2_private.protect_superadmin()",
+    "md5_anterior": "e954af7614fc908f9aaa7d898d12a6c4",
+    "md5_corregida": "84438e5341c9aca46ffe7b60b0fd0125"
+  }
+]

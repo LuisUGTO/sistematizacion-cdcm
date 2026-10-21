@@ -1,0 +1,11 @@
+{
+  "name": "vinculacion-cultural",
+  "private": true,
+  "version": "2.1.4",
+  "scripts": {
+    "test": "node --test tests/seguridad-paquete-1.test.cjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10"
+  }
+}

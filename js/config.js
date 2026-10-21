@@ -14,7 +14,7 @@ export const APP_CONFIG = Object.freeze({
   app: Object.freeze({
     name: "Sistematización de Vinculación Cultural",
     shortName: "Vinculación Cultural",
-    version: "2.1.3",
+    version: "2.1.4",
     environment: "production",
   }),
 
