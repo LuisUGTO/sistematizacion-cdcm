@@ -21,6 +21,41 @@
     "lineas": 7
   },
   {
+    "archivo": "actualizacion_sistema/CDCM PEC 2026.xlsx",
+    "bytes": 264073,
+    "sha256": "cc716a0223050941f17b7cff2a885e182a4ce81d395043de55b7b83c481cb82e",
+    "alcance": "Inventariado; contenido binario sin auditoría semántica",
+    "lineas": null
+  },
+  {
+    "archivo": "actualizacion_sistema/Cruce acciones CDCM PEC PNC PGGTO.xlsx",
+    "bytes": 26865,
+    "sha256": "05b13560199b86993b8eb36da141acf00cd0811866707e47e8f2e48f7f878d93",
+    "alcance": "Inventariado; contenido binario sin auditoría semántica",
+    "lineas": null
+  },
+  {
+    "archivo": "actualizacion_sistema/MACHOTE 2026 - Reporte de Actividades.xlsx",
+    "bytes": 1924244,
+    "sha256": "f3cf914afcb33aa13a547cd3e353312a095e194ca69df12940992a4a8a24b249",
+    "alcance": "Inventariado; contenido binario sin auditoría semántica",
+    "lineas": null
+  },
+  {
+    "archivo": "actualizacion_sistema/Proyecto para Luis (Plataforma).xlsx",
+    "bytes": 1030671,
+    "sha256": "98a596015f9b85728c72d061f0af36c4e01bc39050df21054709016301113374",
+    "alcance": "Inventariado; contenido binario sin auditoría semántica",
+    "lineas": null
+  },
+  {
+    "archivo": "actualizacion_sistema/Reunión con Luis.docx",
+    "bytes": 198116,
+    "sha256": "0e184efec77a286a1b1db435f4e7ec784dec94be571befdaa224611130cadd11",
+    "alcance": "Inventariado; contenido binario sin auditoría semántica",
+    "lineas": null
+  },
+  {
     "archivo": "admin.html",
     "bytes": 51521,
     "sha256": "90e80b62bb4790a8051fc153367abf8dff26f3f78898363a5e7a65a89f3f4f3a",
@@ -30,11 +65,25 @@
     "scriptsInline": []
   },
   {
+    "archivo": "AGENTS.md",
+    "bytes": 2591,
+    "sha256": "8c991504ff35f9b618b3cf015323870f58059fd38713e49131ae04dc0ce0d285",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 14
+  },
+  {
     "archivo": "assets/brand/pulso-q-logo.png",
     "bytes": 195349,
     "sha256": "d1348d57e7c9d0249d8c887ee135b7e9ee65cd8f146fd02f0c18fa07abebfc40",
     "alcance": "Inventariado; contenido binario sin auditoría semántica",
     "lineas": null
+  },
+  {
+    "archivo": "assets/css/captura-matriz-2026.css",
+    "bytes": 17612,
+    "sha256": "19a8374b6090ab53d4d12840f15a035620ab8b78a899db08c5ac5dc67c34b68c",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 864
   },
   {
     "archivo": "assets/css/experiencia-operativa.css",
@@ -183,6 +232,13 @@
     ]
   },
   {
+    "archivo": "CONTEXTO_PROYECTO.md",
+    "bytes": 26118,
+    "sha256": "b59d701d2e185860aeea6e243c70f432cf9a69e3c2d28314464eeb459af2e6e5",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 214
+  },
+  {
     "archivo": "docs/historico/DIAGNOSTICO_ARCHIVOS_EXCEL_ETAPA_6_4.md",
     "bytes": 1901,
     "sha256": "8301cbcb0d5b3311e959e7a6987cf804b5bbec0c109248758d62483033b0a365",
@@ -191,10 +247,10 @@
   },
   {
     "archivo": "docs/historico/LEEME_ETAPA_7_1.md",
-    "bytes": 2218,
-    "sha256": "621e3debae8193c5d544c9814c37b1972a55c152d0e0300ce151cac2a2f82217",
+    "bytes": 2601,
+    "sha256": "fb0a3c8c0f44044e1a438d9ec27999de140675ea514d47c47c30489bce880bd5",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 56
+    "lineas": 58
   },
   {
     "archivo": "docs/LIMPIEZA.md",
@@ -221,24 +277,24 @@
   },
   {
     "archivo": "docs/paquetes/seguridad-01/LEEME.md",
-    "bytes": 4974,
-    "sha256": "ef0f23d1253b5dd200370bf944043c902d30980c14f6a973b3d29e02b94433a7",
+    "bytes": 5269,
+    "sha256": "5ec74f9a32f2f0effa2d00c555ea5e71a9190058c7978aa0a278ce192afa96bf",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 46
   },
   {
     "archivo": "docs/paquetes/seguridad-01/VALIDACION.md",
-    "bytes": 2144,
-    "sha256": "54f0a382fe688a6b847ca7de8850456f0de4580178f596c2fd2fbb868bf6d692",
+    "bytes": 3234,
+    "sha256": "cf65226dcc4e0acaca48b35e6b5d19b9525019a171e313f93fac4cd4e9506f2f",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 27
+    "lineas": 35
   },
   {
     "archivo": "docs/Vinculacion_V2_Blueprint.md",
-    "bytes": 27228,
-    "sha256": "f15ec0d68024d3c25bfe8b26328ed7f77282aeaf4c44c85933367d524b611f99",
+    "bytes": 27551,
+    "sha256": "f90012bca3d72e3979821e7b0ea91946a1889e70c123d9ed1b1b3bef06e04009",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 1864
+    "lineas": 1866
   },
   {
     "archivo": "establecer-acceso.html",
@@ -251,10 +307,10 @@
   },
   {
     "archivo": "index.html",
-    "bytes": 207296,
-    "sha256": "08388bad83993a91148bfab4a7191bb922d1d8b6c21d9a7335419b91f0f57e5f",
+    "bytes": 218497,
+    "sha256": "b2745d4ae32e098626f405943580d63096a3b2c52ea678baf3bf6584d22b5cbb",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 7950,
+    "lineas": 8190,
     "referenciasLocalesAusentes": [],
     "scriptsInline": [
       "PASS"
@@ -293,6 +349,15 @@
     "sha256": "261a9090abfd5493ae54292fd0135f2102c292bb50f982efddec3a4a594a408e",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 1135,
+    "sintaxis": "PASS",
+    "referenciasLocalesAusentes": []
+  },
+  {
+    "archivo": "js/capture-matrix.js",
+    "bytes": 76648,
+    "sha256": "1ac1470de70e7bb93fc36e30b4f8664c1f02d59d57b80f8e0967c274329b2144",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 2239,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -508,10 +573,10 @@
   },
   {
     "archivo": "README.md",
-    "bytes": 2800,
-    "sha256": "d84f428ffa836baf54eee0f3ca554a4371dceb6c5347a89fa85741eac2e2e77d",
+    "bytes": 3741,
+    "sha256": "b0373141b4860f0f4e95b1273827cb3c83a1831bd3843edb1b1e95437ecf5b5e",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 43
+    "lineas": 47
   },
   {
     "archivo": "scripts/preparar-paquete-seguridad.cjs",
@@ -1150,10 +1215,10 @@
   },
   {
     "archivo": "sw.js",
-    "bytes": 2973,
-    "sha256": "f5ec288bfe88e1877b48b445343ba20b99ddc26491d1a71b88610b5eec01689d",
+    "bytes": 3125,
+    "sha256": "df4a197b7e0dfbb4befaa0faf575d1694a0bab952fef84c991e5ed8342bbf24d",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 105,
+    "lineas": 109,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },

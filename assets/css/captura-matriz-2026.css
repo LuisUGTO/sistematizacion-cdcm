@@ -1,0 +1,863 @@
+/* ==========================================================================
+ * Casas de la Cultura — Matriz Mensual de Captura PEC 2026 (Paso 1)
+ * Integrada al sistema visual Gobierno de la Gente (.gto-institutional)
+ * ========================================================================== */
+
+.capture-mode-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+  border-radius: var(--gto-radius-lg, 18px);
+  background: linear-gradient(135deg, #ffffff 0%, #f3f8fd 100%);
+  box-shadow: var(--gto-shadow-sm, 0 4px 14px rgba(0, 75, 135, 0.08));
+}
+
+.capture-mode-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.capture-mode-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gto-blue-800, #004b87);
+}
+
+.capture-mode-badge-new {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+}
+
+.capture-mode-bar-info p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--gto-gray-700, #475569);
+}
+
+.capture-mode-switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--gto-ice-100, #edf5fb);
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+}
+
+.capture-mode-btn {
+  min-height: 38px !important;
+  padding: 7px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px !important;
+  background: transparent;
+  color: var(--gto-gray-700, #475569);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.capture-mode-btn:hover {
+  color: var(--gto-blue-900, #003663);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.capture-mode-btn.active {
+  color: #ffffff;
+  border-color: var(--gto-blue-800, #004b87);
+  background: linear-gradient(135deg, var(--gto-blue-900, #003663), var(--gto-blue-700, #075a98));
+  box-shadow: 0 4px 12px rgba(0, 75, 135, 0.2);
+}
+
+/* Contenedor principal de la Matriz 2026 */
+.matrix-2026-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.matrix-2026-shell[hidden] {
+  display: none !important;
+}
+
+/* Encabezado de datos generales del mes */
+.matrix-general-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.matrix-general-title h2 {
+  margin: 4px 0 6px;
+  font-size: 1.45rem;
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-general-title p {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 0.92rem;
+  color: var(--gto-gray-700, #475569);
+}
+
+.matrix-autosave-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--gto-blue-900, #003663);
+  background: var(--gto-ice-100, #edf5fb);
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+  white-space: nowrap;
+}
+
+.matrix-autosave-pill[data-state="saved"] {
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.matrix-general-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.matrix-unit-readonly {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+  background: linear-gradient(180deg, #f8fbfe, #edf5fb);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-unit-readonly small {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--gto-blue-700, #075a98);
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+}
+
+.matrix-elabora-row {
+  display: flex;
+  gap: 8px;
+}
+
+.matrix-elabora-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.matrix-mini-btn {
+  min-height: 44px !important;
+  padding: 0 12px;
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+  border-radius: 11px !important;
+  background: #ffffff;
+  color: var(--gto-blue-800, #004b87);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.matrix-mini-btn:hover {
+  border-color: var(--gto-blue-800, #004b87);
+  background: var(--gto-ice-100, #edf5fb);
+}
+
+/* Tira de KPIs del reporte mensual */
+.matrix-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+  gap: 12px;
+}
+
+.matrix-kpi-card {
+  padding: 14px 16px;
+  border: 1px solid var(--gto-gray-200, #d9e3ee);
+  border-radius: var(--gto-radius-md, 12px);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 54, 99, 0.045);
+}
+
+.matrix-kpi-card.highlight {
+  border-color: #93c5fd;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+}
+
+.matrix-kpi-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gto-gray-500, #64748b);
+}
+
+.matrix-kpi-value {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--gto-font-display, Georgia, serif);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-kpi-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.79rem;
+  color: var(--gto-gray-700, #475569);
+}
+
+/* Navegador de Ejes y Pestañas tipo Libro de Excel */
+.matrix-workbook-card {
+  padding: 18px 20px;
+}
+
+.matrix-axes-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.matrix-axis-group {
+  padding: 10px 12px;
+  border: 1px solid var(--gto-gray-200, #d9e3ee);
+  border-radius: 14px;
+  background: #f8fbfe;
+}
+
+.matrix-axis-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.73rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-sheet-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.matrix-sheet-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px !important;
+  padding: 6px 11px;
+  border: 1px solid var(--gto-gray-200, #d9e3ee);
+  border-radius: 9px !important;
+  background: #ffffff;
+  color: var(--gto-gray-700, #475569);
+  font-size: 0.81rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.matrix-sheet-tab:hover {
+  border-color: var(--gto-sky-500, #69b3e7);
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-sheet-tab.active {
+  color: #ffffff;
+  border-color: var(--gto-blue-800, #004b87);
+  background: linear-gradient(135deg, var(--gto-blue-900, #003663), var(--gto-blue-700, #075a98));
+  box-shadow: 0 5px 14px rgba(0, 75, 135, 0.22);
+}
+
+.matrix-sheet-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: var(--gto-ice-100, #edf5fb);
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-sheet-tab.active .matrix-sheet-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* Barra de herramientas de la hoja activa */
+.matrix-sheet-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: var(--gto-ice-100, #edf5fb);
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+}
+
+.matrix-sheet-meta h3 {
+  margin: 0;
+  font-size: 1.12rem;
+  color: var(--gto-blue-900, #003663);
+}
+
+.matrix-sheet-meta p {
+  margin: 3px 0 0;
+  font-size: 0.84rem;
+  color: var(--gto-gray-700, #475569);
+}
+
+.matrix-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.matrix-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px !important;
+  padding: 6px 12px;
+  border: 1px solid var(--gto-ice-300, #c8d8eb);
+  border-radius: 10px !important;
+  background: #ffffff;
+  color: var(--gto-blue-900, #003663);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.matrix-btn:hover {
+  border-color: var(--gto-blue-800, #004b87);
+  background: #f8fbfe;
+}
+
+.matrix-btn.primary {
+  color: #ffffff;
+  border-color: var(--gto-blue-800, #004b87);
+  background: linear-gradient(135deg, var(--gto-blue-900, #003663), var(--gto-blue-700, #075a98));
+}
+
+.matrix-btn.primary:hover {
+  filter: brightness(1.05);
+}
+
+.matrix-btn.accent {
+  color: #065f46;
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+}
+
+.matrix-btn.accent:hover {
+  background: #d1fae5;
+}
+
+.matrix-btn.danger-soft {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+/* Contenedor de grilla tipo Excel */
+.matrix-grid-viewport {
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--gto-gray-300, #cbd5e1);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.matrix-excel-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+}
+
+.matrix-excel-table th,
+.matrix-excel-table td {
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 5px 6px;
+  vertical-align: middle;
+}
+
+.matrix-excel-table thead tr:first-child th {
+  padding: 7px 8px;
+  font-size: 0.73rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #ffffff;
+  background: var(--gto-blue-900, #003663);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.matrix-excel-table thead tr:first-child th.th-group-demo {
+  background: #075a98;
+}
+
+.matrix-excel-table thead tr:first-child th.th-group-primera {
+  background: #0d6e5b;
+}
+
+.matrix-excel-table thead tr:first-child th.th-group-total {
+  background: #064e3b;
+}
+
+.matrix-excel-table thead tr:nth-child(2) th {
+  padding: 6px 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--gto-blue-900, #003663);
+  background: var(--gto-ice-100, #edf5fb);
+  white-space: nowrap;
+}
+
+.matrix-excel-table thead tr:nth-child(2) th.th-primera-sub {
+  background: #e6f7f2;
+  color: #065f46;
+}
+
+.matrix-excel-table tbody tr:nth-child(even) td {
+  background: #fbfdff;
+}
+
+.matrix-excel-table tbody tr:hover td {
+  background: #f0f7ff;
+}
+
+/* Columnas fijas (congeladas estilo Excel en pantallas amplias) */
+@media (min-width: 1024px) {
+  .matrix-excel-table .sticky-col-num {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: #f8fafc;
+  }
+
+  .matrix-excel-table thead .sticky-col-num {
+    z-index: 5;
+  }
+
+  .matrix-excel-table .sticky-col-main {
+    position: sticky;
+    left: 40px;
+    z-index: 3;
+    background: #ffffff;
+    box-shadow: 3px 0 6px -3px rgba(0, 54, 99, 0.12);
+  }
+
+  .matrix-excel-table tbody tr:nth-child(even) .sticky-col-main {
+    background: #fbfdff;
+  }
+
+  .matrix-excel-table tbody tr:hover .sticky-col-main {
+    background: #f0f7ff;
+  }
+
+  .matrix-excel-table thead .sticky-col-main {
+    z-index: 5;
+  }
+
+  .matrix-excel-table .sticky-col-total {
+    position: sticky;
+    right: 0;
+    z-index: 3;
+    box-shadow: -3px 0 6px -3px rgba(0, 54, 99, 0.12);
+  }
+
+  .matrix-excel-table thead .sticky-col-total {
+    z-index: 5;
+  }
+}
+
+.cell-row-num {
+  width: 40px;
+  min-width: 40px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.76rem;
+  color: var(--gto-gray-500, #64748b);
+  user-select: none;
+}
+
+/* Controles compactos dentro de celdas de la tabla */
+.matrix-excel-table input[type="text"],
+.matrix-excel-table input[type="date"],
+.matrix-excel-table input[type="number"],
+.matrix-excel-table select {
+  min-height: 32px !important;
+  height: 32px;
+  padding: 4px 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px !important;
+  font-size: 0.81rem;
+  background: #ffffff;
+  color: var(--gto-gray-900, #172033);
+}
+
+.matrix-excel-table input:focus,
+.matrix-excel-table select:focus {
+  border-color: var(--gto-blue-800, #004b87);
+  background: #fffef7;
+  box-shadow: 0 0 0 2px rgba(105, 179, 231, 0.35);
+}
+
+.cell-input-main {
+  width: 225px;
+  font-weight: 600;
+}
+
+.cell-input-medium {
+  width: 155px;
+}
+
+.cell-input-short {
+  width: 118px;
+}
+
+.cell-input-date {
+  width: 126px;
+}
+
+.cell-input-demo {
+  width: 54px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.cell-input-demo.zero-muted {
+  color: #94a3b8;
+}
+
+.cell-input-demo.primera-cell {
+  background: #f5fbf9;
+  border-color: #a7f3d0;
+}
+
+.cell-input-money {
+  width: 88px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Botones de días L-M-Mi-J-V-S-D */
+.days-pill-group {
+  display: inline-flex;
+  gap: 3px;
+  padding: 2px;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.day-pill {
+  min-height: 26px !important;
+  width: 25px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px !important;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.71rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.day-pill:hover {
+  border-color: var(--gto-blue-700, #075a98);
+}
+
+.day-pill.is-on {
+  color: #ffffff;
+  border-color: var(--gto-blue-800, #004b87);
+  background: var(--gto-blue-800, #004b87);
+}
+
+/* Celda de territorio (Cabecera / Comunidad / Colonia + cascada) */
+.territory-cell-stack {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.select-zona-tipo {
+  width: 108px;
+  font-weight: 700;
+}
+
+.select-zona-tipo[data-zona="CABECERA"] {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.select-zona-tipo[data-zona="COMUNIDAD"] {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.select-zona-tipo[data-zona="COLONIA"] {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.select-cascade-settlement {
+  width: 185px;
+}
+
+.select-cascade-settlement:disabled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.btn-quick-add-settlement {
+  min-height: 30px !important;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px dashed var(--gto-blue-700, #075a98);
+  border-radius: 7px !important;
+  background: #f0f7ff;
+  color: var(--gto-blue-800, #004b87);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-quick-add-settlement:hover {
+  background: var(--gto-blue-800, #004b87);
+  color: #ffffff;
+}
+
+/* Costo / Libre acceso */
+.fee-cell-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fee-cell-inline select {
+  width: 98px;
+}
+
+.fee-cell-inline input {
+  width: 72px;
+  text-align: right;
+}
+
+/* Celda de Total Automático */
+.cell-auto-total {
+  min-width: 92px;
+  text-align: center;
+  background: #ecfdf5 !important;
+}
+
+.auto-total-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  font-variant-numeric: tabular-nums;
+}
+
+.auto-total-badge strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.auto-total-badge small {
+  font-size: 0.67rem;
+  color: #047857;
+}
+
+/* Acciones por fila */
+.row-actions-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.row-icon-btn {
+  min-height: 28px !important;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0 1px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px !important;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.row-icon-btn:hover {
+  border-color: var(--gto-blue-700, #075a98);
+  color: var(--gto-blue-900, #003663);
+}
+
+.row-icon-btn.delete:hover {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Fila de sumatoria inferior (Footer de la tabla) */
+.matrix-excel-table tfoot td {
+  padding: 8px 7px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  background: #f1f6fc;
+  color: var(--gto-blue-900, #003663);
+  border-top: 2px solid var(--gto-blue-800, #004b87);
+}
+
+.tfoot-demo-sum {
+  text-align: right;
+  font-size: 0.82rem;
+}
+
+.tfoot-grand-total {
+  text-align: center;
+  font-size: 0.98rem;
+  background: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+/* Panel de Regla PEC 2026: Máximo de alumnos en el periodo */
+.matrix-continuity-panel {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
+}
+
+.matrix-continuity-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.matrix-continuity-head strong {
+  color: var(--gto-blue-900, #003663);
+  font-size: 0.9rem;
+}
+
+.matrix-continuity-head span {
+  font-size: 0.8rem;
+  color: var(--gto-gray-700, #475569);
+}
+
+.matrix-continuity-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.continuity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #93c5fd;
+  font-size: 0.79rem;
+  color: var(--gto-gray-900, #172033);
+}
+
+.continuity-chip b {
+  color: #065f46;
+  background: #ecfdf5;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid #6ee7b7;
+}
+
+/* Barra final de guardado */
+.matrix-footer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.matrix-footer-bar p {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: var(--gto-gray-700, #475569);
+  max-width: 72ch;
+}
+
+.matrix-footer-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

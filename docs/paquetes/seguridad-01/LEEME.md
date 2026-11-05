@@ -1,6 +1,6 @@
 # Paquete 1: seguridad y permisos
 
-Estado: preparado localmente; no ejecutado en Supabase ni publicado en GitHub.
+Estado al 31 de octubre de 2026: paquete versionado en el commit local `edee827`. La referencia local `origin/main` coincide; no se consultó el remoto en vivo. La aplicación en Supabase y la publicación del sitio siguen sin verificación actual; al preparar estas instrucciones se reportaban pendientes. Véase `../../../CONTEXTO_PROYECTO.md` para el estado consolidado.
 
 ## Cambios
 

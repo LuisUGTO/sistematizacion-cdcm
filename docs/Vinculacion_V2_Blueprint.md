@@ -1,4 +1,6 @@
 # VINCULACIÓN CULTURAL 2.0
+
+> Nota de vigencia (31 de octubre de 2026): se conserva como antecedente de diseño. Sus releases, estructura propuesta y siguientes pasos no son una certificación de lo instalado ni el backlog actual. Consultar [CONTEXTO_PROYECTO.md](../CONTEXTO_PROYECTO.md) para implementación, diferencias y prioridades verificadas.
 ## Blueprint Técnico Definitivo — Secretaría de Cultura de Guanajuato
 
 **Versión:** 2.0  

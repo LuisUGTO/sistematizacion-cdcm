@@ -1,5 +1,13 @@
 # Validación local del paquete 1
 
+## Alcance de la actualización del 31 de octubre de 2026
+
+Los resultados de 14 pruebas que siguen son evidencia previa conservada, no una ejecución de esta auditoría. No se volvió a ejecutar `pnpm test`: aplica el paquete SQL en PGlite y la solicitud actual prohíbe ejecutar migraciones SQL. Se realiza sólo inventario estático (sintaxis JS/CJS, scripts HTML, JSON y referencias locales) y `git diff --check`; estos controles no validan SQL, TypeScript/Deno, servicios ni recorridos de usuario. Consultar el inventario actualizado y `../../../CONTEXTO_PROYECTO.md` para límites y estado al corte.
+
+## Resultado previo
+
+Resultado estático del 31 de octubre: 130 archivos inventariados (119 de texto, 11 binarios; 61 SQL inventariados sin ejecución), 28 JavaScript/CJS sin errores de sintaxis; sin errores JSON, scripts HTML ni referencias locales estáticas ausentes. `git diff --check` terminó sin errores de espacios; Git avisó de normalización LF/CRLF. Los dos Markdown nuevos también se revisaron antes de la entrega. No se alteró la configuración de finales de línea.
+
 Resultado: **14 pruebas aprobadas, 0 fallos** al ejecutar `node --test tests/seguridad-paquete-1.test.cjs`.
 
 Cobertura:

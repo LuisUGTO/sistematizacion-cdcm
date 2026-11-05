@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vinculacion-cultural-seguridad-01";
+const CACHE_VERSION = "vinculacion-cultural-matriz-2026-01";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -12,11 +12,15 @@ const REQUIRED_SHELL = [
   "./assets/pwa/icon-192.png",
   "./assets/pwa/icon-512.png",
   "./assets/pwa/icon-maskable-512.png",
+  "./assets/css/identidad-gto.css",
+  "./assets/css/experiencia-operativa.css",
+  "./assets/css/captura-matriz-2026.css",
   "./js/auth.js",
   "./js/config.js",
   "./js/supabase-client.js",
   "./js/permissions.js",
   "./js/capture.js",
+  "./js/capture-matrix.js",
   "./js/catalogs.js",
   "./js/evidence.js",
   "./js/bitacora.js",

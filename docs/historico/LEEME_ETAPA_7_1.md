@@ -1,5 +1,7 @@
 # Etapa 7.1 — Inicio institucional
 
+> Documento histórico. La instalación por ZIP y la ruta `D:\Proyectos\...` corresponden a esa entrega; para trasladar por GitHub a `C:\Proyectos\sistematizacion-cdcm`, usar [CONTEXTO_PROYECTO.md](../../CONTEXTO_PROYECTO.md). El gestor de contenido descrito como siguiente etapa ya tiene implementación en el repositorio; su despliegue no fue verificado al 31 de octubre de 2026.
+
 Esta entrega renueva únicamente la portada del sistema. No cambia tablas,
 registros, validaciones ni información ya capturada.
 
