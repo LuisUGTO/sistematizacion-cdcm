@@ -4699,7 +4699,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/css/identidad-gto.css?v=7.7.9A" />
   <link rel="stylesheet" href="./assets/css/experiencia-operativa.css?v=7.7.9C" />
-  <link rel="stylesheet" href="./assets/css/captura-matriz-2026.css?v=8.2.0" />
+  <link rel="stylesheet" href="./assets/css/captura-matriz-2026.css?v=8.3.0" />
 </head>
 
 <body class="system-app">
@@ -5138,236 +5138,46 @@
            ============================================================ -->
 
       <section id="panel-captura" class="panel">
-        <!-- Selector de modalidad de captura (Rediseño PEC 2026 vs Individual) -->
-        <div class="capture-mode-bar" role="region" aria-label="Modalidad de captura">
-          <div class="capture-mode-bar-info">
-            <div class="capture-mode-eyebrow">
-              <span>Unidad Operativa · Casas de la Cultura</span>
-              <span class="capture-mode-badge-new">Rediseño PEC 2026</span>
-            </div>
-            <p>
-              Captura mensual en matriz tipo Excel con suma automática, primera infancia (0–5 años) y cascada de colonias/comunidades.
-            </p>
-          </div>
-
-          <div class="capture-mode-switch" role="group" aria-label="Elegir interfaz de captura">
-            <button
-              id="modeBtnMatrix2026"
-              class="capture-mode-btn active"
-              type="button"
-              aria-pressed="true"
-            >
-              Matriz Mensual · Casas de la Cultura
-            </button>
-            <button
-              id="modeBtnIndividual"
-              class="capture-mode-btn"
-              type="button"
-              aria-pressed="false"
-            >
-              Captura Individual (Otras Unidades)
-            </button>
-          </div>
-        </div>
-
         <!-- ============================================================
-             MATRIZ MENSUAL PEC 2026 — CASAS DE LA CULTURA (PASO 1)
+             LIBRO MENSUAL CONTINUO TIPO EXCEL — CASAS DE LA CULTURA
              ============================================================ -->
-        <div id="captureMatrix2026Shell" class="matrix-2026-shell">
-          <article class="card section-card">
-            <div class="matrix-general-header">
-              <div class="matrix-general-title">
-                <div class="hero-kicker capture-kicker">Informe concentrado mensual · PEC 2026</div>
-                <h2>Reporte Mensual de Actividades · Casas de la Cultura</h2>
-                <p>
-                  Registra tus actividades de Educación Continua y Mediación Cultural en formato tabular. Los totales de participantes y asistentes se calculan automáticamente a partir del desglose por edad y sexo.
-                </p>
-              </div>
-              <div id="matrixAutosavePill" class="matrix-autosave-pill" data-state="ready">
-                ● Listo para captura
+        <div id="captureMatrix2026Shell" class="excel-workbook-shell">
+          <header class="excel-topbar">
+            <div class="excel-topbar-left">
+              <div class="excel-book-icon" aria-hidden="true">XLS</div>
+              <div class="excel-book-titles">
+                <strong id="excelBookTitle">Casas de la Cultura — Libro Mensual 2026</strong>
+                <span id="excelBookSub">Reporte mensual de actividades</span>
               </div>
             </div>
 
-            <div class="matrix-general-grid">
-              <div class="capture-field">
-                <label>Unidad operativa</label>
-                <div class="matrix-unit-readonly">
-                  <span>Casas de la Cultura</span>
-                  <small>PEC 2026</small>
-                </div>
-              </div>
-
-              <div class="capture-field">
-                <label for="matrixMunicipality">Municipio</label>
-                <select id="matrixMunicipality"></select>
-              </div>
-
-              <div class="capture-field">
-                <label for="matrixMonth">Mes de reporte</label>
-                <select id="matrixMonth"></select>
-              </div>
-
-              <div class="capture-field">
-                <label for="matrixYear">Ejercicio</label>
-                <select id="matrixYear">
-                  <option value="2026" selected>2026</option>
-                  <option value="2027">2027</option>
-                </select>
-              </div>
-
-              <div class="capture-field" style="grid-column: span 2">
-                <label for="matrixElabora">Persona que elabora</label>
-                <div class="matrix-elabora-row">
-                  <input
-                    id="matrixElabora"
-                    type="text"
-                    maxlength="180"
-                    placeholder="Nombre de quien elabora el informe mensual"
-                  />
-                  <button id="matrixUseIdentityBtn" class="matrix-mini-btn" type="button">
-                    Usar mis datos
-                  </button>
-                  <button id="matrixManageSettlementsBtn" class="matrix-mini-btn" type="button">
-                    Padrón Comunidades / Colonias
-                  </button>
-                </div>
-              </div>
-            </div>
-          </article>
-
-          <!-- Tira de indicadores en tiempo real del mes -->
-          <div class="matrix-kpi-strip" aria-label="Resumen en vivo del mes">
-            <div class="matrix-kpi-card">
-              <span class="matrix-kpi-label">Actividades / Talleres</span>
-              <strong id="matrixKpiRows" class="matrix-kpi-value">0</strong>
-              <span id="matrixKpiRowsSub" class="matrix-kpi-sub">0 en hoja actual</span>
-            </div>
-            <div class="matrix-kpi-card highlight">
-              <span class="matrix-kpi-label">Total Participantes / Asistentes</span>
-              <strong id="matrixKpiPeople" class="matrix-kpi-value">0</strong>
-              <span id="matrixKpiPeopleSub" class="matrix-kpi-sub">0 mujeres · 0 hombres</span>
-            </div>
-            <div class="matrix-kpi-card">
-              <span class="matrix-kpi-label">Primera Infancia (0–5 años)</span>
-              <strong id="matrixKpiPrimera" class="matrix-kpi-value">0</strong>
-              <span id="matrixKpiPrimeraSub" class="matrix-kpi-sub">Nuevo grupo etario 2026</span>
-            </div>
-            <div class="matrix-kpi-card">
-              <span class="matrix-kpi-label">Alcance Territorial</span>
-              <strong id="matrixKpiTerritory" class="matrix-kpi-value">0 sedes desc.</strong>
-              <span id="matrixKpiTerritorySub" class="matrix-kpi-sub">Cabecera · Comunidades · Colonias</span>
-            </div>
-            <div class="matrix-kpi-card">
-              <span class="matrix-kpi-label">Máximo Acumulado (Talleres)</span>
-              <strong id="matrixKpiPeak" class="matrix-kpi-value">0</strong>
-              <span id="matrixKpiPeakSub" class="matrix-kpi-sub">Sin duplicar alumnos entre meses</span>
-            </div>
-          </div>
-
-          <!-- Libro interactivo con los 2 Ejes y las 8 hojas operativas -->
-          <article class="card section-card matrix-workbook-card">
-            <div class="matrix-axes-bar">
-              <div class="matrix-axis-group">
-                <div class="matrix-axis-label">
-                  <span>I. Educación Continua</span>
-                  <span>PB3562 · Formación</span>
-                </div>
-                <div id="matrixTabsEdu" class="matrix-sheet-tabs"></div>
-              </div>
-
-              <div class="matrix-axis-group">
-                <div class="matrix-axis-label">
-                  <span>II. Mediación Cultural</span>
-                  <span>PB3563 · Redes y Territorio</span>
-                </div>
-                <div id="matrixTabsMed" class="matrix-sheet-tabs"></div>
-              </div>
-            </div>
-
-            <div class="matrix-sheet-header">
-              <div class="matrix-sheet-meta">
-                <h3 id="matrixActiveSheetTitle">1) Talleres impartidos en Casa de la Cultura</h3>
-                <p id="matrixActiveSheetDesc">
-                  Procesos formativos impartidos dentro de la Casa de la Cultura.
-                </p>
-              </div>
-
-              <div class="matrix-toolbar-actions">
-                <button id="matrixAddRowBtn" type="button" class="matrix-btn primary">
-                  + Agregar fila
-                </button>
-                <button id="matrixAdd5RowsBtn" type="button" class="matrix-btn">
-                  + 5 filas
-                </button>
-                <button id="matrixCopyPrevMonthBtn" type="button" class="matrix-btn accent">
-                  Traer talleres del mes anterior
-                </button>
-                <button id="matrixNewSettlementBtn" type="button" class="matrix-btn">
-                  + Nueva colonia / comunidad
-                </button>
-                <button id="matrixLoadSampleBtn" type="button" class="matrix-btn">
-                  Cargar ejemplo demostrativo
-                </button>
-                <button id="matrixExportXlsxBtn" type="button" class="matrix-btn">
-                  Exportar Excel (.xlsx)
-                </button>
-                <button id="matrixClearSheetBtn" type="button" class="matrix-btn danger-soft">
-                  Vaciar pestaña
-                </button>
-              </div>
-            </div>
-
-            <div class="matrix-grid-viewport">
-              <table class="matrix-excel-table" aria-label="Matriz mensual de actividades">
-                <thead id="matrixTableHead"></thead>
-                <tbody id="matrixTableBody"></tbody>
-                <tfoot id="matrixTableFoot"></tfoot>
-              </table>
-            </div>
-
-            <datalist id="matrixDisciplinesList">
-              <option value="Ballet (infantil)"></option>
-              <option value="Danza folclórica"></option>
-              <option value="Danza contemporánea"></option>
-              <option value="Pintura y dibujo"></option>
-              <option value="Acuarela y artes plásticas"></option>
-              <option value="Guitarra popular"></option>
-              <option value="Piano y teclado"></option>
-              <option value="Coro comunitario"></option>
-              <option value="Banda de viento"></option>
-              <option value="Cartonería tradicional"></option>
-              <option value="Cerámica y alfarería"></option>
-              <option value="Teatro infantil y juvenil"></option>
-              <option value="Creación literaria y fomento a la lectura"></option>
-              <option value="Fotografía documental"></option>
-              <option value="Bordado y textil tradicional"></option>
-            </datalist>
-
-            <div id="matrixContinuityPanel" class="matrix-continuity-panel">
-              <div class="matrix-continuity-head">
-                <strong>Seguimiento de continuidad mensual · Máximo de alumnos por taller en el periodo</strong>
-                <span>La plataforma identifica cada taller mes a mes y conserva su matrícula máxima del ciclo para evitar duplicidad anual.</span>
-              </div>
-              <div id="matrixContinuityChips" class="matrix-continuity-chips"></div>
-            </div>
-          </article>
-
-          <article class="card section-card matrix-footer-bar">
-            <div>
-              <h2>Guardar avance mensual</h2>
-              <p>
-                Tu captura se respalda automáticamente en este equipo por municipio y mes. En el Paso 2 conectaremos el envío definitivo de este lote mensual hacia las tablas institucionales <code>v2</code> y su flujo de validación.
-              </p>
-            </div>
-            <div class="matrix-footer-buttons">
-              <button id="matrixSaveMonthlyDraftBtn" type="button" class="capture-save">
-                Guardar borrador mensual
+            <div class="excel-topbar-actions">
+              <span id="excelAutosaveStatus" class="excel-autosave-status" data-state="ready">
+                Hoja lista
+              </span>
+              <button id="excelCopyPrevBtn" type="button" class="excel-tool-btn" title="Copia las disciplinas, sedes y horarios del mes anterior para capturar solo la asistencia nueva">
+                Copiar talleres del mes anterior
+              </button>
+              <button id="excelPadronBtn" type="button" class="excel-tool-btn">
+                Comunidades / Colonias
+              </button>
+              <button id="excelExportBtn" type="button" class="excel-tool-btn">
+                Descargar Excel (.xlsx)
+              </button>
+              <button id="excelSaveBtn" type="button" class="excel-tool-btn save-btn">
+                Guardar hoja
               </button>
             </div>
-          </article>
+          </header>
+
+          <nav id="excelJumpBar" class="excel-Jumpbar" aria-label="Ir a sección de la hoja"></nav>
+
+          <div id="excelCanvas" class="excel-canvas"></div>
+
+          <nav id="excelBottomTabsBar" class="excel-bottom-tabs-bar" aria-label="Hojas mensuales del libro"></nav>
         </div>
 
-        <form id="captureV2Form" hidden>
+        <form id="captureV2Form" hidden aria-hidden="true">
           <article class="card section-card">
             <div class="capture-heading">
               <div>
@@ -7236,7 +7046,7 @@
 
     import {
       initCaptureMatrix2026,
-    } from "./js/capture-matrix.js?v=8.2.0";
+    } from "./js/capture-matrix.js?v=8.3.0";
 
     import {
       initBitacoraV2,

@@ -1,863 +1,707 @@
 /* ==========================================================================
- * Casas de la Cultura — Matriz Mensual de Captura PEC 2026 (Paso 1)
- * Integrada al sistema visual Gobierno de la Gente (.gto-institutional)
+ * Libro Mensual Tipo Excel — Casas de la Cultura (PEC 2026)
+ * Diseño de hoja de cálculo continua por mes con pestañas inferiores ENE–DIC
  * ========================================================================== */
 
-.capture-mode-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 18px;
-  padding: 14px 18px;
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-  border-radius: var(--gto-radius-lg, 18px);
-  background: linear-gradient(135deg, #ffffff 0%, #f3f8fd 100%);
-  box-shadow: var(--gto-shadow-sm, 0 4px 14px rgba(0, 75, 135, 0.08));
-}
-
-.capture-mode-bar-info {
+.excel-workbook-shell {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  border: 1px solid #b8c4d0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(0, 54, 99, 0.08);
+  overflow: hidden;
 }
 
-.capture-mode-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gto-blue-800, #004b87);
-}
-
-.capture-mode-badge-new {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: #065f46;
-  background: #d1fae5;
-  border: 1px solid #6ee7b7;
-}
-
-.capture-mode-bar-info p {
-  margin: 0;
-  font-size: 0.88rem;
-  color: var(--gto-gray-700, #475569);
-}
-
-.capture-mode-switch {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 5px;
-  border-radius: 14px;
-  background: var(--gto-ice-100, #edf5fb);
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-}
-
-.capture-mode-btn {
-  min-height: 38px !important;
-  padding: 7px 14px;
-  border: 1px solid transparent;
-  border-radius: 10px !important;
-  background: transparent;
-  color: var(--gto-gray-700, #475569);
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.capture-mode-btn:hover {
-  color: var(--gto-blue-900, #003663);
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.capture-mode-btn.active {
-  color: #ffffff;
-  border-color: var(--gto-blue-800, #004b87);
-  background: linear-gradient(135deg, var(--gto-blue-900, #003663), var(--gto-blue-700, #075a98));
-  box-shadow: 0 4px 12px rgba(0, 75, 135, 0.2);
-}
-
-/* Contenedor principal de la Matriz 2026 */
-.matrix-2026-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.matrix-2026-shell[hidden] {
+.excel-workbook-shell[hidden] {
   display: none !important;
 }
 
-/* Encabezado de datos generales del mes */
-.matrix-general-header {
+/* Barra superior estilo cinta compacta de Excel */
+.excel-topbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.matrix-general-title h2 {
-  margin: 4px 0 6px;
-  font-size: 1.45rem;
-  color: var(--gto-blue-900, #003663);
-}
-
-.matrix-general-title p {
-  margin: 0;
-  max-width: 68ch;
-  font-size: 0.92rem;
-  color: var(--gto-gray-700, #475569);
-}
-
-.matrix-autosave-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 13px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--gto-blue-900, #003663);
-  background: var(--gto-ice-100, #edf5fb);
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-  white-space: nowrap;
-}
-
-.matrix-autosave-pill[data-state="saved"] {
-  color: #065f46;
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-}
-
-.matrix-general-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 14px;
-  align-items: end;
-}
-
-.matrix-unit-readonly {
-  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px 12px;
-  border-radius: 11px;
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-  background: linear-gradient(180deg, #f8fbfe, #edf5fb);
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--gto-blue-900, #003663);
+  gap: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(90deg, #003663 0%, #004b87 65%, #075a98 100%);
+  color: #ffffff;
+  border-bottom: 1px solid #00294d;
 }
 
-.matrix-unit-readonly small {
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: #ffffff;
-  color: var(--gto-blue-700, #075a98);
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-}
-
-.matrix-elabora-row {
+.excel-topbar-left {
   display: flex;
-  gap: 8px;
-}
-
-.matrix-elabora-row input {
-  flex: 1 1 auto;
+  align-items: center;
+  gap: 10px;
   min-width: 0;
 }
 
-.matrix-mini-btn {
-  min-height: 44px !important;
-  padding: 0 12px;
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-  border-radius: 11px !important;
-  background: #ffffff;
-  color: var(--gto-blue-800, #004b87);
-  font-size: 0.82rem;
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.matrix-mini-btn:hover {
-  border-color: var(--gto-blue-800, #004b87);
-  background: var(--gto-ice-100, #edf5fb);
-}
-
-/* Tira de KPIs del reporte mensual */
-.matrix-kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
-  gap: 12px;
-}
-
-.matrix-kpi-card {
-  padding: 14px 16px;
-  border: 1px solid var(--gto-gray-200, #d9e3ee);
-  border-radius: var(--gto-radius-md, 12px);
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 54, 99, 0.045);
-}
-
-.matrix-kpi-card.highlight {
-  border-color: #93c5fd;
-  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
-}
-
-.matrix-kpi-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--gto-gray-500, #64748b);
-}
-
-.matrix-kpi-value {
-  display: block;
-  margin-top: 4px;
-  font-family: var(--gto-font-display, Georgia, serif);
-  font-size: 1.6rem;
-  font-weight: 800;
-  line-height: 1.15;
-  color: var(--gto-blue-900, #003663);
-}
-
-.matrix-kpi-sub {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.79rem;
-  color: var(--gto-gray-700, #475569);
-}
-
-/* Navegador de Ejes y Pestañas tipo Libro de Excel */
-.matrix-workbook-card {
-  padding: 18px 20px;
-}
-
-.matrix-axes-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.matrix-axis-group {
-  padding: 10px 12px;
-  border: 1px solid var(--gto-gray-200, #d9e3ee);
-  border-radius: 14px;
-  background: #f8fbfe;
-}
-
-.matrix-axis-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 0.73rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gto-blue-900, #003663);
-}
-
-.matrix-sheet-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.matrix-sheet-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 36px !important;
-  padding: 6px 11px;
-  border: 1px solid var(--gto-gray-200, #d9e3ee);
-  border-radius: 9px !important;
-  background: #ffffff;
-  color: var(--gto-gray-700, #475569);
-  font-size: 0.81rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.matrix-sheet-tab:hover {
-  border-color: var(--gto-sky-500, #69b3e7);
-  color: var(--gto-blue-900, #003663);
-}
-
-.matrix-sheet-tab.active {
-  color: #ffffff;
-  border-color: var(--gto-blue-800, #004b87);
-  background: linear-gradient(135deg, var(--gto-blue-900, #003663), var(--gto-blue-700, #075a98));
-  box-shadow: 0 5px 14px rgba(0, 75, 135, 0.22);
-}
-
-.matrix-sheet-count {
+.excel-book-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  background: var(--gto-ice-100, #edf5fb);
-  color: var(--gto-blue-900, #003663);
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  background: #107c41;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.9rem;
+  letter-spacing: -0.03em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  flex-shrink: 0;
 }
 
-.matrix-sheet-tab.active .matrix-sheet-count {
-  background: rgba(255, 255, 255, 0.22);
+.excel-book-titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.excel-book-titles strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.excel-book-titles span {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.excel-topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.excel-autosave-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.14);
+  color: #e2f2ff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.excel-autosave-status[data-state="saved"] {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: rgba(110, 231, 183, 0.5);
+  color: #ecfdf5;
+}
+
+.excel-tool-btn {
+  min-height: 32px !important;
+  height: 32px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 0.79rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.excel-tool-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.excel-tool-btn.save-btn {
+  background: #107c41;
+  border-color: #159952;
   color: #ffffff;
 }
 
-/* Barra de herramientas de la hoja activa */
-.matrix-sheet-header {
+.excel-tool-btn.save-btn:hover {
+  background: #0d6936;
+}
+
+/* Barra de navegación rápida entre secciones de la misma hoja (como barra de fórmulas) */
+.excel-Jumpbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #f3f6f9;
+  border-bottom: 1px solid #cbd5e1;
+  font-size: 0.76rem;
+}
+
+.excel-jump-label {
+  font-weight: 800;
+  color: #334155;
+  margin-right: 4px;
+  padding: 2px 7px;
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.excel-jump-chip {
+  min-height: 26px !important;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px !important;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.excel-jump-chip:hover {
+  border-color: #004b87;
+  color: #004b87;
+  background: #eff6ff;
+}
+
+/* Lienzo principal de la hoja de cálculo */
+.excel-canvas {
+  background: #ffffff;
+  padding: 0;
+}
+
+/* Encabezado institucional dentro de la hoja (como las filas 1 a 10 del Excel) */
+.excel-sheet-dochead {
+  border-bottom: 2px solid #003663;
+  background: #fafcfe;
+}
+
+.excel-dochead-banner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  background: var(--gto-ice-100, #edf5fb);
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-}
-
-.matrix-sheet-meta h3 {
-  margin: 0;
-  font-size: 1.12rem;
-  color: var(--gto-blue-900, #003663);
-}
-
-.matrix-sheet-meta p {
-  margin: 3px 0 0;
-  font-size: 0.84rem;
-  color: var(--gto-gray-700, #475569);
-}
-
-.matrix-toolbar-actions {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8px;
-}
-
-.matrix-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 38px !important;
-  padding: 6px 12px;
-  border: 1px solid var(--gto-ice-300, #c8d8eb);
-  border-radius: 10px !important;
-  background: #ffffff;
-  color: var(--gto-blue-900, #003663);
-  font-size: 0.82rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.matrix-btn:hover {
-  border-color: var(--gto-blue-800, #004b87);
-  background: #f8fbfe;
-}
-
-.matrix-btn.primary {
-  color: #ffffff;
-  border-color: var(--gto-blue-800, #004b87);
-  background: linear-gradient(135deg, var(--gto-blue-900, #003663), var(--gto-blue-700, #075a98));
-}
-
-.matrix-btn.primary:hover {
-  filter: brightness(1.05);
-}
-
-.matrix-btn.accent {
-  color: #065f46;
-  border-color: #6ee7b7;
-  background: #ecfdf5;
-}
-
-.matrix-btn.accent:hover {
-  background: #d1fae5;
-}
-
-.matrix-btn.danger-soft {
-  color: #991b1b;
-  border-color: #fecaca;
-  background: #fff1f2;
-}
-
-/* Contenedor de grilla tipo Excel */
-.matrix-grid-viewport {
-  position: relative;
-  overflow-x: auto;
-  border: 1px solid var(--gto-gray-300, #cbd5e1);
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-}
-
-.matrix-excel-table {
-  width: max-content;
-  min-width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.82rem;
-}
-
-.matrix-excel-table th,
-.matrix-excel-table td {
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 5px 6px;
-  vertical-align: middle;
-}
-
-.matrix-excel-table thead tr:first-child th {
-  padding: 7px 8px;
-  font-size: 0.73rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  text-align: center;
-  color: #ffffff;
-  background: var(--gto-blue-900, #003663);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.matrix-excel-table thead tr:first-child th.th-group-demo {
-  background: #075a98;
-}
-
-.matrix-excel-table thead tr:first-child th.th-group-primera {
-  background: #0d6e5b;
-}
-
-.matrix-excel-table thead tr:first-child th.th-group-total {
-  background: #064e3b;
-}
-
-.matrix-excel-table thead tr:nth-child(2) th {
-  padding: 6px 7px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-align: center;
-  color: var(--gto-blue-900, #003663);
-  background: var(--gto-ice-100, #edf5fb);
-  white-space: nowrap;
-}
-
-.matrix-excel-table thead tr:nth-child(2) th.th-primera-sub {
-  background: #e6f7f2;
-  color: #065f46;
-}
-
-.matrix-excel-table tbody tr:nth-child(even) td {
-  background: #fbfdff;
-}
-
-.matrix-excel-table tbody tr:hover td {
-  background: #f0f7ff;
-}
-
-/* Columnas fijas (congeladas estilo Excel en pantallas amplias) */
-@media (min-width: 1024px) {
-  .matrix-excel-table .sticky-col-num {
-    position: sticky;
-    left: 0;
-    z-index: 3;
-    background: #f8fafc;
-  }
-
-  .matrix-excel-table thead .sticky-col-num {
-    z-index: 5;
-  }
-
-  .matrix-excel-table .sticky-col-main {
-    position: sticky;
-    left: 40px;
-    z-index: 3;
-    background: #ffffff;
-    box-shadow: 3px 0 6px -3px rgba(0, 54, 99, 0.12);
-  }
-
-  .matrix-excel-table tbody tr:nth-child(even) .sticky-col-main {
-    background: #fbfdff;
-  }
-
-  .matrix-excel-table tbody tr:hover .sticky-col-main {
-    background: #f0f7ff;
-  }
-
-  .matrix-excel-table thead .sticky-col-main {
-    z-index: 5;
-  }
-
-  .matrix-excel-table .sticky-col-total {
-    position: sticky;
-    right: 0;
-    z-index: 3;
-    box-shadow: -3px 0 6px -3px rgba(0, 54, 99, 0.12);
-  }
-
-  .matrix-excel-table thead .sticky-col-total {
-    z-index: 5;
-  }
-}
-
-.cell-row-num {
-  width: 40px;
-  min-width: 40px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 0.76rem;
-  color: var(--gto-gray-500, #64748b);
-  user-select: none;
-}
-
-/* Controles compactos dentro de celdas de la tabla */
-.matrix-excel-table input[type="text"],
-.matrix-excel-table input[type="date"],
-.matrix-excel-table input[type="number"],
-.matrix-excel-table select {
-  min-height: 32px !important;
-  height: 32px;
-  padding: 4px 7px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px !important;
-  font-size: 0.81rem;
-  background: #ffffff;
-  color: var(--gto-gray-900, #172033);
-}
-
-.matrix-excel-table input:focus,
-.matrix-excel-table select:focus {
-  border-color: var(--gto-blue-800, #004b87);
-  background: #fffef7;
-  box-shadow: 0 0 0 2px rgba(105, 179, 231, 0.35);
-}
-
-.cell-input-main {
-  width: 225px;
-  font-weight: 600;
-}
-
-.cell-input-medium {
-  width: 155px;
-}
-
-.cell-input-short {
-  width: 118px;
-}
-
-.cell-input-date {
-  width: 126px;
-}
-
-.cell-input-demo {
-  width: 54px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-}
-
-.cell-input-demo.zero-muted {
-  color: #94a3b8;
-}
-
-.cell-input-demo.primera-cell {
-  background: #f5fbf9;
-  border-color: #a7f3d0;
-}
-
-.cell-input-money {
-  width: 88px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Botones de días L-M-Mi-J-V-S-D */
-.days-pill-group {
-  display: inline-flex;
-  gap: 3px;
-  padding: 2px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #cbd5e1;
   background: #f1f5f9;
 }
 
-.day-pill {
-  min-height: 26px !important;
-  width: 25px;
-  height: 26px;
-  padding: 0;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px !important;
-  background: #ffffff;
+.excel-dochead-inst strong {
+  display: block;
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  color: #003663;
+}
+
+.excel-dochead-inst span {
+  font-size: 0.78rem;
   color: #475569;
-  font-size: 0.71rem;
+}
+
+.excel-dochead-month-tag {
+  padding: 4px 12px;
+  background: #003663;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.84rem;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+}
+
+/* Tabla de celdas "GENERALES" arriba de la hoja */
+.excel-generales-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.excel-generales-table th,
+.excel-generales-table td {
+  border-right: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 5px 10px;
+}
+
+.excel-generales-table th {
+  width: 130px;
+  text-align: left;
+  font-weight: 800;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  color: #1e293b;
+  background: #e8eff7 !important;
+}
+
+.excel-generales-table td {
+  background: #ffffff;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.excel-generales-fixed {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  color: #003663;
+}
+
+.excel-generales-inline-input,
+.excel-generales-inline-select {
+  width: 100%;
+  min-height: 28px !important;
+  height: 28px;
+  padding: 2px 6px;
+  border: 1px solid transparent !important;
+  border-radius: 2px !important;
+  background: transparent;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.excel-generales-inline-input:hover,
+.excel-generales-inline-select:hover {
+  border-color: #cbd5e1 !important;
+  background: #f8fafc;
+}
+
+.excel-generales-inline-input:focus,
+.excel-generales-inline-select:focus {
+  outline: 2px solid #107c41 !important;
+  outline-offset: -1px;
+  background: #ffffff;
+  box-shadow: none !important;
+}
+
+/* Bandas divisorias de Eje (EDUCACIÓN CONTINUA / MEDIACIÓN CULTURAL) */
+.excel-axis-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #003663;
+  color: #ffffff;
+  font-family: var(--gto-font-display, Georgia, serif);
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border-top: 2px solid #002545;
+  border-bottom: 2px solid #002545;
+}
+
+.excel-axis-banner.mediacion {
+  background: #0f4c5c;
+  border-color: #09323d;
+}
+
+.excel-axis-banner span {
+  font-family: var(--gto-font-text, Arial, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Cada uno de los 8 bloques dentro de la sábana continua */
+.excel-section-block {
+  border-bottom: 3px solid #cbd5e1;
+  background: #ffffff;
+}
+
+.excel-block-titlebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 14px;
+  background: #dce8f5;
+  border-bottom: 1px solid #94a3b8;
+}
+
+.excel-block-titlebar h3 {
+  margin: 0;
+  font-family: var(--gto-font-text, Arial, sans-serif) !important;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #003663;
+}
+
+.excel-block-counters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: #1e293b;
+}
+
+.excel-counter-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  background: #ffffff;
+  border: 1px solid #94a3b8;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.excel-counter-box b {
+  color: #065f46;
+  font-weight: 800;
+}
+
+.excel-add-row-inline {
+  min-height: 26px !important;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid #004b87;
+  border-radius: 3px !important;
+  background: #ffffff;
+  color: #004b87;
+  font-size: 0.75rem;
   font-weight: 800;
   cursor: pointer;
 }
 
-.day-pill:hover {
-  border-color: var(--gto-blue-700, #075a98);
-}
-
-.day-pill.is-on {
+.excel-add-row-inline:hover {
+  background: #004b87;
   color: #ffffff;
-  border-color: var(--gto-blue-800, #004b87);
-  background: var(--gto-blue-800, #004b87);
 }
 
-/* Celda de territorio (Cabecera / Comunidad / Colonia + cascada) */
-.territory-cell-stack {
+/* Contenedor con scroll horizontal por tabla, manteniendo estética pura de cuadrícula Excel */
+.excel-table-scroll {
+  overflow-x: auto;
+  width: 100%;
+  background: #ffffff;
+}
+
+.excel-grid {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.79rem;
+}
+
+.excel-grid th,
+.excel-grid td {
+  border-right: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+  padding: 0;
+  height: 30px;
+  vertical-align: middle;
+}
+
+/* Encabezados de columnas estilo Excel */
+.excel-grid thead tr:first-child th {
+  height: 26px;
+  padding: 3px 6px;
+  background: #eef3f8;
+  color: #1e293b;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+  border-bottom: 1px solid #94a3b8;
+}
+
+.excel-grid thead tr:first-child th.demo-band-first {
+  background: #e6f4ea;
+  color: #065f46;
+}
+
+.excel-grid thead tr:first-child th.demo-band {
+  background: #e8f0fe;
+  color: #1e3a8a;
+}
+
+.excel-grid thead tr:first-child th.total-band {
+  background: #d1fae5;
+  color: #064e3b;
+}
+
+.excel-grid thead tr:nth-child(2) th {
+  height: 24px;
+  padding: 2px 5px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.71rem;
+  font-weight: 800;
+  text-align: center;
+  border-bottom: 1px solid #94a3b8;
+  white-space: nowrap;
+}
+
+/* Numeración lateral izquierda idéntica a filas de Excel (1, 2, 3...) */
+.excel-rownum {
+  width: 34px;
+  min-width: 34px;
+  text-align: center;
+  background: #f1f5f9 !important;
+  color: #475569;
+  font-size: 0.73rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+.excel-grid tbody tr:focus-within .excel-rownum {
+  background: #dbeafe !important;
+  color: #003663;
+  font-weight: 900;
+}
+
+/* Celda activa con borde tipo Excel al hacer clic o escribir */
+.excel-grid tbody td {
+  background: #ffffff;
+  position: relative;
+}
+
+.excel-grid tbody td:focus-within {
+  outline: 2px solid #107c41;
+  outline-offset: -2px;
+  z-index: 2;
+  background: #ffffff !important;
+}
+
+/* Controles planos dentro de las celdas: sin bordes redondeados ni cajas flotantes */
+.excel-cell-input,
+.excel-cell-select {
+  display: block;
+  width: 100%;
+  min-height: 29px !important;
+  height: 29px;
+  padding: 2px 6px;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #0f172a;
+  font-size: 0.79rem;
+  font-family: inherit;
+  box-shadow: none !important;
+}
+
+.excel-cell-input:focus,
+.excel-cell-select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.excel-cell-input::placeholder {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.excel-cell-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding-right: 5px;
+}
+
+.excel-cell-num.is-zero {
+  color: #94a3b8;
+}
+
+/* Selector compacto de días dentro de celda */
+.excel-days-cell {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 4px;
+  height: 29px;
+}
+
+.excel-day-toggle {
+  min-height: 21px !important;
+  width: 21px;
+  height: 21px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px !important;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.67rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.excel-day-toggle.on {
+  background: #004b87;
+  border-color: #003663;
+  color: #ffffff;
+}
+
+/* Celda de fórmula (Total automático de fila — sombreada como celda con fórmula en Excel) */
+.excel-formula-cell {
+  background: #ecfdf5 !important;
+  color: #065f46;
+  text-align: right;
+  padding: 0 8px !important;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* Botón discreto para borrar fila en el extremo derecho */
+.excel-del-cell {
+  width: 30px;
+  text-align: center;
+  background: #f8fafc !important;
+}
+
+.excel-del-btn {
+  min-height: 24px !important;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 3px !important;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.excel-del-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Fila de subtotal de cada bloque */
+.excel-grid tfoot td {
+  height: 28px;
+  padding: 3px 6px;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  border-top: 2px solid #64748b;
+}
+
+.excel-grid tfoot td.subtotal-label {
+  text-align: right;
+  padding-right: 12px;
+  color: #003663;
+}
+
+.excel-grid tfoot td.subtotal-num {
+  text-align: right;
+}
+
+.excel-grid tfoot td.subtotal-grand {
+  text-align: right;
+  padding-right: 8px;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 0.85rem;
+}
+
+/* Vista de hojas de Concentrado Semestral (Concent. Sem 1 / Sem 2) */
+.excel-concentrado-wrap {
+  padding: 16px;
+  background: #ffffff;
+}
+
+.excel-concentrado-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 18px;
+}
+
+.excel-concentrado-table th,
+.excel-concentrado-table td {
+  border: 1px solid #cbd5e1;
+  padding: 6px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.excel-concentrado-table thead th {
+  background: #e8eff7;
+  color: #003663;
+  font-weight: 800;
+  text-align: center;
+}
+
+.excel-concentrado-table td.num {
+  text-align: right;
+}
+
+.excel-concentrado-table tr.sum-row td {
+  background: #ecfdf5;
+  font-weight: 800;
+  color: #065f46;
+}
+
+/* Barra inferior de pestañas idéntica a un libro de Excel (ENE, FEB, MAR... Concent. Sem1/Sem2) */
+.excel-bottom-tabs-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 10px 0;
+  background: #e2e8f0;
+  border-top: 1px solid #94a3b8;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.excel-bottom-tab {
+  flex: 0 0 auto;
+  min-height: 31px !important;
+  height: 31px;
+  padding: 0 13px;
+  border: 1px solid #94a3b8;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0 !important;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.77rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
   gap: 5px;
 }
 
-.select-zona-tipo {
-  width: 108px;
-  font-weight: 700;
-}
-
-.select-zona-tipo[data-zona="CABECERA"] {
-  background: #eff6ff;
-  color: #1e40af;
-}
-
-.select-zona-tipo[data-zona="COMUNIDAD"] {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.select-zona-tipo[data-zona="COLONIA"] {
-  background: #ecfdf5;
-  color: #065f46;
-}
-
-.select-cascade-settlement {
-  width: 185px;
-}
-
-.select-cascade-settlement:disabled {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-.btn-quick-add-settlement {
-  min-height: 30px !important;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 1px dashed var(--gto-blue-700, #075a98);
-  border-radius: 7px !important;
-  background: #f0f7ff;
-  color: var(--gto-blue-800, #004b87);
-  font-size: 0.95rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.btn-quick-add-settlement:hover {
-  background: var(--gto-blue-800, #004b87);
-  color: #ffffff;
-}
-
-/* Costo / Libre acceso */
-.fee-cell-inline {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.fee-cell-inline select {
-  width: 98px;
-}
-
-.fee-cell-inline input {
-  width: 72px;
-  text-align: right;
-}
-
-/* Celda de Total Automático */
-.cell-auto-total {
-  min-width: 92px;
-  text-align: center;
-  background: #ecfdf5 !important;
-}
-
-.auto-total-badge {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 72px;
-  padding: 2px 8px;
-  border-radius: 8px;
+.excel-bottom-tab:hover {
   background: #ffffff;
-  border: 1px solid #6ee7b7;
-  color: #065f46;
-  font-variant-numeric: tabular-nums;
+  color: #003663;
 }
 
-.auto-total-badge strong {
-  font-size: 0.95rem;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.auto-total-badge small {
-  font-size: 0.67rem;
-  color: #047857;
-}
-
-/* Acciones por fila */
-.row-actions-cell {
-  white-space: nowrap;
-  text-align: center;
-}
-
-.row-icon-btn {
-  min-height: 28px !important;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  margin: 0 1px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px !important;
+.excel-bottom-tab.active {
   background: #ffffff;
-  color: #475569;
-  font-size: 0.8rem;
-  cursor: pointer;
+  color: #107c41;
+  font-weight: 900;
+  border-top: 3px solid #107c41;
+  margin-bottom: -1px;
+  padding-bottom: 1px;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
 }
 
-.row-icon-btn:hover {
-  border-color: var(--gto-blue-700, #075a98);
-  color: var(--gto-blue-900, #003663);
+.excel-bottom-tab.summary-tab {
+  background: #e8eff7;
+  color: #003663;
 }
 
-.row-icon-btn.delete:hover {
-  border-color: #fca5a5;
-  background: #fef2f2;
-  color: #b91c1c;
+.excel-bottom-tab.summary-tab.active {
+  background: #ffffff;
+  color: #003663;
+  border-top: 3px solid #004b87;
 }
 
-/* Fila de sumatoria inferior (Footer de la tabla) */
-.matrix-excel-table tfoot td {
-  padding: 8px 7px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  background: #f1f6fc;
-  color: var(--gto-blue-900, #003663);
-  border-top: 2px solid var(--gto-blue-800, #004b87);
-}
-
-.tfoot-demo-sum {
-  text-align: right;
-  font-size: 0.82rem;
-}
-
-.tfoot-grand-total {
-  text-align: center;
-  font-size: 0.98rem;
-  background: #d1fae5 !important;
-  color: #065f46 !important;
-}
-
-/* Panel de Regla PEC 2026: Máximo de alumnos en el periodo */
-.matrix-continuity-panel {
-  margin-top: 14px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid #bfdbfe;
-  background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
-}
-
-.matrix-continuity-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.matrix-continuity-head strong {
-  color: var(--gto-blue-900, #003663);
-  font-size: 0.9rem;
-}
-
-.matrix-continuity-head span {
-  font-size: 0.8rem;
-  color: var(--gto-gray-700, #475569);
-}
-
-.matrix-continuity-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.continuity-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
+.excel-tab-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 999px;
-  background: #ffffff;
-  border: 1px solid #93c5fd;
-  font-size: 0.79rem;
-  color: var(--gto-gray-900, #172033);
-}
-
-.continuity-chip b {
-  color: #065f46;
-  background: #ecfdf5;
-  padding: 1px 7px;
-  border-radius: 999px;
-  border: 1px solid #6ee7b7;
-}
-
-/* Barra final de guardado */
-.matrix-footer-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.matrix-footer-bar p {
-  margin: 4px 0 0;
-  font-size: 0.88rem;
-  color: var(--gto-gray-700, #475569);
-  max-width: 72ch;
-}
-
-.matrix-footer-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  background: #107c41;
 }

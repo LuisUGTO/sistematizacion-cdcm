@@ -80,10 +80,10 @@
   },
   {
     "archivo": "assets/css/captura-matriz-2026.css",
-    "bytes": 17612,
-    "sha256": "19a8374b6090ab53d4d12840f15a035620ab8b78a899db08c5ac5dc67c34b68c",
+    "bytes": 14200,
+    "sha256": "61ae057fcb2a58be5de773d087febd25b4544615b4747ad3c1102184cc940e36",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 864
+    "lineas": 708
   },
   {
     "archivo": "assets/css/experiencia-operativa.css",
@@ -307,10 +307,10 @@
   },
   {
     "archivo": "index.html",
-    "bytes": 218497,
-    "sha256": "b2745d4ae32e098626f405943580d63096a3b2c52ea678baf3bf6584d22b5cbb",
+    "bytes": 209574,
+    "sha256": "c7155a39044f7a58ec3de0d42b6237410343ad172ffd523f738b22ca5d8b0265",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 8190,
+    "lineas": 8000,
     "referenciasLocalesAusentes": [],
     "scriptsInline": [
       "PASS"
@@ -354,10 +354,10 @@
   },
   {
     "archivo": "js/capture-matrix.js",
-    "bytes": 76648,
-    "sha256": "1ac1470de70e7bb93fc36e30b4f8664c1f02d59d57b80f8e0967c274329b2144",
+    "bytes": 63108,
+    "sha256": "4a8235ff98f64d74a82633f2fc4dc9f2f5a2334a64b05af7a20cca99eb492c71",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 2239,
+    "lineas": 1911,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -1216,7 +1216,7 @@
   {
     "archivo": "sw.js",
     "bytes": 3125,
-    "sha256": "df4a197b7e0dfbb4befaa0faf575d1694a0bab952fef84c991e5ed8342bbf24d",
+    "sha256": "db361d310e02a5ed03e28f5c2f2fb9962737ae3730b03a78f7f4b6593f8e5e8e",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 109,
     "sintaxis": "PASS",
