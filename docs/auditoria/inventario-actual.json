@@ -25597,6 +25597,13 @@
     "lineas": 185
   },
   {
+    "archivo": "assets/css/panel-directivo-2026.css",
+    "bytes": 10736,
+    "sha256": "386f30bf8ce46ffcfd85d19181ec10028bdb4082fbd2875ad41b6c2d385618aa",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 461
+  },
+  {
     "archivo": "assets/geo/guanajuato-municipios.geojson",
     "bytes": 392595,
     "sha256": "15e787de74b63ed60d1c78ac5d59d2df6faec637b9b9f5f8456be5df52ad85cb",
@@ -26224,10 +26231,10 @@
   },
   {
     "archivo": "index.html",
-    "bytes": 210083,
-    "sha256": "bafd4fcce2ce71dd1c58a6f58f9479f2fd7dbeabb1404fb6001d9ac07ce1ef0a",
+    "bytes": 210786,
+    "sha256": "3058725658954e5e8a683e0d3336c5d79600218947db914310a287b6cb837440",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 8014,
+    "lineas": 7995,
     "referenciasLocalesAusentes": [],
     "scriptsInline": [
       "PASS"
@@ -26325,10 +26332,10 @@
   },
   {
     "archivo": "js/dashboard.js",
-    "bytes": 33501,
-    "sha256": "c1202322534020133a6c315eaa8e4036234ece3df150ef28c22627775344abd0",
+    "bytes": 39857,
+    "sha256": "462386a93be6efc86e4d3e42bbb258dfad68f4cd5f3a7bd33c280aebe06068de",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 1216,
+    "lineas": 1430,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -27169,10 +27176,10 @@
   },
   {
     "archivo": "sw.js",
-    "bytes": 3175,
-    "sha256": "64ff73b7c5be7b59720246d7da91fe11d913a1fc41dc6a75f58bcaeaf07c0cd9",
+    "bytes": 3218,
+    "sha256": "3a712726eb42c8f8a1348b2b04ab08165ddd442efdd028c925c9217a8133bb84",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 110,
+    "lineas": 111,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },

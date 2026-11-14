@@ -1,0 +1,460 @@
+/* ============================================================================
+ * VINCULACIÓN CULTURAL — PANEL DIRECTIVO 2026
+ * Inspirado en el Sistema Estatal de Inteligencia Cultural / Planeación GTO
+ * Tipografía: Vollkorn (títulos y cifras KPI) + Montserrat / Inter (etiquetas)
+ * ============================================================================ */
+
+#panel-dashboard {
+  font-family: "Montserrat", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+#panel-dashboard .dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 6px 2px 24px;
+}
+
+/* ── Banner Ejecutivo Superior ────────────────────────────────────────────── */
+#panel-dashboard .pd-hero {
+  background: linear-gradient(135deg, #004B87 0%, #0A2548 65%, #0D1526 100%);
+  color: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 14px 32px -14px rgba(0, 75, 135, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+#panel-dashboard .pd-hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #69B3E7;
+  margin-bottom: 4px;
+}
+
+#panel-dashboard .pd-hero h2 {
+  font-family: "Vollkorn", Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin: 0;
+  line-height: 1.15;
+}
+
+#panel-dashboard .pd-hero p {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: #CBD5E1;
+  max-width: 680px;
+  line-height: 1.45;
+}
+
+#panel-dashboard .pd-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+#panel-dashboard .pd-btn-light {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+#panel-dashboard .pd-btn-light:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+
+#panel-dashboard .pd-btn-emerald {
+  background: #059669;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 9px 15px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 6px 16px -6px rgba(5, 150, 105, 0.6);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+#panel-dashboard .pd-btn-emerald:hover:not(:disabled) {
+  background: #047857;
+  transform: translateY(-1px);
+}
+
+/* ── Barra de Filtros ─────────────────────────────────────────────────────── */
+#panel-dashboard .dashboard-filter-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 16px -8px rgba(15, 23, 42, 0.08);
+}
+
+#panel-dashboard .dashboard-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+#panel-dashboard .dashboard-field label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748B;
+  margin-bottom: 4px;
+}
+
+#panel-dashboard .dashboard-field select {
+  width: 100%;
+  border: 1px solid #CBD5E1;
+  border-radius: 9px;
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0F172A;
+  background: #F8FAFC;
+}
+
+#panel-dashboard .dashboard-filter-actions {
+  display: flex;
+  gap: 8px;
+}
+
+#panel-dashboard .pd-status-bar {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #F1F5F9;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11.5px;
+}
+
+#panel-dashboard .dashboard-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #EFF6FF;
+  color: #004B87;
+}
+
+#panel-dashboard .dashboard-status[data-type="ok"] {
+  background: #ECFDF5;
+  color: #047857;
+}
+
+#panel-dashboard .dashboard-status[data-type="error"] {
+  background: #FEF2F2;
+  color: #B91C1C;
+}
+
+#panel-dashboard .dashboard-updated {
+  color: #64748B;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Tarjetas KPI Ejecutivas (Estilo Planeación: border-left 4px + Vollkorn) ─ */
+#panel-dashboard .pd-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#panel-dashboard .pd-kpi-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid var(--kpi-color, #004B87);
+  border-radius: 14px;
+  padding: 15px 16px;
+  box-shadow: 0 4px 14px -8px rgba(15, 23, 42, 0.09);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+#panel-dashboard .pd-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -10px rgba(0, 75, 135, 0.16);
+}
+
+#panel-dashboard .pd-kpi-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#panel-dashboard .pd-kpi-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #64748B;
+}
+
+#panel-dashboard .pd-kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+#panel-dashboard .pd-kpi-value {
+  font-family: "Vollkorn", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--kpi-text, #004B87);
+}
+
+#panel-dashboard .pd-kpi-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #F3E8FF;
+  color: #6D28D9;
+}
+
+#panel-dashboard .pd-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--kpi-soft, #EFF6FF);
+  color: var(--kpi-color, #004B87);
+  border: 1px solid var(--kpi-border, #DBEAFE);
+  font-size: 18px;
+}
+
+#panel-dashboard .pd-kpi-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding-top: 8px;
+  border-top: 1px solid #F1F5F9;
+  font-size: 11px;
+  color: #475569;
+  font-weight: 600;
+}
+
+#panel-dashboard .pd-kpi-sub strong {
+  color: #0F172A;
+  font-weight: 800;
+}
+
+/* ── Grid Central: Mapa 46 Municipios + Gráficas Chart.js ─────────────────── */
+#panel-dashboard .pd-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 16px;
+  align-items: start;
+}
+
+#panel-dashboard .pd-stack-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#panel-dashboard .pd-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px -8px rgba(15, 23, 42, 0.08);
+}
+
+#panel-dashboard .pd-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#panel-dashboard .pd-card-head h3 {
+  font-family: "Vollkorn", Georgia, serif;
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: #004B87;
+  margin: 0;
+}
+
+#panel-dashboard .pd-card-head p {
+  font-size: 11.5px;
+  color: #64748B;
+  margin: 2px 0 0;
+}
+
+#panel-dashboard .pd-chart-box {
+  position: relative;
+  height: 220px;
+  width: 100%;
+}
+
+#panel-dashboard .pd-doughnut-wrap {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+#panel-dashboard .pd-doughnut-box {
+  position: relative;
+  width: 155px;
+  height: 155px;
+  margin: 0 auto;
+}
+
+#panel-dashboard .pd-doughnut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#panel-dashboard .pd-doughnut-center strong {
+  font-family: "Vollkorn", Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #004B87;
+  line-height: 1;
+}
+
+#panel-dashboard .pd-doughnut-center small {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+/* ── Mapa Territorial ─────────────────────────────────────────────────────── */
+#panel-dashboard .dashboard-map-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 1fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+#panel-dashboard .dashboard-map-stage {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 10px;
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#panel-dashboard .dashboard-map-side {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#panel-dashboard .dashboard-map-side h4 {
+  font-family: "Vollkorn", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #004B87;
+  margin: 2px 0;
+}
+
+#panel-dashboard .dashboard-map-value strong {
+  font-family: "Vollkorn", Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #004B87;
+}
+
+/* ── Regla Institucional Compacta ─────────────────────────────────────────── */
+#panel-dashboard .pd-rule-banner {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-left: 4px solid #004B87;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #1E3A8A;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Responsivo ───────────────────────────────────────────────────────────── */
+@media (max-width: 1180px) {
+  #panel-dashboard .pd-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #panel-dashboard .pd-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 820px) {
+  #panel-dashboard .dashboard-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #panel-dashboard .dashboard-map-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  #panel-dashboard .pd-kpi-grid,
+  #panel-dashboard .dashboard-filters,
+  #panel-dashboard .pd-doughnut-wrap {
+    grid-template-columns: 1fr;
+  }
+}

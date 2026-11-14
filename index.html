@@ -4696,10 +4696,13 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Vollkorn:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <link rel="stylesheet" href="./assets/css/identidad-gto.css?v=7.7.9A" />
   <link rel="stylesheet" href="./assets/css/experiencia-operativa.css?v=7.7.9C" />
   <link rel="stylesheet" href="./assets/css/captura-matriz-2026.css?v=8.3.0" />
+  <link rel="stylesheet" href="./assets/css/panel-directivo-2026.css?v=1.0.0" />
 </head>
 
 <body class="system-app">
@@ -5985,29 +5988,36 @@
 
       <section id="panel-dashboard" class="panel">
         <div class="dashboard-shell">
-          <article class="card dashboard-card">
-            <div class="dashboard-heading">
-              <div>
-                <h2>Panel directivo</h2>
-                <p>
-                  Seguimiento operativo, validación, cobertura territorial y
-                  cumplimiento de metas institucionales dentro del alcance
-                  autorizado para la cuenta.
-                </p>
-              </div>
+          <!-- Banner Ejecutivo Superior -->
+          <header class="pd-hero">
+            <div>
+              <div class="pd-hero-kicker">Secretaría de Cultura de Guanajuato · Tablero Ejecutivo</div>
+              <h2>Panel directivo</h2>
+              <p>
+                Seguimiento operativo, validación institucional, cobertura territorial en los 46 municipios y cumplimiento de metas en tiempo real.
+              </p>
+            </div>
 
+            <div class="pd-hero-actions">
+              <button
+                id="dashboardExportXlsxButton"
+                class="pd-btn-emerald"
+                type="button"
+              >
+                ⬇ Exportar Excel (.xlsx)
+              </button>
               <button
                 id="dashboardRefreshButton"
-                class="btn-secondary dashboard-refresh"
+                class="pd-btn-light"
                 type="button"
               >
                 ↻ Actualizar datos
               </button>
             </div>
-          </article>
+          </header>
 
-
-          <article class="card dashboard-filter-card">
+          <!-- Barra de Filtros -->
+          <article class="dashboard-filter-card">
             <form id="dashboardFilters" class="dashboard-filters">
               <div class="dashboard-field">
                 <label for="dashboardYear">Ejercicio</label>
@@ -6040,7 +6050,7 @@
 
                 <button
                   id="dashboardApplyButton"
-                  class="btn-secondary"
+                  class="btn-primary"
                   type="submit"
                 >
                   Aplicar
@@ -6048,292 +6058,293 @@
               </div>
             </form>
 
-            <div
-              id="dashboardStatus"
-              class="dashboard-status"
-              data-type="loading"
-              aria-live="polite"
-            >
-              Preparando información institucional...
-            </div>
-
-            <small id="dashboardUpdated" class="dashboard-updated">
-              Aún no se ha realizado la primera consulta.
-            </small>
-          </article>
-
-
-          <div class="dashboard-rule-notice">
-            <strong>Regla institucional de avance</strong>
-            Los indicadores automáticos cuentan únicamente expedientes
-            <b>VALIDADO</b>. Los registros históricos permanecen disponibles
-            para consulta, pero no aportan a las metas hasta contar con la
-            validación institucional correspondiente.
-          </div>
-
-
-          <div class="dashboard-kpis">
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#004B87"
-            >
-              <span class="dashboard-kpi-label">Registros visibles</span>
-              <strong id="dashboardKpiRecords" class="dashboard-kpi-value">—</strong>
-              <small>Todos los estados incluidos en los filtros aplicados.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#059669"
-            >
-              <span class="dashboard-kpi-label">Validados</span>
-              <strong id="dashboardKpiValidated" class="dashboard-kpi-value">—</strong>
-              <small>Expedientes que pueden alimentar reglas automáticas.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#D97706"
-            >
-              <span class="dashboard-kpi-label">Pendientes de revisión</span>
-              <strong id="dashboardKpiPending" class="dashboard-kpi-value">—</strong>
-              <small>Capturados, en revisión o corregidos por decidir.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#F97316"
-            >
-              <span class="dashboard-kpi-label">Observados</span>
-              <strong id="dashboardKpiObserved" class="dashboard-kpi-value">—</strong>
-              <small>Expedientes devueltos para corrección.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#2563EB"
-            >
-              <span class="dashboard-kpi-label">Beneficiarios capturados</span>
-              <strong id="dashboardKpiBeneficiaries" class="dashboard-kpi-value">—</strong>
-              <small>Total no anulado; no equivale por sí mismo a un indicador.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#7C3AED"
-            >
-              <span class="dashboard-kpi-label">Participantes</span>
-              <strong id="dashboardKpiParticipants" class="dashboard-kpi-value">—</strong>
-              <small>Personas participantes reportadas en las actividades.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#0891B2"
-            >
-              <span class="dashboard-kpi-label">Accesos</span>
-              <strong id="dashboardKpiAccesses" class="dashboard-kpi-value">—</strong>
-              <small>Accesos reportados en las actividades.</small>
-            </article>
-
-            <article
-              class="card dashboard-kpi"
-              style="--kpi-color:#0F766E"
-            >
-              <span class="dashboard-kpi-label">Municipios con actividad</span>
-              <strong id="dashboardKpiMunicipalities" class="dashboard-kpi-value">—</strong>
-              <small>Cobertura principal de registros no anulados.</small>
-            </article>
-          </div>
-
-
-          <div class="dashboard-executive-strip">
-            <div class="dashboard-executive-item">
-              <span>Validación del universo</span>
-              <strong id="dashboardValidationRate">—</strong>
-            </div>
-
-            <div class="dashboard-executive-item">
-              <span>Expedientes con incidencias</span>
-              <strong id="dashboardQualityCount">—</strong>
-            </div>
-
-            <div class="dashboard-executive-item">
-              <span>Registros con aporte real</span>
-              <strong id="dashboardContributionCount">—</strong>
-            </div>
-
-            <div class="dashboard-executive-item">
-              <span>Registros históricos</span>
-              <strong id="dashboardHistoricalCount">—</strong>
-            </div>
-          </div>
-
-
-          <article class="card dashboard-card dashboard-map-card">
-            <div class="dashboard-card-heading dashboard-map-heading">
-              <div>
-                <h3 id="dashboardMapTitle">Mapa de intensidad territorial</h3>
-                <p id="dashboardMapDescription">
-                  Los 46 municipios se colorean con datos reales del alcance
-                  autorizado. Selecciona un municipio para consultar su detalle.
-                </p>
+            <div class="pd-status-bar">
+              <div
+                id="dashboardStatus"
+                class="dashboard-status"
+                data-type="loading"
+                aria-live="polite"
+              >
+                Preparando información institucional...
               </div>
-
-              <div class="dashboard-map-control">
-                <label for="dashboardMapMetric">Variable del mapa</label>
-                <select id="dashboardMapMetric">
-                  <option value="total_registros">Registros</option>
-                  <option value="validados">Validados</option>
-                  <option value="pendientes">Pendientes</option>
-                  <option value="beneficiarios">Beneficiarios</option>
-                  <option value="participantes">Participantes</option>
-                  <option value="accesos">Accesos</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="dashboard-map-layout">
-              <div class="dashboard-map-stage">
-                <div id="dashboardMapLoading" class="dashboard-map-loading">
-                  Preparando cartografía municipal...
-                </div>
-
-                <svg
-                  id="dashboardMapSvg"
-                  class="dashboard-map-svg"
-                  viewBox="0 0 760 520"
-                  role="img"
-                  aria-labelledby="dashboardMapTitle dashboardMapDescription"
-                  preserveAspectRatio="xMidYMid meet"
-                  hidden
-                ></svg>
-              </div>
-
-              <aside class="dashboard-map-side" aria-live="polite">
-                <div>
-                  <div id="dashboardMapKicker" class="dashboard-map-side-kicker">Municipio seleccionado</div>
-                  <h4 id="dashboardMapMunicipality">Sin selección</h4>
-                  <div id="dashboardMapRegion" class="dashboard-map-region">
-                    Elige un polígono o usa el filtro de municipio.
-                  </div>
-                </div>
-
-                <div class="dashboard-map-value">
-                  <span id="dashboardMapMetricLabel">Registros</span>
-                  <strong id="dashboardMapMetricValue">—</strong>
-                  <small id="dashboardMapMetricHint">Intensidad dentro de los filtros actuales</small>
-                </div>
-
-                <div class="dashboard-map-stats">
-                  <div class="dashboard-map-stat">
-                    <span>Validados</span>
-                    <strong id="dashboardMapValidated">—</strong>
-                  </div>
-                  <div class="dashboard-map-stat">
-                    <span>Pendientes</span>
-                    <strong id="dashboardMapPending">—</strong>
-                  </div>
-                  <div class="dashboard-map-stat">
-                    <span>Beneficiarios</span>
-                    <strong id="dashboardMapBeneficiaries">—</strong>
-                  </div>
-                  <div class="dashboard-map-stat">
-                    <span>Participantes</span>
-                    <strong id="dashboardMapParticipants">—</strong>
-                  </div>
-                  <div class="dashboard-map-stat">
-                    <span>Accesos</span>
-                    <strong id="dashboardMapAccesses">—</strong>
-                  </div>
-                  <div class="dashboard-map-stat">
-                    <span id="dashboardMapCodeLabel">CVEGEO</span>
-                    <strong id="dashboardMapCode">—</strong>
-                  </div>
-                </div>
-
-                <button
-                  id="dashboardMapFilterButton"
-                  class="btn-primary dashboard-map-filter"
-                  type="button"
-                  disabled
-                >
-                  Ver solo este municipio
-                </button>
-
-                <button
-                  id="dashboardMapClearButton"
-                  class="btn-secondary dashboard-map-filter"
-                  type="button"
-                  hidden
-                >
-                  Mostrar todos los municipios
-                </button>
-
-                <div class="dashboard-map-legend">
-                  <span class="dashboard-map-legend-title">Escala de intensidad</span>
-                  <div id="dashboardMapLegend" class="dashboard-map-legend-items"></div>
-                </div>
-
-                <p class="dashboard-map-source">
-                  Geometría: Marco Geoestadístico 2025 del
-                  <a
-                    href="https://www.inegi.org.mx/programas/mg/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >INEGI</a>.
-                  La cartografía representa áreas geoestadísticas municipales.
-                </p>
-              </aside>
+              <small id="dashboardUpdated" class="dashboard-updated">
+                Aún no se ha realizado la primera consulta.
+              </small>
             </div>
           </article>
 
-
-          <div class="dashboard-layout">
-            <article class="card dashboard-card">
-              <div class="dashboard-card-heading">
+          <!-- 4 Tarjetas KPI Ejecutivas (Estilo Planeación) -->
+          <div class="pd-kpi-grid">
+            <article
+              class="pd-kpi-card"
+              style="--kpi-color:#004B87; --kpi-text:#004B87; --kpi-soft:#EFF6FF; --kpi-border:#DBEAFE;"
+            >
+              <div class="pd-kpi-top">
                 <div>
-                  <h3>Estado de expedientes</h3>
-                  <p>Distribución del universo visible en el flujo institucional.</p>
-                </div>
-              </div>
-
-              <div class="dashboard-status-visual">
-                <div id="dashboardStatusDonut" class="dashboard-donut">
-                  <div class="dashboard-donut-center">
-                    <strong id="dashboardStatusDonutValue">0</strong>
-                    <small>registros</small>
+                  <span class="pd-kpi-label">Registros visibles</span>
+                  <div class="pd-kpi-value-row">
+                    <strong id="dashboardKpiRecords" class="pd-kpi-value">—</strong>
                   </div>
                 </div>
-
-                <div id="dashboardStatusList" class="dashboard-status-list"></div>
+                <div class="pd-kpi-icon" aria-hidden="true">📋</div>
+              </div>
+              <div class="pd-kpi-sub">
+                <span>Validados: <strong id="dashboardKpiValidated">—</strong></span>
+                <span>· Pendientes: <strong id="dashboardKpiPending">—</strong></span>
+                <span>· Observados: <strong id="dashboardKpiObserved">—</strong></span>
               </div>
             </article>
 
-
-            <article class="card dashboard-card">
-              <div class="dashboard-card-heading">
+            <article
+              class="pd-kpi-card"
+              style="--kpi-color:#F59E0B; --kpi-text:#004B87; --kpi-soft:#FFFBEB; --kpi-border:#FEF3C7;"
+            >
+              <div class="pd-kpi-top">
                 <div>
-                  <h3>Comportamiento mensual</h3>
-                  <p>
-                    Azul: registros capturados. Verde: expedientes validados.
+                  <span class="pd-kpi-label">Personas beneficiadas</span>
+                  <div class="pd-kpi-value-row">
+                    <strong id="dashboardKpiBeneficiaries" class="pd-kpi-value">—</strong>
+                  </div>
+                </div>
+                <div class="pd-kpi-icon" aria-hidden="true">👥</div>
+              </div>
+              <div class="pd-kpi-sub">
+                <span>Participantes: <strong id="dashboardKpiParticipants">—</strong></span>
+                <span>· Accesos: <strong id="dashboardKpiAccesses">—</strong></span>
+              </div>
+            </article>
+
+            <article
+              class="pd-kpi-card"
+              style="--kpi-color:#7C3AED; --kpi-text:#004B87; --kpi-soft:#F5F3FF; --kpi-border:#EDE9FE;"
+            >
+              <div class="pd-kpi-top">
+                <div>
+                  <span class="pd-kpi-label">Municipios con actividad</span>
+                  <div class="pd-kpi-value-row">
+                    <strong id="dashboardKpiMunicipalities" class="pd-kpi-value">—</strong>
+                    <span id="dashboardMunPct" class="pd-kpi-pill">0%</span>
+                  </div>
+                </div>
+                <div class="pd-kpi-icon" aria-hidden="true">🗺️</div>
+              </div>
+              <div class="pd-kpi-sub">
+                <span>Cobertura sobre los <strong>46</strong> municipios del Estado</span>
+              </div>
+            </article>
+
+            <article
+              class="pd-kpi-card"
+              style="--kpi-color:#059669; --kpi-text:#047857; --kpi-soft:#ECFDF5; --kpi-border:#D1FAE5;"
+            >
+              <div class="pd-kpi-top">
+                <div>
+                  <span class="pd-kpi-label">Validación del universo</span>
+                  <div class="pd-kpi-value-row">
+                    <strong id="dashboardValidationRate" class="pd-kpi-value">—</strong>
+                  </div>
+                </div>
+                <div class="pd-kpi-icon" aria-hidden="true">✅</div>
+              </div>
+              <div class="pd-kpi-sub">
+                <span>Aporte real: <strong id="dashboardContributionCount">—</strong></span>
+                <span>· Incidencias: <strong id="dashboardQualityCount">—</strong></span>
+                <span>· Históricos: <strong id="dashboardHistoricalCount">—</strong></span>
+              </div>
+            </article>
+          </div>
+
+          <div class="pd-rule-banner">
+            <strong>Regla institucional de avance:</strong>
+            <span>Los indicadores automáticos cuentan únicamente expedientes <b>VALIDADO</b>; los registros capturados o históricos se muestran para seguimiento operativo.</span>
+          </div>
+
+          <!-- Grid Central: Mapa 46 Municipios + Gráficas Chart.js -->
+          <div class="pd-main-grid">
+            <article class="pd-card">
+              <div class="pd-card-head">
+                <div>
+                  <h3 id="dashboardMapTitle">Cobertura territorial (46 municipios)</h3>
+                  <p id="dashboardMapDescription">
+                    Los 46 municipios se colorean con datos reales del alcance autorizado. Selecciona un municipio para consultar su detalle.
                   </p>
                 </div>
+
+                <div class="dashboard-map-control">
+                  <label for="dashboardMapMetric">Variable del mapa</label>
+                  <select id="dashboardMapMetric">
+                    <option value="total_registros">Registros</option>
+                    <option value="validados">Validados</option>
+                    <option value="pendientes">Pendientes</option>
+                    <option value="beneficiarios">Beneficiarios</option>
+                    <option value="participantes">Participantes</option>
+                    <option value="accesos">Accesos</option>
+                  </select>
+                </div>
               </div>
 
-              <div id="dashboardMonthChart" class="dashboard-month-chart"></div>
+              <div class="dashboard-map-layout">
+                <div class="dashboard-map-stage">
+                  <div id="dashboardMapLoading" class="dashboard-map-loading">
+                    Preparando cartografía municipal...
+                  </div>
+
+                  <svg
+                    id="dashboardMapSvg"
+                    class="dashboard-map-svg"
+                    viewBox="0 0 760 520"
+                    role="img"
+                    aria-labelledby="dashboardMapTitle dashboardMapDescription"
+                    preserveAspectRatio="xMidYMid meet"
+                    hidden
+                  ></svg>
+                </div>
+
+                <aside class="dashboard-map-side" aria-live="polite">
+                  <div>
+                    <div id="dashboardMapKicker" class="dashboard-map-side-kicker">Municipio seleccionado</div>
+                    <h4 id="dashboardMapMunicipality">Sin selección</h4>
+                    <div id="dashboardMapRegion" class="dashboard-map-region">
+                      Elige un polígono o usa el filtro de municipio.
+                    </div>
+                  </div>
+
+                  <div class="dashboard-map-value">
+                    <span id="dashboardMapMetricLabel">Registros</span>
+                    <strong id="dashboardMapMetricValue">—</strong>
+                    <small id="dashboardMapMetricHint">Intensidad dentro de los filtros actuales</small>
+                  </div>
+
+                  <div class="dashboard-map-stats">
+                    <div class="dashboard-map-stat">
+                      <span>Validados</span>
+                      <strong id="dashboardMapValidated">—</strong>
+                    </div>
+                    <div class="dashboard-map-stat">
+                      <span>Pendientes</span>
+                      <strong id="dashboardMapPending">—</strong>
+                    </div>
+                    <div class="dashboard-map-stat">
+                      <span>Beneficiarios</span>
+                      <strong id="dashboardMapBeneficiaries">—</strong>
+                    </div>
+                    <div class="dashboard-map-stat">
+                      <span>Participantes</span>
+                      <strong id="dashboardMapParticipants">—</strong>
+                    </div>
+                    <div class="dashboard-map-stat">
+                      <span>Accesos</span>
+                      <strong id="dashboardMapAccesses">—</strong>
+                    </div>
+                    <div class="dashboard-map-stat">
+                      <span id="dashboardMapCodeLabel">CVEGEO</span>
+                      <strong id="dashboardMapCode">—</strong>
+                    </div>
+                  </div>
+
+                  <button
+                    id="dashboardMapFilterButton"
+                    class="btn-primary dashboard-map-filter"
+                    type="button"
+                    disabled
+                  >
+                    Ver solo este municipio
+                  </button>
+
+                  <button
+                    id="dashboardMapClearButton"
+                    class="btn-secondary dashboard-map-filter"
+                    type="button"
+                    hidden
+                  >
+                    Mostrar todos los municipios
+                  </button>
+
+                  <div class="dashboard-map-legend">
+                    <span class="dashboard-map-legend-title">Escala de intensidad</span>
+                    <div id="dashboardMapLegend" class="dashboard-map-legend-items"></div>
+                  </div>
+
+                  <p class="dashboard-map-source">
+                    Geometría: Marco Geoestadístico 2025 del
+                    <a
+                      href="https://www.inegi.org.mx/programas/mg/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >INEGI</a>.
+                  </p>
+                </aside>
+              </div>
+            </article>
+
+            <div class="pd-stack-col">
+              <article class="pd-card">
+                <div class="pd-card-head">
+                  <div>
+                    <h3>Estado de expedientes</h3>
+                    <p>Distribución del universo visible en el flujo institucional.</p>
+                  </div>
+                </div>
+
+                <div class="pd-doughnut-wrap">
+                  <div class="pd-doughnut-box">
+                    <canvas id="dashboardStatusChartCanvas" aria-label="Gráfica de estado de expedientes"></canvas>
+                    <div id="dashboardStatusDonut" class="dashboard-donut" hidden></div>
+                    <div class="pd-doughnut-center">
+                      <strong id="dashboardStatusDonutValue">0</strong>
+                      <small>registros</small>
+                    </div>
+                  </div>
+
+                  <div id="dashboardStatusList" class="dashboard-status-list"></div>
+                </div>
+              </article>
+
+              <article class="pd-card">
+                <div class="pd-card-head">
+                  <div>
+                    <h3>Comportamiento mensual</h3>
+                    <p>Azul: registros capturados · Verde: expedientes validados.</p>
+                  </div>
+                </div>
+
+                <div class="pd-chart-box">
+                  <canvas id="dashboardMonthChartCanvas" aria-label="Comportamiento mensual de captura y validación"></canvas>
+                  <div id="dashboardMonthChart" class="dashboard-month-chart" hidden></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- Rankings por Unidad y Programa -->
+          <div class="dashboard-ranking-grid">
+            <article class="pd-card">
+              <div class="pd-card-head">
+                <div>
+                  <h3>Actividad por unidad</h3>
+                  <p>Comparativo del volumen operativo visible.</p>
+                </div>
+              </div>
+              <div id="dashboardUnitRanking" class="dashboard-ranking-list"></div>
+            </article>
+
+            <article class="pd-card">
+              <div class="pd-card-head">
+                <div>
+                  <h3>Actividad por programa</h3>
+                  <p>Programas con registros dentro del ejercicio y alcance.</p>
+                </div>
+              </div>
+              <div id="dashboardProgramRanking" class="dashboard-ranking-list"></div>
             </article>
           </div>
 
-
-          <article class="card dashboard-card">
-            <div class="dashboard-card-heading">
+          <!-- Tablas Detalladas -->
+          <article class="pd-card">
+            <div class="pd-card-head">
               <div>
                 <h3>Metas e indicadores institucionales</h3>
-                <p>
-                  Avance dentro del alcance visible contra la meta registrada.
-                  Las cifras se calculan con las reglas institucionales vigentes.
-                </p>
+                <p>Avance dentro del alcance visible contra la meta registrada.</p>
               </div>
             </div>
 
@@ -6354,15 +6365,11 @@
             </div>
           </article>
 
-
-          <article class="card dashboard-card">
-            <div class="dashboard-card-heading">
+          <article class="pd-card">
+            <div class="pd-card-head">
               <div>
-                <h3>Cobertura territorial</h3>
-                <p>
-                  Municipios con mayor actividad dentro de los filtros
-                  seleccionados. Los totales de población son datos capturados.
-                </p>
+                <h3>Cobertura territorial por municipio</h3>
+                <p>Municipios con mayor actividad dentro de los filtros seleccionados.</p>
               </div>
             </div>
 
@@ -6382,32 +6389,6 @@
               </table>
             </div>
           </article>
-
-
-          <div class="dashboard-ranking-grid">
-            <article class="card dashboard-card">
-              <div class="dashboard-card-heading">
-                <div>
-                  <h3>Actividad por unidad</h3>
-                  <p>Comparativo del volumen operativo visible.</p>
-                </div>
-              </div>
-
-              <div id="dashboardUnitRanking" class="dashboard-ranking-list"></div>
-            </article>
-
-
-            <article class="card dashboard-card">
-              <div class="dashboard-card-heading">
-                <div>
-                  <h3>Actividad por programa</h3>
-                  <p>Programas con registros dentro del ejercicio y alcance.</p>
-                </div>
-              </div>
-
-              <div id="dashboardProgramRanking" class="dashboard-ranking-list"></div>
-            </article>
-          </div>
         </div>
       </section>
 
@@ -7063,7 +7044,7 @@
 
     import {
       initDashboardV2,
-    } from "./js/dashboard.js?v=7.7.7.3";
+    } from "./js/dashboard.js?v=8.5.0";
 
     import {
       getHomeContent,

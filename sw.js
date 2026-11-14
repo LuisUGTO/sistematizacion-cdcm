@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vinculacion-cultural-matriz-2026-07";
+const CACHE_VERSION = "vinculacion-cultural-matriz-2026-08";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -15,6 +15,7 @@ const REQUIRED_SHELL = [
   "./assets/css/identidad-gto.css",
   "./assets/css/experiencia-operativa.css",
   "./assets/css/captura-matriz-2026.css",
+  "./assets/css/panel-directivo-2026.css",
   "./js/auth.js",
   "./js/config.js",
   "./js/supabase-client.js",

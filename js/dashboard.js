@@ -28,6 +28,8 @@ let mapGeometryPromise = null;
 let lastPayload = null;
 let selectedMapCode = null;
 let mapFeaturesByCode = new Map();
+let statusChartInstance = null;
+let monthChartInstance = null;
 
 const ui = {};
 const $ = (id) => document.getElementById(id);
@@ -345,6 +347,10 @@ function renderKpis(payload) {
     ui.kpiMunicipalities,
     formatNumber(summary.municipios_con_actividad)
   );
+  if (ui.munPct) {
+    const munPct = (numeric(summary.municipios_con_actividad) / 46) * 100;
+    ui.munPct.textContent = `${formatNumber(munPct, 1)}%`;
+  }
 
   setText(
     ui.validationRate,
@@ -420,8 +426,50 @@ function renderStatus(payload) {
     ui.statusList.appendChild(item);
   }
 
-  ui.statusDonut.style.background =
-    `conic-gradient(${segments.join(", ")})`;
+  if (window.Chart && ui.statusChartCanvas) {
+    if (ui.statusDonut) ui.statusDonut.hidden = true;
+    ui.statusChartCanvas.hidden = false;
+    if (statusChartInstance) {
+      statusChartInstance.destroy();
+      statusChartInstance = null;
+    }
+    const labels = rows.map((r) => labelStatus(r.estatus));
+    const data = rows.map((r) => numeric(r.total));
+    const colors = rows.map((r) => STATUS_COLORS[r.estatus] ?? "#CBD5E1");
+    statusChartInstance = new window.Chart(ui.statusChartCanvas, {
+      type: "doughnut",
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: colors,
+            borderColor: "#FFFFFF",
+            borderWidth: 2,
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "68%",
+        plugins: {
+          legend: { display: false },
+          datalabels: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.label}: ${formatNumber(ctx.parsed)}`,
+            },
+          },
+        },
+      },
+    });
+  } else if (ui.statusDonut) {
+    ui.statusDonut.hidden = false;
+    ui.statusDonut.style.background =
+      `conic-gradient(${segments.join(", ")})`;
+  }
   ui.statusDonutValue.textContent = formatNumber(total);
 }
 
@@ -620,6 +668,88 @@ function renderRanking(container, rows, options) {
 
 function renderMonths(payload) {
   const rows = payload.meses ?? [];
+
+  if (window.Chart && ui.monthChartCanvas) {
+    if (ui.monthChart) ui.monthChart.hidden = true;
+    ui.monthChartCanvas.hidden = false;
+    if (monthChartInstance) {
+      monthChartInstance.destroy();
+      monthChartInstance = null;
+    }
+
+    const totalSeries = [];
+    const validSeries = [];
+    for (let index = 0; index < 12; index += 1) {
+      const row = rows.find((item) => numeric(item.mes) === index + 1) ?? {
+        total_registros: 0,
+        validados: 0,
+      };
+      totalSeries.push(numeric(row.total_registros));
+      validSeries.push(numeric(row.validados));
+    }
+
+    const plugins = window.ChartDataLabels ? [window.ChartDataLabels] : [];
+    monthChartInstance = new window.Chart(ui.monthChartCanvas, {
+      type: "bar",
+      plugins,
+      data: {
+        labels: MONTHS,
+        datasets: [
+          {
+            label: "Capturados",
+            data: totalSeries,
+            backgroundColor: "#004B87",
+            borderRadius: 5,
+            barPercentage: 0.72,
+          },
+          {
+            label: "Validados",
+            data: validSeries,
+            backgroundColor: "#059669",
+            borderRadius: 5,
+            barPercentage: 0.72,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "top",
+            align: "end",
+            labels: {
+              boxWidth: 10,
+              font: { size: 11, weight: "700" },
+            },
+          },
+          datalabels: {
+            anchor: "end",
+            align: "top",
+            offset: -2,
+            color: "#334155",
+            font: { size: 9, weight: "700" },
+            formatter: (v) => (v > 0 ? formatNumber(v) : ""),
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 10, weight: "600" } },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { precision: 0, font: { size: 10 } },
+            grid: { color: "#F1F5F9" },
+          },
+        },
+      },
+    });
+    return;
+  }
+
+  if (ui.monthChart) ui.monthChart.hidden = false;
+  if (ui.monthChartCanvas) ui.monthChartCanvas.hidden = true;
   ui.monthChart.replaceChildren();
 
   const max = Math.max(
@@ -1092,6 +1222,7 @@ function bindUi() {
     apply: $("dashboardApplyButton"),
     reset: $("dashboardResetButton"),
     refresh: $("dashboardRefreshButton"),
+    exportXlsx: $("dashboardExportXlsxButton"),
     status: $("dashboardStatus"),
     updated: $("dashboardUpdated"),
 
@@ -1103,6 +1234,7 @@ function bindUi() {
     kpiParticipants: $("dashboardKpiParticipants"),
     kpiAccesses: $("dashboardKpiAccesses"),
     kpiMunicipalities: $("dashboardKpiMunicipalities"),
+    munPct: $("dashboardMunPct"),
 
     validationRate: $("dashboardValidationRate"),
     qualityCount: $("dashboardQualityCount"),
@@ -1110,6 +1242,7 @@ function bindUi() {
     historicalCount: $("dashboardHistoricalCount"),
 
     statusDonut: $("dashboardStatusDonut"),
+    statusChartCanvas: $("dashboardStatusChartCanvas"),
     statusDonutValue: $("dashboardStatusDonutValue"),
     statusList: $("dashboardStatusList"),
     mapMetric: $("dashboardMapMetric"),
@@ -1136,7 +1269,84 @@ function bindUi() {
     unitRanking: $("dashboardUnitRanking"),
     programRanking: $("dashboardProgramRanking"),
     monthChart: $("dashboardMonthChart"),
+    monthChartCanvas: $("dashboardMonthChartCanvas"),
   });
+}
+
+function exportDashboardXlsx() {
+  if (!lastPayload) {
+    window.Swal?.fire({
+      icon: "info",
+      title: "Sin datos cargados",
+      text: "Espera a que cargue el tablero antes de exportar.",
+    });
+    return;
+  }
+  if (!window.XLSX) {
+    window.Swal?.fire({
+      icon: "error",
+      title: "Exportador no disponible",
+      text: "No se encontró la librería XLSX en esta página.",
+    });
+    return;
+  }
+
+  const wb = window.XLSX.utils.book_new();
+  const s = lastPayload.resumen ?? {};
+  const resumenRows = [
+    ["Indicador", "Valor"],
+    ["Ejercicio", lastPayload.ejercicio ?? ui.year?.value ?? "2026"],
+    ["Registros visibles", numeric(s.total_registros)],
+    ["Validados", numeric(s.validados)],
+    ["Pendientes de revisión", numeric(s.pendientes_revision)],
+    ["Observados", numeric(s.observados)],
+    ["Personas beneficiadas", numeric(s.total_beneficiarios)],
+    ["Participantes", numeric(s.total_participantes)],
+    ["Accesos", numeric(s.total_accesos)],
+    ["Municipios con actividad", numeric(s.municipios_con_actividad)],
+    ["Porcentaje validado (%)", numeric(s.porcentaje_validado)],
+  ];
+  window.XLSX.utils.book_append_sheet(
+    wb,
+    window.XLSX.utils.aoa_to_sheet(resumenRows),
+    "Resumen"
+  );
+
+  const munRows = [
+    ["Municipio", "Región", "CVEGEO", "Registros", "Validados", "Pendientes", "Beneficiarios", "Participantes", "Accesos"],
+    ...(lastPayload.municipios ?? []).map((m) => [
+      m.municipio_nombre || "",
+      m.region_nombre || "",
+      m.clave_inegi || "",
+      numeric(m.total_registros),
+      numeric(m.validados),
+      numeric(m.pendientes),
+      numeric(m.beneficiarios),
+      numeric(m.participantes),
+      numeric(m.accesos),
+    ]),
+  ];
+  window.XLSX.utils.book_append_sheet(
+    wb,
+    window.XLSX.utils.aoa_to_sheet(munRows),
+    "Municipios"
+  );
+
+  const mesRows = [
+    ["Mes", "Registros capturados", "Validados"],
+    ...MONTHS.map((label, idx) => {
+      const row = (lastPayload.meses ?? []).find((r) => numeric(r.mes) === idx + 1) ?? {};
+      return [label, numeric(row.total_registros), numeric(row.validados)];
+    }),
+  ];
+  window.XLSX.utils.book_append_sheet(
+    wb,
+    window.XLSX.utils.aoa_to_sheet(mesRows),
+    "Mensual"
+  );
+
+  const year = lastPayload.ejercicio ?? ui.year?.value ?? "2026";
+  window.XLSX.writeFile(wb, `Panel_Directivo_Vinculacion_${year}.xlsx`);
 }
 
 function bindEvents() {
@@ -1162,6 +1372,10 @@ function bindEvents() {
   ui.refresh.addEventListener("click", () => {
     loadDashboard();
   });
+
+  if (ui.exportXlsx) {
+    ui.exportXlsx.addEventListener("click", exportDashboardXlsx);
+  }
 
   ui.mapMetric.addEventListener("change", () => {
     if (!lastPayload) return;
