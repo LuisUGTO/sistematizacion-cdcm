@@ -21,6 +21,10 @@ import {
   loadMunicipalities,
   loadCommunities,
 } from "./catalogs.js?v=7.2.2";
+import {
+  syncMonthRowsToCloud,
+  fetchMonthRowsFromCloud,
+} from "./capture-matrix-sync.js?v=8.4.0";
 
 const STORAGE_PREFIX = "vc_libro_excel_2026_v2";
 const SETTLEMENTS_PREFIX = "vc_asentamientos_cascada_2026_v1";
@@ -472,6 +476,8 @@ export async function initCaptureMatrix2026(context) {
     settlementsCache: new Map(),
     sectionsData: {}, // sectionId -> rows[]
     saveTimer: null,
+    cloudSyncTimer: null,
+    isSyncing: false,
   };
 
   const els = {
@@ -585,6 +591,189 @@ export async function initCaptureMatrix2026(context) {
     state.saveTimer = setTimeout(() => {
       saveActiveMonthNow();
     }, 300);
+
+    if (state.cloudSyncTimer) clearTimeout(state.cloudSyncTimer);
+    state.cloudSyncTimer = setTimeout(() => {
+      syncActiveMonthWithCloud({ showAlert: false });
+    }, 2800);
+  }
+
+  async function syncActiveMonthWithCloud({ showAlert = false } = {}) {
+    if (state.activeTabId === "SEM1" || state.activeTabId === "SEM2") return;
+    if (!state.municipalityId || String(state.municipalityId).startsWith("local-")) {
+      if (showAlert) {
+        window.Swal?.fire({
+          icon: "info",
+          title: "Hoja guardada localmente",
+          text: "Se guardó en tu navegador. Inicia sesión con un municipio asignado para sincronizar con Supabase.",
+          timer: 2600,
+        });
+      }
+      return;
+    }
+
+    const hasPending = SECTIONS.some((sec) =>
+      (state.sectionsData[sec.id] || []).some(
+        (r) => isRowUsed(r) && (!r.recordId || r._dirty)
+      )
+    );
+
+    if (!hasPending) {
+      if (showAlert) {
+        window.Swal?.fire({
+          icon: "success",
+          title: "Hoja al día en Supabase",
+          text: "Todas tus filas capturadas ya están respaldadas en la base de datos institucional.",
+          timer: 2200,
+        });
+      }
+      return;
+    }
+
+    if (state.isSyncing) return;
+    state.isSyncing = true;
+    setStatus("Sincronizando nube...", "saving");
+
+    try {
+      const res = await syncMonthRowsToCloud({
+        context,
+        municipalityId: state.municipalityId,
+        municipalityName: getMunicipalityName(),
+        year: state.year,
+        monthNum: state.activeTabId,
+        elabora: state.elabora,
+        identity,
+        sections: SECTIONS,
+        sectionsData: state.sectionsData,
+        isRowUsed,
+        rowTotalPeople,
+      });
+
+      saveActiveMonthNow();
+
+      const hhmm = new Date().toLocaleTimeString("es-MX", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      if (res.errors.length === 0) {
+        setStatus(`Guardado en nube · ${hhmm}`, "saved");
+      } else {
+        setStatus(`Guardado parcial (${res.errors.length} avisos)`, "warning");
+      }
+
+      if (showAlert) {
+        if (res.errors.length === 0) {
+          window.Swal?.fire({
+            icon: "success",
+            title: "Hoja guardada en Supabase",
+            text: `Se sincronizaron ${res.synced} fila(s) en la base institucional (${res.created} nuevas, ${res.updated} actualizadas).`,
+            timer: 2600,
+          });
+        } else {
+          window.Swal?.fire({
+            icon: "warning",
+            title: "Guardado parcial en la nube",
+            text: `Se guardaron ${res.synced} fila(s), pero hubo ${res.errors.length} observación(es): ${res.errors[0]}`,
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Sincronización en nube fallida (se mantiene copia local):", err);
+      setStatus("Guardado local (sin nube)", "warning");
+      if (showAlert) {
+        window.Swal?.fire({
+          icon: "warning",
+          title: "Guardado en este equipo",
+          text: `Tu hoja quedó guardada localmente, pero no se pudo conectar con Supabase: ${err?.message || "revisa tu conexión"}.`,
+        });
+      }
+    } finally {
+      state.isSyncing = false;
+    }
+  }
+
+  async function hydrateActiveMonthFromCloud() {
+    if (state.activeTabId === "SEM1" || state.activeTabId === "SEM2") return;
+    if (!state.municipalityId || String(state.municipalityId).startsWith("local-")) return;
+
+    const targetMonth = state.activeTabId;
+    const targetMpio = state.municipalityId;
+
+    try {
+      const cloudData = await fetchMonthRowsFromCloud({
+        municipalityId: targetMpio,
+        year: state.year,
+        monthNum: targetMonth,
+      });
+      if (!cloudData || state.activeTabId !== targetMonth || state.municipalityId !== targetMpio) {
+        return;
+      }
+
+      let changed = false;
+      for (const sec of SECTIONS) {
+        const cloudRows = cloudData.bySection[sec.id] || [];
+        if (cloudRows.length === 0) continue;
+
+        const localRows = state.sectionsData[sec.id] || [];
+        const usedLocal = localRows.filter(isRowUsed);
+
+        if (usedLocal.length === 0) {
+          const padCount = Math.max(0, DEFAULT_EMPTY_ROWS - cloudRows.length);
+          state.sectionsData[sec.id] = [
+            ...cloudRows,
+            ...createDefaultSectionRows(sec.kind, padCount),
+          ];
+          changed = true;
+        } else {
+          // Mezcla filas de la nube que no existan localmente y actualiza estatus si cambió en servidor
+          const localByRecordId = new Map(
+            usedLocal.filter((r) => r.recordId).map((r) => [r.recordId, r])
+          );
+          for (const cr of cloudRows) {
+            const match = localByRecordId.get(cr.recordId);
+            if (match) {
+              if (match.estatus !== cr.estatus || match.rowVersion !== cr.rowVersion) {
+                match.estatus = cr.estatus;
+                match.rowVersion = cr.rowVersion;
+                changed = true;
+              }
+            } else {
+              const clientMatch = usedLocal.find((lr) => lr.id === cr.id);
+              if (clientMatch) {
+                clientMatch.recordId = cr.recordId;
+                clientMatch.folio = cr.folio;
+                clientMatch.estatus = cr.estatus;
+                clientMatch.rowVersion = cr.rowVersion;
+                changed = true;
+              } else {
+                usedLocal.push(cr);
+                changed = true;
+              }
+            }
+          }
+          if (changed) {
+            const blanks = localRows.filter((r) => !isRowUsed(r));
+            state.sectionsData[sec.id] = [
+              ...usedLocal,
+              ...(blanks.length > 0 ? blanks : [createBlankRow(sec.kind)]),
+            ];
+          }
+        }
+      }
+
+      if (cloudData.elabora && !state.elabora) {
+        state.elabora = cloudData.elabora;
+      }
+
+      if (changed) {
+        saveActiveMonthNow();
+        renderMonthSheet();
+        setStatus("Sincronizado con nube", "saved");
+      }
+    } catch (err) {
+      console.warn("No se pudo hidratar mes desde Supabase:", err);
+    }
   }
 
   function setStatus(text, stateKind = "ready") {
@@ -849,9 +1038,11 @@ export async function initCaptureMatrix2026(context) {
       btn.addEventListener("click", () => {
         if (state.activeTabId === tab.id) return;
         saveActiveMonthNow();
+        syncActiveMonthWithCloud({ showAlert: false });
         state.activeTabId = tab.id;
         loadActiveMonthData();
         renderCurrentView();
+        hydrateActiveMonthFromCloud();
       });
 
       els.bottomTabs.appendChild(btn);
@@ -1304,6 +1495,7 @@ export async function initCaptureMatrix2026(context) {
       await ensureSettlements(state.municipalityId);
       loadActiveMonthData();
       renderCurrentView();
+      hydrateActiveMonthFromCloud();
     });
 
     const inlineElabora = document.getElementById("excelInlineElaboraInput");
@@ -1550,6 +1742,7 @@ export async function initCaptureMatrix2026(context) {
       const k = target.dataset.demo;
       const val = toInt(target.value);
       row[k] = val;
+      row._dirty = true;
       target.classList.toggle("is-zero", val === 0);
       refreshSectionTotalsInDom(secId);
       scheduleSave();
@@ -1559,6 +1752,7 @@ export async function initCaptureMatrix2026(context) {
     const field = target.dataset.field;
     if (field) {
       row[field] = target.value;
+      row._dirty = true;
       refreshSectionTotalsInDom(secId);
       scheduleSave();
     }
@@ -1580,6 +1774,7 @@ export async function initCaptureMatrix2026(context) {
       row.zona = target.value;
       row.asentamientoId = "";
       row.asentamientoNombre = "";
+      row._dirty = true;
       scheduleSave();
       renderMonthSheet();
       return;
@@ -1592,6 +1787,7 @@ export async function initCaptureMatrix2026(context) {
             row.zona = created.tipo;
             row.asentamientoId = created.id;
             row.asentamientoNombre = created.nombre;
+            row._dirty = true;
             scheduleSave();
           }
           renderMonthSheet();
@@ -1602,6 +1798,7 @@ export async function initCaptureMatrix2026(context) {
       const all = state.settlementsCache.get(state.municipalityId) || [];
       const found = all.find((x) => x.id === target.value);
       row.asentamientoNombre = found ? found.nombre : "";
+      row._dirty = true;
       refreshSectionTotalsInDom(secId);
       scheduleSave();
       return;
@@ -1609,6 +1806,7 @@ export async function initCaptureMatrix2026(context) {
 
     if (field) {
       row[field] = target.value;
+      row._dirty = true;
       refreshSectionTotalsInDom(secId);
       scheduleSave();
     }
@@ -1636,6 +1834,7 @@ export async function initCaptureMatrix2026(context) {
       if (!row) return;
       const dKey = dayBtn.dataset.day;
       row.dias[dKey] = !row.dias[dKey];
+      row._dirty = true;
       dayBtn.classList.toggle("on", row.dias[dKey]);
       scheduleSave();
       return;
@@ -1739,6 +1938,11 @@ export async function initCaptureMatrix2026(context) {
       const cloned = prevRows.map((r) => {
         const copy = JSON.parse(JSON.stringify(r));
         copy.id = makeRowId();
+        delete copy.recordId;
+        delete copy.folio;
+        delete copy.estatus;
+        delete copy.rowVersion;
+        copy._dirty = true;
         for (const k of DEMO_KEYS) copy[k] = 0;
         return copy;
       });
@@ -1773,14 +1977,14 @@ export async function initCaptureMatrix2026(context) {
 
   els.btnPadron?.addEventListener("click", openPadronModal);
 
-  els.btnSave?.addEventListener("click", () => {
+  els.btnSave?.addEventListener("click", async () => {
     saveActiveMonthNow();
-    window.Swal?.fire({
-      icon: "success",
-      title: "Hoja guardada",
-      text: "Tus filas quedaron guardadas. Al volver a entrar verás tu hoja exactamente como la dejaste.",
-      timer: 2000,
-    });
+    if (els.btnSave) els.btnSave.disabled = true;
+    try {
+      await syncActiveMonthWithCloud({ showAlert: true });
+    } finally {
+      if (els.btnSave) els.btnSave.disabled = false;
+    }
   });
 
   // Exportar el libro completo (ENE..DIC) a .xlsx real
@@ -1888,23 +2092,26 @@ export async function initCaptureMatrix2026(context) {
     window.XLSX.writeFile(wb, `Libro_CasasDeLaCultura_${cleanName}_${state.year}.xlsx`);
   });
 
-  // Carga del municipio asignado al usuario en sesión
-  let mpios = [];
+  // Render inmediato sin bloquear la primera vista
+  state.municipalities = [{ id: "local-municipio", nombre_oficial: "Mi Municipio" }];
+  state.municipalityId = state.municipalities[0].id;
+  loadActiveMonthData();
+  renderCurrentView();
+
+  // Carga asíncrona de municipios asignados, localidades e hidratación desde Supabase
   if (context) {
     try {
-      mpios = await loadMunicipalities(context);
+      const mpios = await loadMunicipalities(context);
+      if (Array.isArray(mpios) && mpios.length > 0) {
+        state.municipalities = mpios;
+        state.municipalityId = mpios[0].id;
+        await ensureSettlements(state.municipalityId);
+        loadActiveMonthData();
+        renderCurrentView();
+        hydrateActiveMonthFromCloud();
+      }
     } catch (err) {
       console.warn("No se pudieron consultar municipios en catálogo:", err);
     }
   }
-  if (mpios.length === 0) {
-    mpios = [{ id: "local-municipio", nombre_oficial: "Mi Municipio" }];
-  }
-
-  state.municipalities = mpios;
-  state.municipalityId = mpios[0].id;
-
-  await ensureSettlements(state.municipalityId);
-  loadActiveMonthData();
-  renderCurrentView();
 }

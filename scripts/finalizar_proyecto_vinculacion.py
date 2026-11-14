@@ -1,0 +1,12 @@
+from docx import Document
+from pathlib import Path
+
+src=Path('Documentos SC/Expediente Vinculacion/08 Proyecto de vinculación cultural - BORRADOR.docx')
+dst=Path('Documentos SC/Expediente Vinculacion/08 Proyecto de vinculación cultural - EDITABLE.docx')
+d=Document(src)
+p=d.paragraphs
+values={0:'Silao de la Victoria, Guanajuato, 09 de noviembre de 2026',1:'PROYECTO DE VINCULACIÓN CULTURAL',2:'Sistematización de actividades de Vinculación Cultural',3:'Secretaría de Cultura del Estado de Guanajuato.',4:'Atención: Dirección General de Vinculación y Desarrollo Cultural - Coordinación de Desarrollo Cultural Municipal.',5:'1. Objetivo',6:'Organizar el registro y seguimiento de actividades de Vinculación Cultural en la plataforma CDCM para que el área pueda consultar qué actividades se realizaron, dónde y a qué población se atendió.',7:'2. Alcance propuesto',8:'Revisar los formatos de reporte y homologar campos para talleres, eventos, procesos de formación, reuniones de colaboración y promoción de talento local. Vincular los registros con catálogos de programas, acciones, municipios, comunidades y sedes, según el tipo de actividad.',9:'3. Entregables propuestos',10:'1. Matriz de fuentes, campos y responsables. Relaciona los formatos de reporte con los datos que contienen y las áreas que los generan o revisan.\n2. Catálogos y criterios homologados de captura. Define cómo registrar programas, acciones, municipios, comunidades, sedes y tipos de actividad.\n3. Estructura de registros de actividades. Organiza los datos de talleres, eventos, formación y otras acciones según el tipo de registro.\n4. Descripción funcional de módulos y flujos. Documenta los pasos de captura, revisión y consulta, con las responsabilidades de cada perfil.\n5. Reportes o vistas de seguimiento. Permiten consultar las actividades por periodo, territorio y tipo de actividad dentro del alcance acordado.\n6. Guía de operación y actualización. Reúne criterios para mantener los catálogos, revisar la calidad de los registros y actualizar la información.',11:'4. Consideraciones de entrega',12:'El periodo de ejecución, las unidades participantes, el calendario de actividades y los criterios de aceptación se establecerán conforme a las indicaciones de la Secretaría de Cultura y al instrumento administrativo correspondiente.',13:'Atentamente,'}
+for i,v in values.items(): p[i].text=v
+p.append(d.add_paragraph('Luis Ángel Durán Álvarez'))
+p.append(d.add_paragraph('PULSO       | Representante de la propuesta'))
+d.save(dst)

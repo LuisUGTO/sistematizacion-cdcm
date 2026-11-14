@@ -4928,6 +4928,7 @@
           class="tab-button"
           type="button"
           data-tab-target="bitacora"
+          hidden
         >
           Bitácora
         </button>
@@ -7046,7 +7047,7 @@
 
     import {
       initCaptureMatrix2026,
-    } from "./js/capture-matrix.js?v=8.3.0";
+    } from "./js/capture-matrix.js?v=8.4.0";
 
     import {
       initBitacoraV2,
@@ -7317,10 +7318,12 @@
       const canAdminister = isAdmin(context);
 
       ui.captureTabButton.disabled = !canCapture;
-      ui.logTabButton.disabled = !(canReadOwn || canReadScope);
+      // Flujo simplificado 2026: Captura directa tipo Excel + Panel Directivo (Bitácora y Validación ocultos en UI)
+      ui.logTabButton.hidden = true;
+      ui.logTabButton.disabled = true;
 
-      ui.validationTabButton.hidden = !canValidate;
-      ui.validationTabButton.disabled = !canValidate;
+      ui.validationTabButton.hidden = true;
+      ui.validationTabButton.disabled = true;
 
       ui.dashboardTabButton.disabled = !canDashboard;
       ui.intelligenceButton.hidden = !canDashboard;

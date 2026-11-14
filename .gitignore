@@ -4,3 +4,12 @@ node_modules/
 .env.*
 !.env.example
 test-results/
+
+# Expediente administrativo privado: identificacion, datos fiscales y firmas.
+/Documentos SC/
+
+# Herramientas locales y temporales de desarrollo
+.tools/
+tmp_cotizacion_firmada/
+__pycache__/
+*.pyc
