@@ -7047,7 +7047,7 @@
 
     import {
       initCaptureMatrix2026,
-    } from "./js/capture-matrix.js?v=8.4.1";
+    } from "./js/capture-matrix.js?v=8.4.2";
 
     import {
       initBitacoraV2,
@@ -7203,8 +7203,19 @@
     async function registerApplicationWorker() {
       if (!("serviceWorker" in navigator) || window.location.protocol === "file:") return;
 
+      const hadController = Boolean(navigator.serviceWorker.controller);
+      let reloadingForUpdate = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!hadController || reloadingForUpdate) return;
+        reloadingForUpdate = true;
+        window.location.reload();
+      });
+
       try {
-        const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+        const registration = await navigator.serviceWorker.register("./sw.js", {
+          scope: "./",
+          updateViaCache: "none",
+        });
         registration.update().catch(() => {});
       } catch (error) {
         console.error("No se pudo preparar la instalación de la aplicación:", error);

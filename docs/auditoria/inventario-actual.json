@@ -26224,10 +26224,10 @@
   },
   {
     "archivo": "index.html",
-    "bytes": 209706,
-    "sha256": "f62835e8e9881d62c965fa788688907079e72e262df408cf99a47009b87bcef0",
+    "bytes": 210083,
+    "sha256": "bafd4fcce2ce71dd1c58a6f58f9479f2fd7dbeabb1404fb6001d9ac07ce1ef0a",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 8003,
+    "lineas": 8014,
     "referenciasLocalesAusentes": [],
     "scriptsInline": [
       "PASS"
@@ -26272,7 +26272,7 @@
   {
     "archivo": "js/capture-matrix-sync.js",
     "bytes": 14515,
-    "sha256": "f45d7cb713deba6877b3cf8dfaa06bfe70e4cc1167512f1102f543d55183983b",
+    "sha256": "9eb2931af94f2d00f6cb519d0965c03e49abc55d15be6348065689b34383f09f",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 488,
     "sintaxis": "PASS",
@@ -26281,7 +26281,7 @@
   {
     "archivo": "js/capture-matrix.js",
     "bytes": 70095,
-    "sha256": "4cf3621bc744cfc180bff6668f1aeb4a3d50d5be7f282c0ebcfb277db3a2b04b",
+    "sha256": "ef1b136fce7de2e11d7cd9bb3ab8e4c0502f6e8e5d4e99dd7e34ed58fbb72212",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 2118,
     "sintaxis": "PASS",
@@ -26307,10 +26307,10 @@
   },
   {
     "archivo": "js/catalogs.js",
-    "bytes": 9500,
-    "sha256": "b32dc38755b397ebd634af736acb22050c44bce2444c7e3e9663f5e5fd0376f8",
+    "bytes": 9757,
+    "sha256": "9b4104d402056ba6c082ae67df81c25d1abcf47403b6453a5b40948011d31aaa",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 467,
+    "lineas": 474,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -27170,7 +27170,7 @@
   {
     "archivo": "sw.js",
     "bytes": 3175,
-    "sha256": "ac07577e9b2518394b2ad5d8ecda91cb952cd79f63274fa1dc605cf22b15f5b1",
+    "sha256": "64ff73b7c5be7b59720246d7da91fe11d913a1fc41dc6a75f58bcaeaf07c0cd9",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 110,
     "sintaxis": "PASS",

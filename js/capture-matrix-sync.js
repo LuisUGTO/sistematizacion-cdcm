@@ -16,7 +16,7 @@ import {
   loadActionConfiguration,
   loadDemographicDefinition,
   resolveCaptureSpace,
-} from "./catalogs.js?v=7.2.2";
+} from "./catalogs.js?v=7.2.3";
 
 const SECTION_TO_ACTION_CLAVE = Object.freeze({
   talleres_cc: "PB3562_2602",

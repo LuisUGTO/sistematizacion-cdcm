@@ -20,11 +20,11 @@ import { isAdmin } from "./permissions.js";
 import {
   loadMunicipalities,
   loadCommunities,
-} from "./catalogs.js?v=7.2.2";
+} from "./catalogs.js?v=7.2.3";
 import {
   syncMonthRowsToCloud,
   fetchMonthRowsFromCloud,
-} from "./capture-matrix-sync.js?v=8.4.1";
+} from "./capture-matrix-sync.js?v=8.4.2";
 
 const STORAGE_PREFIX = "vc_libro_excel_2026_v2";
 const SETTLEMENTS_PREFIX = "vc_asentamientos_cascada_2026_v1";

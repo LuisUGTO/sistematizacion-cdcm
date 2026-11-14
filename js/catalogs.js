@@ -94,6 +94,13 @@ export async function loadActions(
   programId = null,
   referenceDate = todayISO()
 ) {
+  if (unitId && typeof unitId === "object") {
+    const opts = unitId;
+    unitId = opts.unitId ?? opts.unidadOperativaId ?? null;
+    programId = opts.programId ?? opts.programaId ?? programId;
+    referenceDate = opts.referenceDate ?? referenceDate;
+  }
+
   if (!unitId || !referenceDate) {
     return [];
   }
