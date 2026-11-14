@@ -27169,8 +27169,8 @@
   },
   {
     "archivo": "sw.js",
-    "bytes": 3158,
-    "sha256": "616a8115216a080757670f6d629a2be711efd7272ae00ed269877b89a4594ecd",
+    "bytes": 3175,
+    "sha256": "ac07577e9b2518394b2ad5d8ecda91cb952cd79f63274fa1dc605cf22b15f5b1",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 110,
     "sintaxis": "PASS",

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vinculacion-cultural-matriz-2026-05";
+const CACHE_VERSION = "vinculacion-cultural-matriz-2026-06";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -99,8 +99,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  const isStaticAsset = ["image", "font", "style", "script"].includes(request.destination) ||
-    url.pathname.includes("/assets/") ||
+  const isStaticAsset = ["image", "font"].includes(request.destination) ||
+    (url.pathname.includes("/assets/") && !url.pathname.endsWith(".css")) ||
     url.pathname.endsWith(".webmanifest");
 
   event.respondWith(
