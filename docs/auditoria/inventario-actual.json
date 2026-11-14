@@ -15,10 +15,10 @@
   },
   {
     "archivo": ".gitignore",
-    "bytes": 155,
-    "sha256": "7a7b2c49d6b28be476cd1bce5ac18eac92d60a765c8a8f88458ae27de60ec89b",
+    "bytes": 257,
+    "sha256": "b5861a8dbb265d375b7e0ad039096828eab43f612617b82c800b5e23ab9841be",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 10
+    "lineas": 16
   },
   {
     "archivo": ".tools/faster_whisper/__pycache__/typing_extensions.cpython-312.pyc",
@@ -26225,7 +26225,7 @@
   {
     "archivo": "index.html",
     "bytes": 209706,
-    "sha256": "77cf3c2e00a32777837f0d85aceb3bc70f753edc74ed1607c4489001338fb465",
+    "sha256": "f62835e8e9881d62c965fa788688907079e72e262df408cf99a47009b87bcef0",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 8003,
     "referenciasLocalesAusentes": [],
@@ -26271,8 +26271,8 @@
   },
   {
     "archivo": "js/capture-matrix-sync.js",
-    "bytes": 14527,
-    "sha256": "af6be5496c8fea251dcc86e77d6f9be7948b2110e41f5dace2b34853dba814be",
+    "bytes": 14515,
+    "sha256": "f45d7cb713deba6877b3cf8dfaa06bfe70e4cc1167512f1102f543d55183983b",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 488,
     "sintaxis": "PASS",
@@ -26281,7 +26281,7 @@
   {
     "archivo": "js/capture-matrix.js",
     "bytes": 70095,
-    "sha256": "bd41902ba67ef0409cefb351092f0858b080ce430df921b257f34d02db3f51dd",
+    "sha256": "4cf3621bc744cfc180bff6668f1aeb4a3d50d5be7f282c0ebcfb277db3a2b04b",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 2118,
     "sintaxis": "PASS",
@@ -27170,7 +27170,7 @@
   {
     "archivo": "sw.js",
     "bytes": 3158,
-    "sha256": "6eb04cf621b0db62fff38fbfc705d355ed84807c8f50c0d0e58ab77bb88abf46",
+    "sha256": "616a8115216a080757670f6d629a2be711efd7272ae00ed269877b89a4594ecd",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 110,
     "sintaxis": "PASS",

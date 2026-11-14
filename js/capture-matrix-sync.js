@@ -61,7 +61,7 @@ export async function ensureMatrixCloudContext(context) {
       throw new Error("No se encontró la unidad operativa CDCM en catálogos.");
     }
 
-    const actions = await loadActions({ unitId: cdcmUnit.id });
+    const actions = await loadActions(cdcmUnit.id);
     if (!actions || actions.length === 0) {
       throw new Error("No hay acciones operativas activas para CDCM.");
     }
