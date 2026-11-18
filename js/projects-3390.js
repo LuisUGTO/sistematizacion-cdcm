@@ -333,7 +333,7 @@ export async function initProjects3390Module(context, { preloadedProjects = null
         <div><label style="font-size:11px;font-weight:700;">Recurso Municipal ($$)</label><input id="p3390RecMun" class="control" type="number" min="0" step="0.01" value="${escapeHtml(meta.recursoMun || "")}" placeholder="0.00" /></div>
         <div style="display:flex;gap:8px;justify-content:flex-end;grid-column:span 2 / -1;">
           ${editing ? `<button id="p3390CancelEdit" type="button" class="btn-secondary">Cancelar edición</button>` : ""}
-          <button type="submit" class="btn-primary">${editing ? "Actualizar sesión" : "Guardar sesión en Supabase"}</button>
+          <button type="submit" class="btn-primary">${editing ? "Actualizar sesión" : "Guardar sesión"}</button>
         </div>
       </div>`;
 
@@ -418,7 +418,7 @@ export async function initProjects3390Module(context, { preloadedProjects = null
         const ok = await window.Swal?.fire({
           icon: "question",
           title: "Quitar sesión",
-          text: `¿Deseas retirar la sesión "${rec.nombre}" de Supabase?`,
+          text: `¿Deseas retirar la sesión "${rec.nombre}" de la base institucional?`,
           showCancelButton: true,
           confirmButtonText: "Sí, retirar",
           cancelButtonText: "Cancelar",
@@ -664,7 +664,7 @@ export async function initProjects3390Module(context, { preloadedProjects = null
       renderSessionsTable();
       window.Swal?.fire({
         icon: "success",
-        title: editing ? "Sesión actualizada" : "Sesión guardada en Supabase",
+        title: editing ? "Sesión actualizada" : "Sesión guardada",
         timer: 1400,
         showConfirmButton: false,
       });

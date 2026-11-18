@@ -606,7 +606,7 @@ export async function initCaptureMatrix2026(context) {
         window.Swal?.fire({
           icon: "info",
           title: "Hoja guardada localmente",
-          text: "Se guardó en tu navegador. Inicia sesión con un municipio asignado para sincronizar con Supabase.",
+          text: "Se guardó en tu navegador. Inicia sesión con un municipio asignado para guardar en la base institucional.",
           timer: 2600,
         });
       }
@@ -623,7 +623,7 @@ export async function initCaptureMatrix2026(context) {
       if (showAlert) {
         window.Swal?.fire({
           icon: "success",
-          title: "Hoja al día en Supabase",
+          title: "Hoja al día",
           text: "Todas tus filas capturadas ya están respaldadas en la base de datos institucional.",
           timer: 2200,
         });
@@ -667,7 +667,7 @@ export async function initCaptureMatrix2026(context) {
         if (res.errors.length === 0) {
           window.Swal?.fire({
             icon: "success",
-            title: "Hoja guardada en Supabase",
+            title: "Hoja guardada",
             text: `Se sincronizaron ${res.synced} fila(s) en la base institucional (${res.created} nuevas, ${res.updated} actualizadas).`,
             timer: 2600,
           });
@@ -686,7 +686,7 @@ export async function initCaptureMatrix2026(context) {
         window.Swal?.fire({
           icon: "warning",
           title: "Guardado en este equipo",
-          text: `Tu hoja quedó guardada localmente, pero no se pudo conectar con Supabase: ${err?.message || "revisa tu conexión"}.`,
+          text: `Tu hoja quedó guardada localmente, pero no se pudo conectar con la base institucional: ${err?.message || "revisa tu conexión"}.`,
         });
       }
     } finally {
@@ -1905,7 +1905,7 @@ export async function initCaptureMatrix2026(context) {
           const confirmDel = await window.Swal.fire({
             icon: "question",
             title: "Quitar fila guardada",
-            text: `¿Deseas quitar "${targetRow.titulo || sec?.jumpLabel || "esta fila"}" de este mes? También se retirará de Supabase.`,
+            text: `¿Deseas quitar "${targetRow.titulo || sec?.jumpLabel || "esta fila"}" de este mes? También se retirará de la base institucional.`,
             showCancelButton: true,
             confirmButtonText: "Sí, quitar",
             cancelButtonText: "Cancelar",
@@ -1918,7 +1918,7 @@ export async function initCaptureMatrix2026(context) {
           console.warn("No se pudo retirar el borrador en Supabase:", err);
           window.Swal?.fire({
             icon: "error",
-            title: "No se pudo quitar en Supabase",
+            title: "No se pudo quitar la fila",
             text: err?.message || "Intenta nuevamente en unos segundos.",
           });
           return;

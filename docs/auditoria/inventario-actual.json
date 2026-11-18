@@ -26287,8 +26287,8 @@
   },
   {
     "archivo": "js/capture-matrix.js",
-    "bytes": 73673,
-    "sha256": "51936c65158300e2d1a4def51214268137670630385a651e5b647c97d4f1e9d0",
+    "bytes": 73679,
+    "sha256": "50d29e3f9bdf6550f1955d20490e4c76b8e4a5c19175578dfb24e2651bae5208",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 2206,
     "sintaxis": "PASS",
@@ -26440,8 +26440,8 @@
   },
   {
     "archivo": "js/projects-3390.js",
-    "bytes": 34532,
-    "sha256": "12e9e245dddf7abebae4ad3727de306e14ba206d22fcf0c3f2a253774f64d93b",
+    "bytes": 34521,
+    "sha256": "3dc46b28ca7e92dd0e2b5615444c1333b2dc25e1f1aa16da167d26a000e87c63",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 820,
     "sintaxis": "PASS",
@@ -27216,7 +27216,7 @@
   {
     "archivo": "sw.js",
     "bytes": 3273,
-    "sha256": "9605bf772f306ab2698bddb5b571f9474760e1f46d614b9b213cae8f0ce27ff4",
+    "sha256": "2450fab84b8b7f0361e63033b22da9d761a91f0ec8db25ba16c1f99ff16e5858",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 113,
     "sintaxis": "PASS",
