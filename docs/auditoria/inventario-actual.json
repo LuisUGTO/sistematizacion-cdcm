@@ -26231,10 +26231,10 @@
   },
   {
     "archivo": "index.html",
-    "bytes": 211934,
-    "sha256": "9d39871e1981ae6d5ee37425a56102c5dadeef37c8ff18fc3820b48d085ec9f7",
+    "bytes": 211985,
+    "sha256": "89bff8835c01e823d2d7834710b74eed3641be90049f1da504573d7b7f2c2b6e",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 8030,
+    "lineas": 8032,
     "referenciasLocalesAusentes": [],
     "scriptsInline": [
       "PASS"
@@ -27216,7 +27216,7 @@
   {
     "archivo": "sw.js",
     "bytes": 3273,
-    "sha256": "2450fab84b8b7f0361e63033b22da9d761a91f0ec8db25ba16c1f99ff16e5858",
+    "sha256": "9b021effb06bde1394be1b8b01b2aa8abc69a7e6bf8f367c69a6b27154a08cd5",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 113,
     "sintaxis": "PASS",

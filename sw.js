@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vinculacion-cultural-matriz-2026-11";
+const CACHE_VERSION = "vinculacion-cultural-matriz-2026-12";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
