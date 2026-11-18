@@ -25723,10 +25723,10 @@
   },
   {
     "archivo": "CONTEXTO_PROYECTO.md",
-    "bytes": 26118,
-    "sha256": "b59d701d2e185860aeea6e243c70f432cf9a69e3c2d28314464eeb459af2e6e5",
+    "bytes": 28195,
+    "sha256": "871eafc08a8a8e8b311a49f0477e458cb56cc3784c0297ff4e5023a8e6b673bf",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 214
+    "lineas": 228
   },
   {
     "archivo": "docs/historico/DIAGNOSTICO_ARCHIVOS_EXCEL_ETAPA_6_4.md",
@@ -26232,7 +26232,7 @@
   {
     "archivo": "index.html",
     "bytes": 211985,
-    "sha256": "89bff8835c01e823d2d7834710b74eed3641be90049f1da504573d7b7f2c2b6e",
+    "sha256": "dd3ecef16e3f85fd8905bc19bc0b2aed61cf24a91c275f348db036c19bcd33e6",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 8032,
     "referenciasLocalesAusentes": [],
@@ -26278,19 +26278,19 @@
   },
   {
     "archivo": "js/capture-matrix-sync.js",
-    "bytes": 16758,
-    "sha256": "c671f79d35ef119f378caf1270fd797000d9faada3afd774fe0a3dcd04c71288",
+    "bytes": 18799,
+    "sha256": "b7e116ffe3ba0f93ad2ca260284a2a2abc4a62083af6682a9da48c8c5b2a0064",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 566,
+    "lineas": 633,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
   {
     "archivo": "js/capture-matrix.js",
-    "bytes": 73679,
-    "sha256": "50d29e3f9bdf6550f1955d20490e4c76b8e4a5c19175578dfb24e2651bae5208",
+    "bytes": 75544,
+    "sha256": "9129d5501a801c227e32091aa11f80efc6c9b018e70cda0c9fad85ba90d2cb66",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 2206,
+    "lineas": 2259,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -27216,7 +27216,7 @@
   {
     "archivo": "sw.js",
     "bytes": 3273,
-    "sha256": "9b021effb06bde1394be1b8b01b2aa8abc69a7e6bf8f367c69a6b27154a08cd5",
+    "sha256": "5a6b4c0906e035e65ae6d3dabf7df29ccdb47083cf74f3dbc2de90fefe477ade",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 113,
     "sintaxis": "PASS",

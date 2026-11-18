@@ -563,3 +563,70 @@ export async function fetchMonthRowsFromCloud({
     totalCloudRows: (data || []).length,
   };
 }
+
+/**
+ * Consulta todos los registros de un conjunto de meses (Concentrado Sem 1 / Sem 2)
+ * desde Supabase para que el concentrado funcione aunque no se hayan abierto
+ * todos los meses en el navegador actual.
+ */
+export async function fetchSemesterRowsFromCloud({
+  municipalityId,
+  year,
+  months = [],
+}) {
+  if (!municipalityId || String(municipalityId).startsWith("local-") || !months.length) {
+    return null;
+  }
+
+  const monthNums = months.map((m) => Number(m)).filter(Number.isFinite);
+  if (!monthNums.length) return null;
+
+  const { data, error } = await dbV2()
+    .from("registros")
+    .select("id,periodo_mes,nombre,metadata,total_participantes")
+    .eq("municipio_id", municipalityId)
+    .eq("periodo_anio", Number(year))
+    .in("periodo_mes", monthNums)
+    .is("deleted_at", null);
+
+  if (error) {
+    console.warn("No se pudieron consultar concentrados semestrales:", error);
+    return null;
+  }
+
+  const byMonth = new Map();
+  for (const row of data || []) {
+    const excelMeta = row.metadata?.libro_excel_2026;
+    if (!excelMeta || !excelMeta.sectionId) continue;
+
+    const mm = String(row.periodo_mes).padStart(2, "0");
+    if (!byMonth.has(mm)) byMonth.set(mm, {});
+    const secMap = byMonth.get(mm);
+    if (!secMap[excelMeta.sectionId]) secMap[excelMeta.sectionId] = [];
+
+    const dm = excelMeta.demografia_matrix || {};
+    secMap[excelMeta.sectionId].push({
+      id: excelMeta.rowClientId || row.id,
+      recordId: row.id,
+      titulo: row.nombre || "",
+      subtitulo: excelMeta.proyectoId || "",
+      sede: excelMeta.sede || "",
+      asentamientoNombre: excelMeta.asentamientoNombre || "",
+      docente: excelMeta.docente || "",
+      pi_m: dm.pi_m || 0,
+      pi_h: dm.pi_h || 0,
+      inf_m: dm.inf_m || 0,
+      inf_h: dm.inf_h || 0,
+      ado_m: dm.ado_m || 0,
+      ado_h: dm.ado_h || 0,
+      jov_m: dm.jov_m || 0,
+      jov_h: dm.jov_h || 0,
+      adu_m: dm.adu_m || 0,
+      adu_h: dm.adu_h || 0,
+      may_m: dm.may_m || 0,
+      may_h: dm.may_h || 0,
+    });
+  }
+
+  return byMonth;
+}

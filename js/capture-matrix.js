@@ -24,10 +24,11 @@ import {
 import {
   syncMonthRowsToCloud,
   fetchMonthRowsFromCloud,
+  fetchSemesterRowsFromCloud,
   fetchCollaborativeProjects,
   registerSettlementInCloud,
   cancelCloudDraftRow,
-} from "./capture-matrix-sync.js?v=8.5.0";
+} from "./capture-matrix-sync.js?v=8.5.1";
 
 const STORAGE_PREFIX = "vc_libro_excel_2026_v2";
 const SETTLEMENTS_PREFIX = "vc_asentamientos_cascada_2026_v1";
@@ -473,6 +474,7 @@ export async function initCaptureMatrix2026(context) {
     municipalities: [],
     elabora: identity.name || "",
     settlementsCache: new Map(),
+    semesterCloudCache: new Map(),
     collabProjects: [], // [{ id, nombre, tipo, municipios:Set }]
     collabLoaded: false,
     sectionsData: {}, // sectionId -> rows[]
@@ -591,6 +593,7 @@ export async function initCaptureMatrix2026(context) {
     if (state.saveTimer) clearTimeout(state.saveTimer);
     state.saveTimer = setTimeout(() => {
       saveActiveMonthNow();
+      state.semesterCloudCache.clear();
     }, 300);
 
     if (state.cloudSyncTimer) clearTimeout(state.cloudSyncTimer);
@@ -651,6 +654,7 @@ export async function initCaptureMatrix2026(context) {
       });
 
       saveActiveMonthNow();
+      state.semesterCloudCache.clear();
 
       const hhmm = new Date().toLocaleTimeString("es-MX", {
         hour: "2-digit",
@@ -769,6 +773,7 @@ export async function initCaptureMatrix2026(context) {
 
       if (changed) {
         saveActiveMonthNow();
+      state.semesterCloudCache.clear();
         renderMonthSheet();
         setStatus("Sincronizado con nube", "saved");
       }
@@ -1054,6 +1059,7 @@ export async function initCaptureMatrix2026(context) {
       btn.addEventListener("click", () => {
         if (state.activeTabId === tab.id) return;
         saveActiveMonthNow();
+      state.semesterCloudCache.clear();
         syncActiveMonthWithCloud({ showAlert: false });
         state.activeTabId = tab.id;
         loadActiveMonthData();
@@ -1520,6 +1526,7 @@ export async function initCaptureMatrix2026(context) {
     const inlineMpio = document.getElementById("excelInlineMunicipalitySelect");
     inlineMpio?.addEventListener("change", async () => {
       saveActiveMonthNow();
+      state.semesterCloudCache.clear();
       state.municipalityId = inlineMpio.value;
       await ensureSettlements(state.municipalityId);
       loadActiveMonthData();
@@ -1535,10 +1542,56 @@ export async function initCaptureMatrix2026(context) {
   }
 
   // Hoja de Concentrado Semestral automático (Concent. Sem 1 / Sem 2)
+  function getMergedMonthSectionsForSummary(monthNum, cloudByMonth) {
+    const stored = readMonthFromStorage(monthNum);
+    const cloudSecs = cloudByMonth?.get(monthNum) || null;
+    const out = {};
+    for (const sec of SECTIONS) {
+      const localList = (stored?.sectionsData?.[sec.id] || []).filter(isRowUsed);
+      const cloudList = cloudSecs?.[sec.id] || [];
+      if (!cloudSecs) {
+        out[sec.id] = localList;
+        continue;
+      }
+      const seenIds = new Set(cloudList.map((r) => r.recordId || r.id));
+      const localOnly = localList.filter((r) => !r.recordId && !seenIds.has(r.id));
+      out[sec.id] = [...cloudList, ...localOnly];
+    }
+    return out;
+  }
+
   function renderSummarySheet(semNumber) {
     const semMonths = MONTHS.filter((m) => m.sem === semNumber);
     const periodLabel =
       semNumber === 1 ? "De Enero a Julio" : "De Agosto a Diciembre";
+
+    const cacheKey = `${state.municipalityId}:${state.year}:SEM${semNumber}`;
+    if (
+      state.municipalityId &&
+      !String(state.municipalityId).startsWith("local-") &&
+      !state.semesterCloudCache.has(cacheKey)
+    ) {
+      state.semesterCloudCache.set(cacheKey, null);
+      fetchSemesterRowsFromCloud({
+        municipalityId: state.municipalityId,
+        year: state.year,
+        months: semMonths.map((m) => m.num),
+      })
+        .then((byMonth) => {
+          if (byMonth) {
+            state.semesterCloudCache.set(cacheKey, byMonth);
+            if (state.activeTabId === `SEM${semNumber}`) {
+              renderSummarySheet(semNumber);
+            }
+          }
+        })
+        .catch(() => {});
+    }
+
+    const cloudByMonth = state.semesterCloudCache.get(cacheKey);
+    const monthSectionsMap = new Map(
+      semMonths.map((m) => [m.num, getMergedMonthSectionsForSummary(m.num, cloudByMonth)])
+    );
 
     const rowsSummary = SECTIONS.map((sec) => {
       const demoTotals = {};
@@ -1547,8 +1600,7 @@ export async function initCaptureMatrix2026(context) {
       let totalPersonas = 0;
 
       for (const m of semMonths) {
-        const stored = readMonthFromStorage(m.num);
-        const list = stored?.sectionsData?.[sec.id] || [];
+        const list = monthSectionsMap.get(m.num)?.[sec.id] || [];
         for (const r of list) {
           if (!isRowUsed(r)) continue;
           countActs += 1;
@@ -1566,9 +1618,9 @@ export async function initCaptureMatrix2026(context) {
     // Cálculo automático del máximo de alumnos por taller continuo en el semestre
     const workshopPeaks = new Map();
     for (const m of semMonths) {
-      const stored = readMonthFromStorage(m.num);
+      const secs = monthSectionsMap.get(m.num) || {};
       for (const secId of ["talleres_cc", "salones"]) {
-        const list = stored?.sectionsData?.[secId] || [];
+        const list = secs[secId] || [];
         for (const r of list) {
           const name = String(r.titulo || "").trim();
           if (!name) continue;
@@ -1931,6 +1983,7 @@ export async function initCaptureMatrix2026(context) {
         rows.splice(idx, 1);
       }
       saveActiveMonthNow();
+      state.semesterCloudCache.clear();
       renderMonthSheet();
     }
   });

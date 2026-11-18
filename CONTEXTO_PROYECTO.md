@@ -211,3 +211,17 @@ Se consultó el listado de chats disponibles y una selección de turnos de «Sec
 No se recuperaron todos los turnos antiguos, chats de Work/entregas ZIP, adjuntos originales, aprobaciones institucionales, resultados actuales de diagnóstico ni configuración externa. No se incorporaron datos personales o asuntos ajenos al proyecto encontrados en conversaciones. Las decisiones recuperables necesarias para continuar quedan resumidas aquí; cualquier compromiso adicional debe verificarse con su fuente.
 
 No se modificó código funcional, configuración operativa, SQL ni servicios externos. No se ejecutaron migraciones, ni la suite que las aplica en memoria, ni commits/pushes.
+
+## 14. Actualización operativa (noviembre 2026)
+
+- **Captura operativa tipo Excel (`js/capture-matrix.js`, `js/capture-matrix-sync.js`, `assets/css/captura-matriz-2026.css`):**
+  - Libro mensual continuo (`ENE`–`DIC` + `Concent. Sem 1` / `Concent. Sem 2` conectados a Supabase) con los 8 bloques de Educación Continua y Mediación Cultural, suma automática por fila/sección, inclusión de **Primera infancia (0–5 años)** (`PRIMERA_INFANCIA_0_5`), **Recurso estatal / municipal ($$)** y exportación `.xlsx`.
+  - Cascada territorial (`Cabecera / Comunidad / Colonia`) con alta en Supabase mediante `v2.rpc_registrar_asentamiento_captura` (`sql/v2/13b_operacion_excel_y_3390.sql`).
+  - Guardado manual y autoguardado serializado contra `v2.registros` (`rpc_create_borrador_integral` / `rpc_update_borrador_con_comunidad`) y baja lógica de borradores propios al quitar fila con `v2.rpc_cancelar_borrador_propio`.
+- **Catálogo de Proyectos y Módulo 3390 (`sql/v2/13a_proyectos_catalogos_2026.sql`, `js/projects-admin.js`, `js/projects-3390.js`):**
+  - Tablas nuevas con RLS en `v2`: `cat_proyectos`, `proyecto_municipios` y `proyecto_gestores`. Unidad `CDCM` renombrada a `Casas de la Cultura` en `v2.cat_unidades_operativas` conservando clave `CDCM`.
+  - Administración en `admin.html` (pestaña **Proyectos**) para circuitos, regionales y `SOCIOCULTURAL_3390`.
+  - Bloque 7 de la captura Excel enlaza proyectos colaborativos por municipio; pestaña **Proyectos 3390** permite a gestores asignados capturar bitácoras/sesiones mensuales, adjuntar fotografías con `js/evidence.js` (`evidencias-v2`) y exportar `.xlsx`.
+- **Navegación y tablero único (`index.html`, `inteligencia.html`):**
+  - Se ocultaron las pestañas `Bitácora`, `Validación` y `Panel directivo` para consolidar el seguimiento en **Inteligencia Cultural** (`inteligencia.html`).
+  - **Pendiente de cierre:** definir regla `BORRADOR` vs `VALIDADO` para el conteo de metas en `rpc_inteligencia_cultural`, cotejar metas 2026 contra Planeación y retirar registros de prueba antes de producción.
