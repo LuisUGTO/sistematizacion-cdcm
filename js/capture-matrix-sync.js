@@ -191,7 +191,20 @@ async function resolveSpaceCached(ctx, municipalityId, unitId, rawName) {
 /**
  * Sincroniza con Supabase las filas nuevas o modificadas de un mes.
  */
-export async function syncMonthRowsToCloud({
+let syncQueue = Promise.resolve();
+
+/**
+ * Serializa las sincronizaciones: evita que el autoguardado, el botón
+ * "Guardar hoja" o varias pestañas del libro creen la misma fila más de una
+ * vez (se detectó la misma fila "PRUEBA" creada 3 veces en el mismo instante).
+ */
+export function syncMonthRowsToCloud(args) {
+  const run = syncQueue.then(() => syncMonthRowsToCloudInner(args));
+  syncQueue = run.catch(() => {});
+  return run;
+}
+
+async function syncMonthRowsToCloudInner({
   context,
   municipalityId,
   municipalityName,

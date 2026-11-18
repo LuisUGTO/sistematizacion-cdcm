@@ -26278,10 +26278,10 @@
   },
   {
     "archivo": "js/capture-matrix-sync.js",
-    "bytes": 14515,
-    "sha256": "9eb2931af94f2d00f6cb519d0965c03e49abc55d15be6348065689b34383f09f",
+    "bytes": 14955,
+    "sha256": "c5866f9dcf604a4a3de7d109dd2a3bcefd5467146ed0e6a9ce83e6c2e9336fba",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 488,
+    "lineas": 501,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -27165,6 +27165,16 @@
       "v2.rpc_import_historial",
       "v2_private.authorize_status_transition",
       "v2_private.protect_superadmin"
+    ]
+  },
+  {
+    "archivo": "sql/v2/13a_proyectos_catalogos_2026.sql",
+    "bytes": 6603,
+    "sha256": "dcd17101b097ea07230699d21038406607d9154d34318b38a70bdf5fff1dd810",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 164,
+    "funciones": [
+      "v2_private.touch_cat_proyectos"
     ]
   },
   {

@@ -11,5 +11,6 @@ test-results/
 # Herramientas locales y temporales de desarrollo
 .tools/
 tmp_cotizacion_firmada/
+actualizacion_sistema/
 __pycache__/
 *.pyc
