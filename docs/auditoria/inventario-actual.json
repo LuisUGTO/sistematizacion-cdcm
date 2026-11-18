@@ -15,10 +15,10 @@
   },
   {
     "archivo": ".gitignore",
-    "bytes": 257,
-    "sha256": "b5861a8dbb265d375b7e0ad039096828eab43f612617b82c800b5e23ab9841be",
+    "bytes": 280,
+    "sha256": "aeb94f74402411dc65468ae87d1b578b1193745e45460b63e30aca34d5f932b3",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 16
+    "lineas": 17
   },
   {
     "archivo": ".tools/faster_whisper/__pycache__/typing_extensions.cpython-312.pyc",
@@ -25540,10 +25540,10 @@
   },
   {
     "archivo": "admin.html",
-    "bytes": 51521,
-    "sha256": "90e80b62bb4790a8051fc153367abf8dff26f3f78898363a5e7a65a89f3f4f3a",
+    "bytes": 51742,
+    "sha256": "0e89fa9e4247e51569606043383653dbefb7f24a40e79f07ccb92d9fe9d793ff",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 319,
+    "lineas": 321,
     "referenciasLocalesAusentes": [],
     "scriptsInline": []
   },
@@ -26231,10 +26231,10 @@
   },
   {
     "archivo": "index.html",
-    "bytes": 210786,
-    "sha256": "3058725658954e5e8a683e0d3336c5d79600218947db914310a287b6cb837440",
+    "bytes": 211934,
+    "sha256": "9d39871e1981ae6d5ee37425a56102c5dadeef37c8ff18fc3820b48d085ec9f7",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 7995,
+    "lineas": 8030,
     "referenciasLocalesAusentes": [],
     "scriptsInline": [
       "PASS"
@@ -26278,19 +26278,19 @@
   },
   {
     "archivo": "js/capture-matrix-sync.js",
-    "bytes": 14955,
-    "sha256": "c5866f9dcf604a4a3de7d109dd2a3bcefd5467146ed0e6a9ce83e6c2e9336fba",
+    "bytes": 16758,
+    "sha256": "c671f79d35ef119f378caf1270fd797000d9faada3afd774fe0a3dcd04c71288",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 501,
+    "lineas": 566,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
   {
     "archivo": "js/capture-matrix.js",
-    "bytes": 70095,
-    "sha256": "ef1b136fce7de2e11d7cd9bb3ab8e4c0502f6e8e5d4e99dd7e34ed58fbb72212",
+    "bytes": 73673,
+    "sha256": "51936c65158300e2d1a4def51214268137670630385a651e5b647c97d4f1e9d0",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 2118,
+    "lineas": 2206,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -26435,6 +26435,24 @@
     "sha256": "afaa8596c238f7a84e0dc81193eb16409958388a3f58aa592b78d3d797b3139a",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
     "lineas": 163,
+    "sintaxis": "PASS",
+    "referenciasLocalesAusentes": []
+  },
+  {
+    "archivo": "js/projects-3390.js",
+    "bytes": 34532,
+    "sha256": "12e9e245dddf7abebae4ad3727de306e14ba206d22fcf0c3f2a253774f64d93b",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 820,
+    "sintaxis": "PASS",
+    "referenciasLocalesAusentes": []
+  },
+  {
+    "archivo": "js/projects-admin.js",
+    "bytes": 18096,
+    "sha256": "753cdc790b972ed20354f99a5729214c914214d54908f37cd60389c62c911e26",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 386,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },
@@ -27178,6 +27196,17 @@
     ]
   },
   {
+    "archivo": "sql/v2/13b_operacion_excel_y_3390.sql",
+    "bytes": 5702,
+    "sha256": "7d5387dc388eea6a35bf870ba90065329e3fb250f32b963612ed75060e5308ba",
+    "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
+    "lineas": 207,
+    "funciones": [
+      "v2.rpc_registrar_asentamiento_captura",
+      "v2.rpc_cancelar_borrador_propio"
+    ]
+  },
+  {
     "archivo": "supabase/functions/invite-user/index.ts",
     "bytes": 6066,
     "sha256": "781ccd54b0fc10adb64067af4ffc626905f9830edc1b7c7b759546f88f518b0d",
@@ -27186,10 +27215,10 @@
   },
   {
     "archivo": "sw.js",
-    "bytes": 3218,
-    "sha256": "3a712726eb42c8f8a1348b2b04ab08165ddd442efdd028c925c9217a8133bb84",
+    "bytes": 3273,
+    "sha256": "9605bf772f306ab2698bddb5b571f9474760e1f46d614b9b213cae8f0ce27ff4",
     "alcance": "Inspección estática automatizada; revisión manual focalizada por riesgo",
-    "lineas": 111,
+    "lineas": 113,
     "sintaxis": "PASS",
     "referenciasLocalesAusentes": []
   },

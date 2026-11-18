@@ -4927,6 +4927,16 @@
         </button>
 
         <button
+          id="projects3390TabButton"
+          class="tab-button"
+          type="button"
+          data-tab-target="proyectos3390"
+          hidden
+        >
+          Proyectos 3390
+        </button>
+
+        <button
           id="logTabButton"
           class="tab-button"
           type="button"
@@ -5983,6 +5993,13 @@
 
 
       <!-- ============================================================
+           PROYECTOS SOCIOCULTURALES 3390 (GESTORES)
+           ============================================================ -->
+
+      <section id="panel-proyectos3390" class="panel"></section>
+
+
+      <!-- ============================================================
            DASHBOARD
            ============================================================ -->
 
@@ -7028,7 +7045,12 @@
 
     import {
       initCaptureMatrix2026,
-    } from "./js/capture-matrix.js?v=8.4.3";
+    } from "./js/capture-matrix.js?v=8.5.0";
+
+    import {
+      initProjects3390Module,
+      fetchAssigned3390Projects,
+    } from "./js/projects-3390.js?v=1.0.0";
 
     import {
       initBitacoraV2,
@@ -7107,6 +7129,8 @@
 
       captureTabButton:
         document.getElementById("captureTabButton"),
+      projects3390TabButton:
+        document.getElementById("projects3390TabButton"),
       logTabButton:
         document.getElementById("logTabButton"),
       validationTabButton:
@@ -7444,6 +7468,17 @@
           await initCaptureMatrix2026(context);
         } catch (error) {
           console.error("Inicialización Matriz 2026:", error);
+        }
+
+        try {
+          const assigned3390 = await fetchAssigned3390Projects();
+          if (isAdmin(context) || assigned3390.length > 0) {
+            ui.projects3390TabButton.hidden = false;
+            ui.projects3390TabButton.disabled = false;
+            await initProjects3390Module(context, { preloadedProjects: assigned3390 });
+          }
+        } catch (error) {
+          console.warn("Inicialización Proyectos 3390:", error);
         }
 
         try {

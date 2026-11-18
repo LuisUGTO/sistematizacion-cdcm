@@ -1,4 +1,4 @@
-const CACHE_VERSION = "vinculacion-cultural-matriz-2026-09";
+const CACHE_VERSION = "vinculacion-cultural-matriz-2026-10";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -23,6 +23,8 @@ const REQUIRED_SHELL = [
   "./js/capture.js",
   "./js/capture-matrix.js",
   "./js/capture-matrix-sync.js",
+  "./js/projects-admin.js",
+  "./js/projects-3390.js",
   "./js/catalogs.js",
   "./js/evidence.js",
   "./js/bitacora.js",

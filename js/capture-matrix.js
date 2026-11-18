@@ -24,7 +24,10 @@ import {
 import {
   syncMonthRowsToCloud,
   fetchMonthRowsFromCloud,
-} from "./capture-matrix-sync.js?v=8.4.3";
+  fetchCollaborativeProjects,
+  registerSettlementInCloud,
+  cancelCloudDraftRow,
+} from "./capture-matrix-sync.js?v=8.5.0";
 
 const STORAGE_PREFIX = "vc_libro_excel_2026_v2";
 const SETTLEMENTS_PREFIX = "vc_asentamientos_cascada_2026_v1";
@@ -180,12 +183,6 @@ const SECTIONS = Object.freeze([
   },
 ]);
 
-const COLLAB_CATALOG_SEED = Object.freeze([
-  "Circuito Cultural Regional — Artes Escénicas",
-  "Encuentro Intermunicipal de Tradición y Memoria",
-  "Caravana Cultural Comunitaria",
-]);
-
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -223,6 +220,7 @@ function createBlankRow(kind) {
 
   return {
     id: makeRowId(),
+    proyectoId: "",
     titulo: "",
     subtitulo: "",
     tipo:
@@ -265,6 +263,7 @@ function rowTotalPeople(row) {
 
 function isRowUsed(row) {
   if (!row) return false;
+  if (String(row.proyectoId || "").trim() !== "") return true;
   if (String(row.titulo || "").trim() !== "") return true;
   if (String(row.subtitulo || "").trim() !== "") return true;
   if (String(row.docente || "").trim() !== "") return true;
@@ -474,6 +473,8 @@ export async function initCaptureMatrix2026(context) {
     municipalities: [],
     elabora: identity.name || "",
     settlementsCache: new Map(),
+    collabProjects: [], // [{ id, nombre, tipo, municipios:Set }]
+    collabLoaded: false,
     sectionsData: {}, // sectionId -> rows[]
     saveTimer: null,
     cloudSyncTimer: null,
@@ -802,17 +803,20 @@ export async function initCaptureMatrix2026(context) {
       }
     }
 
-    const list = dbRows.map((c) => ({
-      id: c.id,
-      nombre: c.nombre,
-      nombreConocido: "",
-      tipo:
+    const list = dbRows.map((c) => {
+      const isColoniaByType =
+        c.tipo_asentamiento_id === "4f6d826c-c399-4222-aaaa-2cc296be7999";
+      const isColoniaByName =
         String(c.nombre || "").toLowerCase().startsWith("col.") ||
-        String(c.nombre || "").toLowerCase().includes("colonia")
-          ? "COLONIA"
-          : "COMUNIDAD",
-      source: "BD",
-    }));
+        String(c.nombre || "").toLowerCase().includes("colonia");
+      return {
+        id: c.id,
+        nombre: c.nombre,
+        nombreConocido: "",
+        tipo: isColoniaByType || isColoniaByName ? "COLONIA" : "COMUNIDAD",
+        source: "BD",
+      };
+    });
 
     try {
       const localRaw = localStorage.getItem(settlementsKey(mpioId));
@@ -900,12 +904,24 @@ export async function initCaptureMatrix2026(context) {
         x.nombre.toLowerCase() === value.nombre.toLowerCase()
     );
     if (!item) {
+      let cloudRow = null;
+      if (state.municipalityId && !String(state.municipalityId).startsWith("local-")) {
+        try {
+          cloudRow = await registerSettlementInCloud({
+            municipalityId: state.municipalityId,
+            tipo: value.tipo,
+            nombre: value.nombre,
+          });
+        } catch (err) {
+          console.warn("No se pudo registrar comunidad/colonia en Supabase:", err);
+        }
+      }
       item = {
-        id: `asent_${Date.now().toString(36)}`,
-        nombre: value.nombre,
+        id: cloudRow?.id || `asent_${Date.now().toString(36)}`,
+        nombre: cloudRow?.nombre || value.nombre,
         nombreConocido: value.nombreConocido,
-        tipo: value.tipo,
-        source: "CASCADA_LOCAL",
+        tipo: cloudRow?.tipo_clave || value.tipo,
+        source: cloudRow?.id ? "CATALOGO_V2" : "CASCADA_LOCAL",
       };
       list.push(item);
       list.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
@@ -1197,14 +1213,27 @@ export async function initCaptureMatrix2026(context) {
         `);
 
         if (spec.hasProject) {
+          const available = state.collabProjects.filter(
+            (p) => p.municipios.has(state.municipalityId) || p.id === r.proyectoId
+          );
+          const legacyOnly = r.subtitulo && !r.proyectoId &&
+            !available.some((p) => p.nombre === r.subtitulo);
+          const emptyLabel = !state.collabLoaded
+            ? "— Cargando catálogo —"
+            : available.length
+              ? "— Seleccionar —"
+              : "— Sin proyectos asignados a tu municipio —";
           const opts = [
-            '<option value="">— Seleccionar —</option>',
-            ...COLLAB_CATALOG_SEED.map(
+            `<option value="">${escapeHtml(emptyLabel)}</option>`,
+            ...(legacyOnly
+              ? [`<option value="" selected>${escapeHtml(r.subtitulo)} (sin catálogo)</option>`]
+              : []),
+            ...available.map(
               (p) =>
-                `<option value="${escapeHtml(p)}"${r.subtitulo === p ? " selected" : ""}>${escapeHtml(p)}</option>`
+                `<option value="${escapeHtml(p.id)}"${r.proyectoId === p.id || (!r.proyectoId && r.subtitulo === p.nombre) ? " selected" : ""}>${escapeHtml(p.nombre)}</option>`
             ),
           ].join("");
-          tds.push(`<td><select class="excel-cell-select" data-field="subtitulo">${opts}</select></td>`);
+          tds.push(`<td><select class="excel-cell-select" data-field="proyectoId">${opts}</select></td>`);
         }
 
         if (spec.hasEventName || spec.hasPonente) {
@@ -1804,6 +1833,16 @@ export async function initCaptureMatrix2026(context) {
       return;
     }
 
+    if (field === "proyectoId") {
+      const selectedProj = state.collabProjects.find((p) => p.id === target.value);
+      row.proyectoId = selectedProj ? selectedProj.id : "";
+      row.subtitulo = selectedProj ? selectedProj.nombre : "";
+      row._dirty = true;
+      refreshSectionTotalsInDom(secId);
+      scheduleSave();
+      return;
+    }
+
     if (field) {
       row[field] = target.value;
       row._dirty = true;
@@ -1812,7 +1851,7 @@ export async function initCaptureMatrix2026(context) {
     }
   });
 
-  els.canvas.addEventListener("click", (event) => {
+  els.canvas.addEventListener("click", async (event) => {
     const addBtn = event.target.closest("button[data-add-row]");
     if (addBtn) {
       const secId = addBtn.dataset.addRow;
@@ -1850,12 +1889,48 @@ export async function initCaptureMatrix2026(context) {
       const rows = state.sectionsData[secId] || [];
       const idx = rows.findIndex((r) => r.id === tr.dataset.rowId);
       if (idx === -1) return;
+
+      const targetRow = rows[idx];
+      if (targetRow?.estatus === "VALIDADO" || targetRow?.estatus === "EN_REVISION") {
+        window.Swal?.fire({
+          icon: "warning",
+          title: "Registro protegido",
+          text: "Esta fila ya fue enviada a revisión o validada y no puede quitarse desde la hoja.",
+        });
+        return;
+      }
+
+      if (targetRow?.recordId) {
+        if (window.Swal) {
+          const confirmDel = await window.Swal.fire({
+            icon: "question",
+            title: "Quitar fila guardada",
+            text: `¿Deseas quitar "${targetRow.titulo || sec?.jumpLabel || "esta fila"}" de este mes? También se retirará de Supabase.`,
+            showCancelButton: true,
+            confirmButtonText: "Sí, quitar",
+            cancelButtonText: "Cancelar",
+          });
+          if (!confirmDel.isConfirmed) return;
+        }
+        try {
+          await cancelCloudDraftRow(targetRow.recordId);
+        } catch (err) {
+          console.warn("No se pudo retirar el borrador en Supabase:", err);
+          window.Swal?.fire({
+            icon: "error",
+            title: "No se pudo quitar en Supabase",
+            text: err?.message || "Intenta nuevamente en unos segundos.",
+          });
+          return;
+        }
+      }
+
       if (rows.length <= 1) {
         state.sectionsData[secId] = [createBlankRow(sec?.kind || "WORKSHOP_CC")];
       } else {
         rows.splice(idx, 1);
       }
-      scheduleSave();
+      saveActiveMonthNow();
       renderMonthSheet();
     }
   });
@@ -2098,8 +2173,21 @@ export async function initCaptureMatrix2026(context) {
   loadActiveMonthData();
   renderCurrentView();
 
-  // Carga asíncrona de municipios asignados, localidades e hidratación desde Supabase
+  // Carga asíncrona de municipios asignados, localidades, catálogo de proyectos colaborativos e hidratación desde Supabase
   if (context) {
+    fetchCollaborativeProjects()
+      .then((projs) => {
+        state.collabProjects = projs;
+        state.collabLoaded = true;
+        if (state.activeTabId !== "SEM1" && state.activeTabId !== "SEM2") {
+          renderMonthSheet();
+        }
+      })
+      .catch((err) => {
+        state.collabLoaded = true;
+        console.warn("No se pudo cargar catálogo de proyectos colaborativos:", err);
+      });
+
     try {
       const mpios = await loadMunicipalities(context);
       if (Array.isArray(mpios) && mpios.length > 0) {

@@ -191,6 +191,68 @@ async function resolveSpaceCached(ctx, municipalityId, unitId, rawName) {
 /**
  * Sincroniza con Supabase las filas nuevas o modificadas de un mes.
  */
+export async function fetchCollaborativeProjects() {
+  const [projRes, munRes] = await Promise.all([
+    dbV2()
+      .from("cat_proyectos")
+      .select("id,tipo,nombre,circuito_nombre,region_id")
+      .in("tipo", ["COLABORATIVO_CIRCUITO", "COLABORATIVO_REGIONAL"])
+      .eq("activo", true)
+      .order("nombre", { ascending: true }),
+    dbV2()
+      .from("proyecto_municipios")
+      .select("proyecto_id,municipio_id"),
+  ]);
+
+  if (projRes.error) throw projRes.error;
+  const munMap = new Map();
+  for (const link of munRes.data || []) {
+    if (!munMap.has(link.proyecto_id)) {
+      munMap.set(link.proyecto_id, new Set());
+    }
+    munMap.get(link.proyecto_id).add(link.municipio_id);
+  }
+
+  return (projRes.data || []).map((p) => ({
+    id: p.id,
+    tipo: p.tipo,
+    nombre: p.nombre,
+    circuito_nombre: p.circuito_nombre || "",
+    region_id: p.region_id || "",
+    municipios: munMap.get(p.id) || new Set(),
+  }));
+}
+
+export async function registerSettlementInCloud({
+  municipalityId,
+  tipo,
+  nombre,
+}) {
+  if (!municipalityId || String(municipalityId).startsWith("local-")) {
+    return null;
+  }
+  const { data, error } = await dbV2()
+    .rpc("rpc_registrar_asentamiento_captura", {
+      p_municipio_id: municipalityId,
+      p_tipo_clave: tipo || "COLONIA",
+      p_nombre: nombre,
+    })
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function cancelCloudDraftRow(recordId) {
+  if (!recordId) return null;
+  const { data, error } = await dbV2()
+    .rpc("rpc_cancelar_borrador_propio", {
+      p_registro_id: recordId,
+    })
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 let syncQueue = Promise.resolve();
 
 /**
@@ -284,14 +346,16 @@ async function syncMonthRowsToCloudInner({
 
       const metadata = {
         frontend: {
-          version: "8.4.0",
+          version: "8.5.0",
           capture_module: "excel_matrix_2026",
         },
+        proyecto_id: r.proyectoId || null,
         libro_excel_2026: {
           year: String(year),
           month: String(monthNum).padStart(2, "0"),
           sectionId: sec.id,
           rowClientId: r.id,
+          proyectoId: r.proyectoId || null,
           elabora: elabora || "",
           zona: r.zona || "CABECERA",
           asentamientoNombre: r.asentamientoNombre || "",
@@ -460,6 +524,7 @@ export async function fetchMonthRowsFromCloud({
       estatus: row.estatus || "BORRADOR",
       rowVersion: row.row_version || 1,
       _dirty: false,
+      proyectoId: excelMeta.proyectoId || row.metadata?.proyecto_id || "",
       titulo: row.nombre || "",
       subtitulo: row.descripcion || "",
       zona: excelMeta.zona || "CABECERA",
